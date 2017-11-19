@@ -7,7 +7,7 @@ providers: [
           project: "/home/tommydong/Documents/CPP"
           source: "/home/tommydong/Documents/CPP/.build-tools.cson"
           name: "make"
-          command: "g++ %f -O2 -std=c++11 -Werror -Wall -Wextra -Wshadow -Dbrian"
+          command: "g++ %f -O2 -std=c++11 -Werror -Wall -Wextra -Wshadow -Dtmd"
           wd: "."
           env: {}
           modifier:
