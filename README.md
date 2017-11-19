@@ -1,7 +1,7 @@
 # online-judge
 > by @ToMmDong
 
-###compile script:
+### compile script:
 
 ```
 g++ %f -O2 -std=c++11 -Werror -Wall -Wextra -Wshadow -Dtmd
