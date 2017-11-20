@@ -67,3 +67,4 @@ int main() {
 	cout<<ex(tmp,m-1)<<endl;
 
 }
+//details: https://gist.github.com/dl8sd11/7d2b42049a3a29509a4fafdfdb11bb80
