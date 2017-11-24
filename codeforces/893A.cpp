@@ -51,7 +51,25 @@ const ll MOD = 1000000007;
 int main()
 {
   IOS();
-
+  int n;
+  cin>>n;
+  int spec = 3;
+  int win;
+  bool flag = false;
+  REP(i,n) {
+    cin>>win;
+    if (win == spec) {
+      flag = true;
+      break;
+    }
+    spec = 6 - win - spec;
+    debug(spec);
+  }
+  if (!flag) {
+      cout<<"Yes"<<endl;
+  } else {
+    cout<<"No"<<endl;
+  }
 
 	return 0;
 }
