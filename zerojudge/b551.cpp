@@ -34,6 +34,7 @@ template<typename It> ostream& _OUTC(ostream &_s,It _ita,It _itb)
 }
 template<typename _a> ostream &operator << (ostream &_s,vector<_a> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _a> ostream &operator << (ostream &_s,set<_a> &_c){return _OUTC(_s,ALL(_c));}
+template<typename _a> ostream &operator << (ostream &_s,deque<_a> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _a,typename _b> ostream &operator << (ostream &_s,map<_a,_b> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS()
@@ -47,75 +48,45 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 const ll INF = (ll)1e18 + 7;
 const ll MOD = 1000000007;
 
+deque<int> q;
+int n,k;
 /********** Main()  function **********/
+void kill() {
+  REP (i,k - 1) {
+    int tmp = q.front();
+    q.pop_front();
+    q.push_back(tmp);
+  }
+  debug(q.front());
+  q.pop_front();
+  if(q.size()>1){
+    vector <int> m;
+    REP (i,k - 1) {
+      m.pb(q.front());
+      q.pop_front();
+    }
+    q.pb(q.front());
+    q.pop_front();
+    for(auto it: m) {
+      q.push_front(it);
+    }
+
+  }
+  debug(q);
+}
 int main()
 {
-  //IOS();
-  int n,m;
-  cin>>n>>m;
-  bool garden[n+2][m+2];
-  MEM(garden,0);
-  REP (i,n+2) {
-    garden[i][0] = 1;
-    garden[i][m+1] = 1;
-  }
-  REP (i,m+2) {
-    garden[0][i] = 1;
-    garden[n+1][i] = 1;
-  }
-  REP1 (i,n) {
-    REP1 (j,m) {
-      char input;
-      cin>>input;
-      if (input == 'X') {
-        garden[i][j] = 1;
-        debug(i);
-        debug(j);
-      }
-    }
-  }
-  //finish inputing
+  IOS();
 
-  vector<pair<int,int> > vp;
-  REP1 (j,m) {
-    REP1 (i,n) {
-      if (!(garden[i][j]||garden[i+1][j]||garden[i+2][j]||garden[i+1][j+1])) {
-        vp.pb(mp(i,j));
-        vp.pb(mp(i+1,j));
-        vp.pb(mp(i+2,j));
-        vp.pb(mp(i+1,j+1));
-      }
-      if (!(garden[i][j]||garden[i+1][j+1]||garden[i][j+1]||garden[i-1][j+1])) {
-        vp.pb(mp(i,j));
-        vp.pb(mp(i-1,j+1));
-        vp.pb(mp(i,j+1));
-        vp.pb(mp(i+1,j+1));
-      }
-      if (j != m) {
-        if (!(garden[i][j]||garden[i][j+2]||garden[i][j+1]||garden[i-1][j+1])) {
-          vp.pb(mp(i,j));
-          vp.pb(mp(i-1,j+1));
-          vp.pb(mp(i,j+1));
-          vp.pb(mp(i,j+2));
-        }
-      }
-      if (!(garden[i][j]||garden[i][j+2]||garden[i][j+1]||garden[i+1][j+1])) {
-        vp.pb(mp(i,j));
-        vp.pb(mp(i,j+1));
-        vp.pb(mp(i+1,j+1));
-        vp.pb(mp(i,j+2));
-      }
+  while(cin>>n) {
+    cin>>k;
+    k %= n;
+    REP1 (i,n) q.pb(i);
+    debug(q);
+    while(q.size() != 1) {
+      kill();
     }
-  }
-  cout<<vp.size()/4<<endl;
-  int cnt = 0;
-  for (auto it: vp) {
-    cout<<" ("<<it.Y - 1<<','<<it.X - 1<<") ";
-    cnt++;
-    if (cnt == 4) {
-      cout<<endl;
-      cnt = 0;
-    }
+    cout<<(n+2-q.front())%n<<endl;
   }
 	return 0;
 }
