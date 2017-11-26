@@ -7,7 +7,7 @@ typedef long long ll;
 #define REP(i, j) FOR(i, 0, j, 1)
 #define REP1(i,j) FOR(i, 1, j+1, 1)
 #define RREP(i, j) RFOR(i, j, 0, 1)
-#define all(cont) cont.begin(), cont.end()
+#define ALL(_a) _a.begin(),_a.end()
 #define FOREACH(it, l) for (auto it = l.begin(); it != l.end(); it++)
 #define mp make_pair
 #define pb push_back
