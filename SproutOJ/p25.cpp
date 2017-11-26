@@ -87,7 +87,6 @@ public:
   Node *getTail(){
     return this->tail;
   }
-
   int front(){
     return head->data;
   }
@@ -112,6 +111,9 @@ public:
       head = that->getHead();
       tail = that->getTail();
       that->clear();
+      return;
+    }
+    if(that->head == NULL) {
       return;
     }
     tail->next = that->getHead();
@@ -148,7 +150,7 @@ int main()
       if(store[i-1].getHead()){
         store[i-1].pop();
       } else {
-        cout<<"queue "<<i<<" is empty"<<endl;
+        cout<<"queue "<<i<<" is empty!"<<endl;
       }
     } else if (cmd == "JOIN") {
       int i,j;
