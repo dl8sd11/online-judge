@@ -58,6 +58,7 @@ int main(){
   string s;
   cin>>s;
   REP (u,m) {
+
     int l,r;
     char tg,el;
     cin>>l>>r>>tg>>el;
@@ -65,5 +66,6 @@ int main(){
       if (s.at(i-1) == tg) s.at(i-1) = el;
     }
   }
+  n+=5;
   cout<<s<<endl;
 }
