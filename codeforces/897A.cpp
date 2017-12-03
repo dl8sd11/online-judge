@@ -13,7 +13,7 @@ typedef pair<ll,ll> ii;
 #define ALL(_a) _a.begin(),_a.end()
 #define pb push_back
 #define mp make_pair
-#ifdef brian
+#ifdef tmd
 #define debug(...) do{\
     fprintf(stderr,"%s - %d (%s) = ",__PRETTY_FUNCTION__,__LINE__,#__VA_ARGS__);\
     _do(__VA_ARGS__);\
@@ -53,7 +53,6 @@ const ll INF=ll(1e15);
 
 int main(){
   IOS();
-  cout<<"DEBUG"<<endl;
   int n,m;
   cin>>n>>m;
   string s;
