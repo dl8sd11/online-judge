@@ -53,11 +53,12 @@ const ll INF=ll(1e15);
 
 int main(){
   IOS();
+  cout<<"DEBUG"<<endl;
   int n,m;
   cin>>n>>m;
   string s;
   cin>>s;
-  REP (i,m) {
+  REP (u,m) {
     int l,r;
     char tg,el;
     cin>>l>>r>>tg>>el;
