@@ -86,11 +86,14 @@ void insert(int n, Node *parent){
     root->par = NULL;
   }
 }
-void query(int n){
+void query(int n){ //maybe ac
   Node *it = root;
+  //if(!root)while(1){} no problem
   pair<int,int> ret;
   ret.X = root->data;
+  ret.Y = root->data;
   while (it != NULL) {
+    //if(!it->data)while(1){} no problem
     if (abs(it->data - n) < abs(ret.X - n)) {
       ret.X = it->data;
       ret.Y = it->data;
@@ -106,13 +109,14 @@ void query(int n){
   if (ret.X == ret.Y) {
     cout<<ret.X<<endl;
   } else {
-    cout<<ret.X<<' '<<ret.Y<<endl;
+    cout<<min(ret.X,ret.Y)<<' '<<max(ret.X,ret.Y)<<endl;
   }
 }
 void del(int n){
   Node *it = root;
-
+  //if(!root)while(1){} no problem
   while(it!=NULL) {
+    //if(!it->data)while(1){} no problem
     if (n > it->data) {
       it = it->right;
     } else if (n == it->data) {
@@ -122,7 +126,7 @@ void del(int n){
     }
   }
   // if (it == NULL) while(1){} TLE
-  if(root == it)debug("GOT");
+  //if(root == it)debug("GOT");
   Node *leaf;
   if (it->right) {
     leaf = it->right;
@@ -152,8 +156,15 @@ void del(int n){
         it->par->right = it->left;
         delete it;
       }
+      if(it->left)it->left->par = it->par;
+      if(it->right)it->right->par = it->par;
     } else {
       root = it->left;
+      if(root){
+        root->par = NULL;
+      }
+
+
     }
   }
 
@@ -176,7 +187,15 @@ int main()
     } else {
       del(x);
     }
-    debug("Done");
+    debug(root);
+    if(root){
+      debug(root->left);
+      debug(root->right);
+      debug(root->data);
+      debug(root->par);
+    }
+
+    //debug("Done");
   }
 	return 0;
 }
