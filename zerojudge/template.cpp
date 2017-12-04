@@ -5,7 +5,7 @@ typedef long long ll;
 #define FOR(i, j, k, in) for (ll i=j ; i<k ; i+=in)
 #define RFOR(i, j, k, in) for (ll i=j ; i>=k ; i-=in)
 #define REP(i, j) FOR(i, 0, j, 1)
-#define REP1(i,j) FOR(i, 1, j, 1)
+#define REP1(i,j) FOR(i, 1, j+1, 1)
 #define RREP(i, j) RFOR(i, j, 0, 1)
 #define ALL(_a) _a.begin(),_a.end()
 #define FOREACH(it, l) for (auto it = l.begin(); it != l.end(); it++)
