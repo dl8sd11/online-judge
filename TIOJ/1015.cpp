@@ -71,10 +71,10 @@ void IOS (){
 int main()
 {
 	IOS();
-	int n,m;cin>>n>>m;
+	uint64 n,m;cin>>n>>m;
 	while (n) {
 		if (n > m) swap(n,m);
-		int64 sum = 0;
+		uint64 sum = 0;
 		sum = n*(n+1)*(2*n+1)/6 + (m-n)*(n+1)*n/2;
 		cout<<sum<<endl;
 		cin>>n>>m;

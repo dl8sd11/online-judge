@@ -48,9 +48,38 @@ const ll INF = (ll)1e18 + 7;
 const ll MOD = 1000000007;
 
 /********** Main()  function **********/
+int myExp(int a,int x){
+  if (x == 0) return 1;
+  if (x == 1) return a;
+  int b = myExp(a,x/2);
+  return (a&1)?b*b*a:b*b;
+}
 int main()
 {
   IOS();
+  int n,k;
+  while (cin>>n) {
+    cin>>k;
+    ll sum = 0;
+    if (k) {
+      int f = n;
+      while (f >= 10) f /= 10;
+      debug(f);
 
+      int digi = double(log(n)) /double(log(10));
+      debug(digi);
+      ll ex = myExp(10,digi - 1);
+      debug(ex);
+      if (f > k) {
+        sum += ex*10;
+      } else if (f == k) {
+        sum += n - ex*10*f +1;
+      }
+      sum += (f+1) * ex * digi;
+    } else {
+
+    }
+    cout<<sum<<endl;
+  }
 	return 0;
 }
