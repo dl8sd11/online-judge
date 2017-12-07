@@ -61,23 +61,29 @@ int main()
   while (cin>>n) {
     cin>>k;
     ll sum = 0;
-    if (k) {
-      int f = n;
-      while (f >= 10) f /= 10;
-      debug(f);
-
-      int digi = double(log(n)) /double(log(10));
-      debug(digi);
-      ll ex = myExp(10,digi - 1);
-      debug(ex);
-      if (f > k) {
-        sum += ex*10;
-      } else if (f == k) {
-        sum += n - ex*10*f +1;
+    ll ten = 1;
+    int tn = n;
+    while (n) {
+      debug(sum);
+      int dsum = 0;
+      if (n / 10) {
+        dsum += n / 10;
+        if (n % 10 < k) dsum --;
+        if (k % 10) dsum ++;
+      } else {
+        if (k <= n) dsum++;
+        if (!k) dsum--;
       }
-      sum += (f+1) * ex * digi;
-    } else {
 
+      debug(dsum);
+      dsum *= ten;
+      if (n % 10 == k) { //what if dsum = 0?
+        dsum -= ten - (tn % ten) - 1;
+      }
+                //0
+      n /= 10;
+      sum += dsum;
+      ten *= 10;
     }
     cout<<sum<<endl;
   }
