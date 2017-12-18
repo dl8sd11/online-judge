@@ -46,8 +46,8 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll INF = (ll)1e18 + 7;
 const ll MOD = 1000000007;
+const ll MAXN = 3e5;
 
-/********** Main()  function **********/
 int main()
 {
   IOS();
