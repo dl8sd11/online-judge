@@ -47,88 +47,39 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 const ll INF = (ll)1e18 + 7;
 const ll MOD = 1000000007;
 const ll MAXN = 3e5;
-
+int n,m;
+vector<int> e[1007];
+bool visited[1007];
+void dfs(int cur) {
+  for(auto it:e[cur]) {
+    if (!visited[it]) {
+      visited[it] = 1;
+      dfs(it);
+    }
+  }
+}
 int main()
 {
   IOS();
   int t;
   cin>>t;
   while (t--) {
-    int n;
-    cin>>n;
-    queue<pair<int,int> > p[3];
-    int status[n][n] = {};
-    bool visited[3][n+2][n+2];
-    REP (u,3) {
-      REP (i,n+2) {
-        visited[u][i][0] = 1;
-        visited[u][0][i] = 1;
-        visited[u][n+1][i] = 1;
-        visited[u][i][n+1] = 1;
-      }
-    }
-    int cnt[8] = {};
-    REP (i,3) {
-      char color;
-      int a,b,j;
-      cin>>color;
+    REP (i,1007) e[i].clear();
+    MEM(visited,0);
+    cin>>n>>m;
+    REP (i,m) {
+      int a,b;
       cin>>a>>b;
-      if (color == 'Y') j = 0;
-      else if (color == 'B') j = 1;
-      else  j = 2;
-      visited[j][a+1][b+1] = 1;
-      p[j].push(mp(a+1,b+1));
-      p[j].push(mp(-1,-1));
-      j*=2;
-      if (!j) j++;
-      status[a][b] = j;
-      cnt[status[a][b]]++;
+      e[a].pb(b);
+      e[b].pb(a);
     }
-    int tg;
-    char tmp;
-    cin>>tmp;
-    if (tmp == 'R') tg = 4;
-    else if (tmp == 'Y') tg = 1;
-    else if (tmp == 'B') tg = 2;
-    else if (tmp == 'O') tg = 5;
-    else if (tmp == 'P') tg = 6;
-    else if (tmp == 'G') tg = 3;
-    else tg = 7;
     int ans = 0;
-    while (p[0].size()||p[1].size()||p[2].size()) {
-      debug(p[0].size());
-      REP (i,3) {
-        while (p[i].size()) {
-          debug(i);
-          pair<int,int> cur = p[i].front();
-          debug(p[i].front());
-          p[i].pop();
-          debug(p[i].size());
-          int cx = cur.X;
-          int cy = cur.Y;
-          if (cx < 0) {
-            p[i].push(mp(-1,-1));
-            if (p[i].front().X < 0) p[i].pop();
-            break;
-          }
-          cnt[status[cx-1][cy-1]]--;
-          status[cx-1][cy-1]+= !i?i+1:i*2;
-          cnt[status[cx-1][cy-1]]++;
-          REP (j,9) {
-            int dx = cx;
-            int dy = cy;
-            if (j<3) dx--;
-            else if (j>=6) dx++;
-            if (j%3 == 0) dy++;
-            else if (j%3 == 2) dy--;
-            if (!visited[i][dx][dy]) {
-              p[i].push(mp(dx,dy));
-              visited[i][dx][dy] = 1;
-            }
-          }
-        }
+    REP (i,n) {
+      if (!visited[i]) {
+        ans++;
+        visited[i] = 1;
+        dfs(i);
       }
-      ans = max(ans,cnt[tg]);
     }
     cout<<ans<<endl;
   }
