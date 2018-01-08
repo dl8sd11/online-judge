@@ -44,41 +44,40 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
 #endif
 
-const ll INF = (ll)1e18 + 7;
+const int INF = (int)2e9 + 7;
 const ll MOD = 1000000007;
-const ll MAXN = 2003;
-ll n,a,b,k;
-ll dp[2][MAXN];
+const ll MAXN = 3e5+7;
+int t,n,m,l,r;
+int a[MAXN];
+int dp[MAXN]; //The minimun value which can hold the lingth idx
+int findMin(int x){
+  l = 0, r= MAXN-1;
+  while (r-l>1) {
+    int mid = (r+l)/2;
+    if (x>=dp[mid]) l = mid;
+    else r = mid;
+  }
+  return l+1;
+}
 int main()
 {
   IOS();
-  cin>>n>>a>>b>>k;
-  if (a>b) {
-    ll ta = a, tb = b;
-    a = n-ta+1;
-    b = n-tb+1;
-  }
-  debug(mp(a,b));
-  MEM(dp,0);
-  bool roll = 0;
-  dp[0][a] = 1;
-  REP1 (i,k) {
-    ll sum = 0;
-    ll idx = -1;
-    roll = !roll;
-    REP1 (j,b-1) {
-      ll r = ceil((b+j)/2.0);
-      for (int l=idx+1;l<r;l++) sum += dp[!roll][l], sum %=MOD;
-      idx =r-1;      
-      int tsum = (sum - dp[!roll][j]) % MOD;
-      if (tsum<0) tsum += MOD;
-      dp[roll][j] = tsum;
-      //debug(sum);
-    }
+  cin>>t;
+  while (t--) {
+    cin>>n>>m;
+    REP (i,n) cin>>a[i];
+    REP (i,MAXN) dp[i] = INF;
+    dp[0] = 0;
+    REP (i,n) {
+      int x = findMin (a[i]);
+      int x2 = findMin(a[i]*2);
 
+      if (a[i]>=m) dp[x] = min(dp[x],a[i]);
+      if (a[i]*2>=m) dp[x2] = min(dp[x2],a[i]*2);
+    }
+    int ans = 0;
+    REP (i,MAXN) if (dp[i]<INF) ans = i;
+    cout<<ans<<endl;
   }
-  ll ans = 0;
-  REP1 (i,MAXN-1) ans += dp[roll][i],ans%=MOD;
-  cout<<ans<<endl;
 	return 0;
 }

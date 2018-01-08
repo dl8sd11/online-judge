@@ -46,39 +46,52 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll INF = (ll)1e18 + 7;
 const ll MOD = 1000000007;
-const ll MAXN = 2003;
-ll n,a,b,k;
-ll dp[2][MAXN];
+const ll MAXN = int(1e6) + 7;
+int t,n;
+int a[MAXN];
+int cmd,x,y;
+struct Node {
+  int l,r;
+  Node *lc, *rc; //[)
+  int data;
+  Node (int li,int ri,Node *lci,Node *rci,int di):l(li),r(ri),lc(lci),rc(rci),data(di){}
+};
+Node *build(int l,int r) {
+  if (r-l==1) {return new Node(l,r,NULL,NULL,a[l]);}
+  Node *now =  new Node(l,r,build(l,(l+r)/2),build((l+r)/2,r),0);
+  now->data = min(now->lc->data,now->rc->data);
+  return now;
+}
+int query(int l,int r,Node *now) {
+  if (l==now->l&&r==now->r)return now->data;
+  int mid = (now->l+now->r)/2;
+  if (r<=mid) return query(l,r,now->lc);
+  if (l>=mid) return query(l,r,now->rc);
+  return min(query(l,mid,now->lc),query(mid,r,now->rc));
+}
+void mody (int l,int data,Node *now) {
+  if (l==now->l&&l+1==now->r) {
+    now->data = data;
+    return;
+  }
+  if (l>=(now->l+now->r)/2) {
+    mody(l,data,now->rc);
+    now->data = min(now->lc->data,now->rc->data);
+  } else {
+    mody(l,data,now->lc);
+    now->data = min(now->lc->data,now->rc->data);
+  }
+}
 int main()
 {
   IOS();
-  cin>>n>>a>>b>>k;
-  if (a>b) {
-    ll ta = a, tb = b;
-    a = n-ta+1;
-    b = n-tb+1;
+  cin>>t>>n;
+  REP (i,n) cin>>a[i];
+  Node *root = build(0,n);
+  while (t--) {
+    cin>>cmd>>x>>y;
+    if (cmd == 1) cout<<query(x,y+1,root)<<endl;
+    else mody(x,y,root);
   }
-  debug(mp(a,b));
-  MEM(dp,0);
-  bool roll = 0;
-  dp[0][a] = 1;
-  REP1 (i,k) {
-    ll sum = 0;
-    ll idx = -1;
-    roll = !roll;
-    REP1 (j,b-1) {
-      ll r = ceil((b+j)/2.0);
-      for (int l=idx+1;l<r;l++) sum += dp[!roll][l], sum %=MOD;
-      idx =r-1;      
-      int tsum = (sum - dp[!roll][j]) % MOD;
-      if (tsum<0) tsum += MOD;
-      dp[roll][j] = tsum;
-      //debug(sum);
-    }
-
-  }
-  ll ans = 0;
-  REP1 (i,MAXN-1) ans += dp[roll][i],ans%=MOD;
-  cout<<ans<<endl;
 	return 0;
 }

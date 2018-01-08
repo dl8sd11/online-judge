@@ -46,39 +46,62 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll INF = (ll)1e18 + 7;
 const ll MOD = 1000000007;
-const ll MAXN = 2003;
-ll n,a,b,k;
-ll dp[2][MAXN];
+const ll MAXN = int(1e5) + 3;
+ll n,q;
+ll a[MAXN];
+struct node{
+  ll l,r;
+  node *lc, *rc;
+  ll dl,dr,dx,da;
+  node(ll li,ll ri,node *lci,node *rci,ll dli,ll dri,ll dxi,ll dai):l(li),r(ri),lc(lci),rc(rci),dl(dli),dr(dri),dx(dxi),da(dai){}
+};
+struct data{
+  ll dl,dr,dx,da;
+  data(){}
+  data(ll dli,ll dri, ll dxi,ll dai):dl(dli),dr(dri),dx(dxi),da(dai){}
+};
+node *build(ll l,ll r) {
+  if (r==l+1) return new node(l,r,NULL,NULL,a[l],a[l],a[l],a[l]);
+  ll mid = (l+r)/2;
+  node *ret = new node(l,r,0,0,0,0,0,0);
+  ret->lc = build(l,mid);
+  ret->rc = build(mid,r);
+  ret->da = ret->lc->da + ret->rc->da;
+  ret->dl = max(ret->lc->dl,ret->lc->da+ret->rc->dl);
+  ret->dr = max(ret->rc->dr,ret->rc->da+ret->lc->dr);
+  ret->dx = max(ret->lc->dx,ret->rc->dx); // check
+  ret->dx = max(ret->dx,ret->lc->dr+ret->rc->dl);
+  return ret;
+}
+data query(ll l,ll r,node *now) {
+  debug(mp(l,r));
+  if (l==now->l&&r==now->r) return data(now->dl,now->dr,now->dx,now->da);
+  ll mid = (now->l+now->r)/2;
+  if (r<=mid) return query(l,r,now->lc);
+  if (l>=mid) return query(l,r,now->rc);
+  data ldata, rdata, ret;
+  ldata = query(l,mid,now->lc);
+  rdata = query(mid,r,now->rc);
+  ret.da = ldata.da+rdata.da;
+  ret.dl = max(ldata.dl,ldata.da+rdata.dl);
+  ret.dr = max(rdata.dr,rdata.da+ldata.dr);
+  ret.dx = max(ldata.dx,rdata.dx); // check
+  ret.dx = max(ret.dx,ldata.dr+rdata.dl);
+  return ret;
+}
 int main()
 {
   IOS();
-  cin>>n>>a>>b>>k;
-  if (a>b) {
-    ll ta = a, tb = b;
-    a = n-ta+1;
-    b = n-tb+1;
+  cin>>n>>q;
+  REP (i,n)cin>>a[i];
+  node *root = build(0,n);
+  REP (i,q) {
+    ll l,r;
+    cin>>l>>r;
+    ll ans = query(l-1,r,root).dx;
+    debug(ans);
+    if (ans < 0) ans = 0;
+    cout<<ans<<endl;
   }
-  debug(mp(a,b));
-  MEM(dp,0);
-  bool roll = 0;
-  dp[0][a] = 1;
-  REP1 (i,k) {
-    ll sum = 0;
-    ll idx = -1;
-    roll = !roll;
-    REP1 (j,b-1) {
-      ll r = ceil((b+j)/2.0);
-      for (int l=idx+1;l<r;l++) sum += dp[!roll][l], sum %=MOD;
-      idx =r-1;      
-      int tsum = (sum - dp[!roll][j]) % MOD;
-      if (tsum<0) tsum += MOD;
-      dp[roll][j] = tsum;
-      //debug(sum);
-    }
-
-  }
-  ll ans = 0;
-  REP1 (i,MAXN-1) ans += dp[roll][i],ans%=MOD;
-  cout<<ans<<endl;
 	return 0;
 }
