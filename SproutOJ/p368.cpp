@@ -108,14 +108,14 @@ void sets(ll l,ll r,node *now, ll data) {
     return;
   }
   if (now->l == l && now->r == r){
-    if (now->da)now->da = 0;
+    if (now->da) now->da = 0;
     now->ds = data;
     return;
   }
   ll mid = (now->l+now->r)/2;
   if (now->da) {
     add(now->l,mid,now->lc,now->da);
-    add(mid,now->l,now->rc,now->da);
+    add(mid,now->r,now->rc,now->da);
     now->da = 0;
   }
 
