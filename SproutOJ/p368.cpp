@@ -114,6 +114,8 @@ void sets(ll l,ll r,node *now, ll data) {
   }
   ll mid = (now->l+now->r)/2;
   if (now->da) {
+    add(now->l,mid,now->lc,now->da);
+    add(mid,now->l,now->rc,now->da);
     now->da = 0;
   }
 
