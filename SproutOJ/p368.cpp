@@ -107,14 +107,16 @@ void sets(ll l,ll r,node *now, ll data) {
     now->d = data;
     return;
   }
+  if (now->l == l && now->r == r){
+    if (now->da)now->da = 0;
+    now->ds = data;
+    return;
+  }
   ll mid = (now->l+now->r)/2;
   if (now->da) {
     now->da = 0;
   }
-  if (now->l == l && now->r == r){
-    now->ds = data;
-    return;
-  }
+
   if (r<=mid) {
     sets(l,r,now->lc,data);
     now->d = max(query(now->l,mid,now->lc),query(mid,now->r,now->rc));
