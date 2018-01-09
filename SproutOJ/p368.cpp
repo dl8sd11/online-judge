@@ -105,6 +105,7 @@ void add(ll l,ll r,node *now,ll data) {
 void sets(ll l,ll r,node *now, ll data) {
   if (now->r == now->l+1) {
     now->d = data;
+    now->da = 0;
     return;
   }
   if (now->l == l && now->r == r){
