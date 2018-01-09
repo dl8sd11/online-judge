@@ -105,7 +105,6 @@ void add(ll l,ll r,node *now,ll data) {
 void sets(ll l,ll r,node *now, ll data) {
   if (now->r == now->l+1) {
     now->d = data;
-    now->da = 0;
     return;
   }
   if (now->l == l && now->r == r){
@@ -118,6 +117,12 @@ void sets(ll l,ll r,node *now, ll data) {
     add(now->l,mid,now->lc,now->da);
     add(mid,now->r,now->rc,now->da);
     now->da = 0;
+  }
+  if (now->ds) {
+    sets(now->l,mid,now->lc,now->ds);
+    sets(mid,now->r,now->rc,now->ds);
+    now->d = now->ds;
+    now->ds = 0;
   }
 
   if (r<=mid) {
@@ -140,7 +145,6 @@ int main()
   cin>>n>>q;
   REP (i,n) cin>>a[i];
   node *root = build(0,n);
-  debug(root);
   while (q--) {
       cin>>cmd>>il>>ir;
       if (cmd == 1) {
