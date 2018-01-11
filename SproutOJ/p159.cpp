@@ -54,6 +54,7 @@ int c[MAXN],k[MAXN];
 bool dp[2][20003];
 int dq[203], MAXC;
 bool roll;
+int r;
 int main()
 {
   IOS();
@@ -71,18 +72,21 @@ int main()
       roll = !roll;
       MEM(dq,-1);
       MAXC = c[i]*k[i];
+      r=0;
       REP (j,m+1) {
-        int idx = j%c[i];
+        if (r>=c[i])r=0;
         if (dp[!roll][j]) {
           dp[roll][j] = 1;
-          dq[idx] = j;
+          dq[r] = j;
         } else {
-          if (dq[idx]<j-MAXC)dq[idx] = -1;
-          if (dq[idx]>-1) {
+          if (dq[r]<j-MAXC)dq[r] = -1;
+          if (dq[r]>-1) {
             dp[roll][j] = 1;
           }
         }
+        r++;
       }
+
     }
     if (dp[roll][m]) cout<<"Yes"<<endl;
     else cout<<"No"<<endl;
