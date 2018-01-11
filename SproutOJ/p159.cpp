@@ -52,7 +52,8 @@ int t;
 int n,m;
 int c[MAXN],k[MAXN];
 bool dp[2][20003];
-deque<int> dq[203];
+int dq[203], MAXC;
+bool roll;
 int main()
 {
   IOS();
@@ -60,28 +61,28 @@ int main()
   while (t--) {
     MEM(dp,0);
     cin>>n>>m;
-    bool roll = 1;
+    REP (i,m+1) {
+      dp[1][i] = 0;
+    }
+    roll = 1;
     dp[1][0] = 1;
     REP (i,n) cin>>c[i]>>k[i];
     REP (i,n) {
       roll = !roll;
-      REP(j,203) dq[j].clear();
+      MEM(dq,-1);
+      MAXC = c[i]*k[i];
       REP (j,m+1) {
         int idx = j%c[i];
         if (dp[!roll][j]) {
-          //debug(mp(i,j));
           dp[roll][j] = 1;
-          dq[idx].pb(j);
-        }
-
-        while (dq[idx].size()&&dq[idx].front()<j-c[i]*k[i]) {
-          dq[idx].pop_front();
-        }
-        if (dq[idx].size()) {
-          dp[roll][j] = 1;
+          dq[idx] = j;
+        } else {
+          if (dq[idx]<j-MAXC)dq[idx] = -1;
+          if (dq[idx]>-1) {
+            dp[roll][j] = 1;
+          }
         }
       }
-
     }
     if (dp[roll][m]) cout<<"Yes"<<endl;
     else cout<<"No"<<endl;
