@@ -34,7 +34,6 @@ template<typename It> ostream& _OUTC(ostream &_s,It _ita,It _itb)
 }
 template<typename _a> ostream &operator << (ostream &_s,vector<_a> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _a> ostream &operator << (ostream &_s,set<_a> &_c){return _OUTC(_s,ALL(_c));}
-template<typename _a> ostream &operator << (ostream &_s,deque<_a> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _a,typename _b> ostream &operator << (ostream &_s,map<_a,_b> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS()
@@ -47,49 +46,44 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll INF = (ll)1e18 + 7;
 const ll MOD = 1000000007;
-const ll MAXN = int(1e2) + 3;
+const ll MAXN = int(1e5)+7;
 int t;
-int n,m;
-int c[MAXN],k[MAXN];
-bool dp[2][20003];
-int dq[203], MAXC;
-bool roll;
-int r;
+ll n,k,c;
+ll val[MAXN];
+deque<pair<ll,ll> > qu;
+ll dp[MAXN];
+void pushqu (ll i,ll data) {
+  while (qu.size()&&qu.back().X<data)qu.pop_back();
+  qu.pb(mp(data,i));
+}
+ll topqu (ll i) {
+  while (qu.size()&&qu.front().Y<i-k)qu.pop_front();
+  if (qu.size()) return qu.front().X;
+  else return -1;
+}
 int main()
 {
   IOS();
   cin>>t;
   while (t--) {
-    MEM(dp,0);
-    cin>>n>>m;
-    REP (i,m+1) {
-      dp[1][i] = 0;
-    }
-    roll = 1;
-    dp[1][0] = 1;
-    REP (i,n) cin>>c[i]>>k[i];
+    qu.clear();
+    cin>>n>>k>>c;
+    REP (i,n) cin>>val[i];
     REP (i,n) {
-      roll = !roll;
-      MEM(dq,-1);
-      MAXC = c[i]*k[i];
-      r=0;
-      REP (j,m+1) {
-        if (r>=c[i])r=0;
-        if (dp[!roll][j]) {
-          dp[roll][j] = 1;
-          dq[r] = j;
-        } else {
-          if (dq[r]<j-MAXC)dq[r] = -1;
-          if (dq[r]>-1) {
-            dp[roll][j] = 1;
-          }
-        }
-        r++;
+      ll data = c*i;
+      if (qu.size()) {
+        data = max(data,topqu(i));
       }
-
+      data += val[i] - c*i;
+      dp[i] = data;
+      pushqu(i,data+c*i);
     }
-    if (dp[roll][m]) cout<<"Yes"<<endl;
-    else cout<<"No"<<endl;
+    ll ans = -INF;
+    REP (i,n) {
+      ans = max(ans,dp[i]);
+      debug(dp[i]);
+    }
+    cout<<ans<<endl;
   }
 	return 0;
 }
