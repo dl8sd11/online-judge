@@ -76,7 +76,7 @@ int main()
       minv = now;
       ans = i;
     }
-  }
+  }s
   cout<<ans+1<<endl;
 	return 0;
 }
