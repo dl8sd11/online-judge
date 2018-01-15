@@ -1,10 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
-<<<<<<< HEAD
-typedef double lf;
-=======
->>>>>>> 1a026b5a014bda5ccd368d761ce92eee5d36f1ae
 #define MEM(a, b) memset(a, (b), sizeof(a))
 #define FOR(i, j, k, in) for (ll i=j ; i<k ; i+=in)
 #define RFOR(i, j, k, in) for (ll i=j ; i>=k ; i-=in)
@@ -50,33 +46,47 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll INF = (ll)1e18 + 7;
 const ll MOD = 1000000007;
-const ll MAXN = int(1e6)+7;
-int n,sum,lsum,ans;
-lf minv = 1e8;
-char intmp;
-int c[MAXN];
-lf solve (lf len,lf cnt) {
-  return cnt*(len-cnt)/len;
+const ll MAXN = int(1e6) +7;
+int n,m,x,y;
+vector<int> e[MAXN];
+
+int low[MAXN];
+int lv[MAXN];
+bool visit[MAXN];
+bool ans[MAXN];
+void DFS (int idx,int curlv,int par){
+  lv[idx] = curlv;
+  low[idx] = curlv;
+  visit[idx] = 1;
+  int son = 0;
+  for (auto v: e[idx]) {
+    if (visit[v]) {
+      if (v==par||lv[v]>lv[idx])continue;
+      else low[idx] = min(low[idx],lv[v]);
+    }
+    else {
+      son++;
+      DFS(v,curlv+1,idx);
+      low[idx] = min(low[idx],low[v]);
+      if (low[v]>=lv[idx]) ans[idx] = 1;
+    }
+  }
+  debug(mp(idx,low[idx]));
+  if (idx==1) {
+    if (son>1)ans[idx] = 1;
+    else ans[idx] = 0;
+  }
 }
 int main()
 {
   IOS();
-  cin>>n;
-  REP (i,n) {
-    cin>>intmp;
-    c[i] = intmp - '0';
-    sum += c[i];
+  cin>>n>>m;
+  REP (i,m) {
+    cin>>x>>y;
+    e[x].pb(y);
+    e[y].pb(x);
   }
-
-  REP (i,n-1) {
-    lsum += c[i];
-    lf now = solve(lf(i+1),lf(lsum))+solve(lf(n-i-1),lf(sum-lsum));
-    debug(now);
-    if (now < minv) {
-      minv = now;
-      ans = i;
-    }
-  }
-  cout<<ans+1<<endl;
+  DFS(1,0,1);
+  REP(i,MAXN) if (ans[i])cout<<i<<endl;
 	return 0;
 }

@@ -1,10 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
-<<<<<<< HEAD
-typedef double lf;
-=======
->>>>>>> 1a026b5a014bda5ccd368d761ce92eee5d36f1ae
 #define MEM(a, b) memset(a, (b), sizeof(a))
 #define FOR(i, j, k, in) for (ll i=j ; i<k ; i+=in)
 #define RFOR(i, j, k, in) for (ll i=j ; i>=k ; i-=in)
@@ -51,32 +47,48 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 const ll INF = (ll)1e18 + 7;
 const ll MOD = 1000000007;
 const ll MAXN = int(1e6)+7;
-int n,sum,lsum,ans;
-lf minv = 1e8;
-char intmp;
-int c[MAXN];
-lf solve (lf len,lf cnt) {
-  return cnt*(len-cnt)/len;
+int n,m;
+int x,y;
+vector<int> e[MAXN];
+int lv[MAXN];
+int low[MAXN];
+bool visit[MAXN];
+vector<pair<int,int> > input;
+map<pair<int,int>,bool> isans;
+void DFS(int now,int curlv,int par) {
+  lv[now] = curlv;
+  low[now] = curlv;
+  visit[now] = 1;
+  for (auto v: e[now]) {
+    if (visit[v]) {
+      //parent
+      if (v==par)continue;
+      // back edge to descendant
+      if (lv[v]>curlv)continue;
+      // back edge to ancestor
+      low[now]= min(low[now],lv[v]);
+    } else {
+      // this is a child
+      DFS(v,curlv+1,now);
+      low[now] = min(low[now],low[v]);
+      if (low[v] == lv[v])
+        isans[mp(min(v,now),max(v,now))] = 1;
+    }
+
+  }
 }
 int main()
 {
   IOS();
-  cin>>n;
-  REP (i,n) {
-    cin>>intmp;
-    c[i] = intmp - '0';
-    sum += c[i];
+  cin>>n>>m;
+  REP (i,m) {
+    cin>>x>>y;
+    e[x].pb(y);
+    e[y].pb(x);
+    input.pb(mp(min(x,y),max(x,y)));
+    isans[mp(min(x,y),max(x,y))] = 0;
   }
-
-  REP (i,n-1) {
-    lsum += c[i];
-    lf now = solve(lf(i+1),lf(lsum))+solve(lf(n-i-1),lf(sum-lsum));
-    debug(now);
-    if (now < minv) {
-      minv = now;
-      ans = i;
-    }
-  }
-  cout<<ans+1<<endl;
+  DFS(1,0,1);
+  for (auto a:input) if (isans[mp(a.X,a.Y)]) cout<<a.X<<' '<<a.Y<<endl;
 	return 0;
 }

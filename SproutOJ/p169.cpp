@@ -1,10 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
-<<<<<<< HEAD
-typedef double lf;
-=======
->>>>>>> 1a026b5a014bda5ccd368d761ce92eee5d36f1ae
 #define MEM(a, b) memset(a, (b), sizeof(a))
 #define FOR(i, j, k, in) for (ll i=j ; i<k ; i+=in)
 #define RFOR(i, j, k, in) for (ll i=j ; i>=k ; i-=in)
@@ -50,33 +46,44 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll INF = (ll)1e18 + 7;
 const ll MOD = 1000000007;
-const ll MAXN = int(1e6)+7;
-int n,sum,lsum,ans;
-lf minv = 1e8;
-char intmp;
-int c[MAXN];
-lf solve (lf len,lf cnt) {
-  return cnt*(len-cnt)/len;
+const ll MAXN = 503;
+int n;
+priority_queue<int,vector<int>,greater<int> > pq[MAXN];
+vector<int> ans;
+int d[MAXN];
+int visit[MAXN][MAXN];
+int i,j;
+void DFS (int idx) {
+  while (pq[idx].size()) {
+    int c = pq[idx].top();
+    pq[idx].pop();
+    if (visit[idx][c]) {
+      visit[idx][c]--;
+      visit[c][idx]--;
+      DFS(c);
+    }
+  }
+  ans.pb(idx);
 }
 int main()
 {
   IOS();
   cin>>n;
-  REP (i,n) {
-    cin>>intmp;
-    c[i] = intmp - '0';
-    sum += c[i];
+  REP (u,n) {
+    cin>>i>>j;
+    pq[i].push(j);
+    pq[j].push(i);
+    visit[i][j]++;
+    visit[j][i]++;
+    d[i]++;
+    d[j]++;
   }
-
-  REP (i,n-1) {
-    lsum += c[i];
-    lf now = solve(lf(i+1),lf(lsum))+solve(lf(n-i-1),lf(sum-lsum));
-    debug(now);
-    if (now < minv) {
-      minv = now;
-      ans = i;
-    }
-  }
-  cout<<ans+1<<endl;
+  debug(n);
+  int start;
+  for (start=0;start<MAXN;start++) if (d[start]&1) break;
+  if (start == MAXN) for (start=0;start<MAXN;start++) if (d[start]) break;
+  DFS(start);
+  reverse(ans.begin(),ans.end());
+  for (auto v:ans) cout<<v<<endl;
 	return 0;
 }

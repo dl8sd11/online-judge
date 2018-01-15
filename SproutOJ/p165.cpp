@@ -1,10 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
-<<<<<<< HEAD
-typedef double lf;
-=======
->>>>>>> 1a026b5a014bda5ccd368d761ce92eee5d36f1ae
 #define MEM(a, b) memset(a, (b), sizeof(a))
 #define FOR(i, j, k, in) for (ll i=j ; i<k ; i+=in)
 #define RFOR(i, j, k, in) for (ll i=j ; i>=k ; i-=in)
@@ -50,33 +46,60 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll INF = (ll)1e18 + 7;
 const ll MOD = 1000000007;
-const ll MAXN = int(1e6)+7;
-int n,sum,lsum,ans;
-lf minv = 1e8;
-char intmp;
-int c[MAXN];
-lf solve (lf len,lf cnt) {
-  return cnt*(len-cnt)/len;
+const ll MAXN = 3e5;
+int t,n,m,a,b;
+vector<int> e[MAXN];
+int d[MAXN];
+priority_queue<int,vector<int>,greater<int> > to;
+bool visit[MAXN];
+stringstream ss;
+void clearQueue() {
+  priority_queue<int,vector<int>,greater<int> > empty;
+  swap(to,empty);
 }
 int main()
 {
   IOS();
-  cin>>n;
-  REP (i,n) {
-    cin>>intmp;
-    c[i] = intmp - '0';
-    sum += c[i];
-  }
-
-  REP (i,n-1) {
-    lsum += c[i];
-    lf now = solve(lf(i+1),lf(lsum))+solve(lf(n-i-1),lf(sum-lsum));
-    debug(now);
-    if (now < minv) {
-      minv = now;
-      ans = i;
+  cin>>t;
+  while (t--) {
+    ss = stringstream();
+    clearQueue();
+    cin>>n>>m;
+    REP (i,n) e[i].clear();
+    MEM(d,0);
+    MEM(visit,0);
+    REP (i,m) {
+      cin>>a>>b;
+      e[a].pb(b);
+      d[b]++;
     }
+    REP (i,n) if (d[i]==0) {
+      to.push(i);
+      visit[i]=1;
+    }
+    while (to.size()) {
+      int now = to.top();
+      to.pop();
+      ss<<now<<' ';
+      for (auto v:e[now])
+        if(--d[v]<=0&&!visit[v]) {
+          to.push(v);
+          visit[v] = 1;
+        }
+    }
+    int i,out;
+    debug(ss.str());
+    bool fo = 1;
+    for (i=0;i<n;i++) if(!visit[i])break;
+    if (i==n) while(ss>>out) {
+      if (fo) {
+        cout<<out;
+        fo = 0;
+      }
+      else cout<<' '<<out;
+    }
+    else cout<<"QAQ";
+    cout<<endl;
   }
-  cout<<ans+1<<endl;
 	return 0;
 }
