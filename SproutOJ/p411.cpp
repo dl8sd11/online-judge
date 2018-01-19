@@ -1,6 +1,10 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
+<<<<<<< HEAD
+typedef double lf;
+=======
+>>>>>>> 1a026b5a014bda5ccd368d761ce92eee5d36f1ae
 #define MEM(a, b) memset(a, (b), sizeof(a))
 #define FOR(i, j, k, in) for (ll i=j ; i<k ; i+=in)
 #define RFOR(i, j, k, in) for (ll i=j ; i>=k ; i-=in)
@@ -47,33 +51,32 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 const ll INF = (ll)1e18 + 7;
 const ll MOD = 1000000007;
 const ll MAXN = int(1e6)+7;
-
-int n, sum,lsum,ans;
-bool c[MAXN];
-char tmp;
-int i;
-lf minv = 1e5;
-
-lf solve() {
-  int len = i+1;
-  return (len*lsum-len*len+1e-8)/len*2 + ((n-len)*(sum-lsum)-(n-len)*(n-len)+1e-8)(n-len)*2
+int n,sum,lsum,ans;
+lf minv = 1e8;
+char intmp;
+int c[MAXN];
+lf solve (lf len,lf cnt) {
+  return cnt*(len-cnt)/len;
 }
 int main()
 {
   IOS();
   cin>>n;
   REP (i,n) {
-    cin>>tmp;
-    c[i] = tmp - '0';
+    cin>>intmp;
+    c[i] = intmp - '0';
     sum += c[i];
   }
 
-
-  for (i=0;i<n-1;i++) {
+  REP (i,n-1) {
     lsum += c[i];
-    int mess = solve();
-    debug(solve());
-    if ()
-  }
+    lf now = solve(lf(i+1),lf(lsum))+solve(lf(n-i-1),lf(sum-lsum));
+    debug(now);
+    if (now < minv) {
+      minv = now;
+      ans = i;
+    }
+  }s
+  cout<<ans+1<<endl;
 	return 0;
 }
