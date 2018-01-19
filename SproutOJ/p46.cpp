@@ -46,127 +46,131 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll INF = (ll)1e18 + 7;
 const ll MOD = 1000000007;
-const ll MAXN = 3e5;
+const ll MAXN = int(1e3)+7;
+map<char,int> colormap = {{'R',1},{'Y',2},{'O',3},{'B',4},{'P',5},{'G',6},{'D',7}};
+int foodx[] = {-1,-1,-1,0,0,0,1,1,1};
+int foody[] = {-1,0,1,-1,0,1,-1,0,1};
+int t,n,tg;
+int stat[MAXN][MAXN];
+int visit[3][MAXN][MAXN];
+int cnt;
+int ans = 0;
 
-int n;
-short status[1003][1003] = {};
-deque<pair<int,int> > a[3];
-int cnt[8];
-int tg;
-void solve() {
-    bool visited[3][n+3][n+3];
-    MEM(visited,0);
-    REP (u,3) {
-      REP (i,n+2) {
-        visited[u][i][0] = 1;
-        visited[u][0][i] = 1;
-        visited[u][n+1][i] = 1;
-        visited[u][i][n+1] = 1;
-      }
+struct Node {
+  Node *prev, *next;
+  pair<int,int> data;
+  Node (pair<int,int> id) : data(id){}
+};
+class QUEUE{
+public:
+  Node *head, *tail;
+  QUEUE(){
+    head=tail=0;
+  }
+  void push(pair<int,int> in) {
+    Node *tmp = new Node(in);
+    if (head == NULL) {
+      head = tmp;
+      tail = tmp;
+      head->prev = NULL;
+      head->next = NULL;
+    } else {
+      tmp->prev = tail;
+      tmp->next = NULL;
+      tail->next = tmp;
+      tail = tmp;
     }
-    int ans = cnt[tg];
-
-    while (a[0].size() || a[1].size() || a[2].size()) {
-      debug(ans);
-      REP (u,3) {
-         debug(a[u].size());
-         debug(u);
-        while (a[u].size()) {
-          //debug(a[u].front());
-          pair<int,int> cur = a[u].front();
-          debug(a[u].size());
-          a[u].pop_back();
-          //debug("alive");
-          if (cur.X == -1) {
-            a[u].pb(mp(-1,-1));
-            if (a[u].front().X == -1) {
-              a[u].pop_back();
-              break;
-            } else {
-              break;;
-            }
-          }
-          if (cur.X > 1000 || cur.X < 0) while(1) {}
-          //debug("alive");
-          visited[u][cur.X][cur.Y] = 1;
-
-          int tmp = 2;
-          if (u == 1) tmp = 4;
-          else if (u == 2) tmp = 1;
-
-          //debug("alive");
-          cnt[status[cur.X-1][cur.Y-1]]--;
-          status[cur.X-1][cur.Y-1] += tmp;
-          cnt[status[cur.X-1][cur.Y-1]]++;
-          //debug("alive");
-          REP (i,9) {
-            int dx = cur.X;
-            int dy = cur.Y;
-
-            if (i<3) dx++;
-            else if(i>5) dx--;
-            if (i%3 == 0) dy++;
-            if (i%3 == 2) dy--;
-            if (!visited[u][dx][dy]) {
-              a[u].pb(mp(dx,dy));
-              visited[u][dx][dy] = 1;
-            }
-          }
-          debug(a[u].size());
-          //debug(a[u].front());
-        }
-      }
-      ans = max(ans,cnt[tg]);
+  }
+  pair<int,int> front() {
+    //debug(head->data);
+    return head->data;
+  }
+  void pop() {
+    if (head == tail) {
+      head = tail = NULL;
+    } else {
+      Node *d = head;
+      head = head->next;
+      delete d;
     }
-    cout<<ans<<endl;
-}
+  }
+  int size() {
+    if (head) return 1;
+    else return 0;
+  }
+};
+QUEUE paint[3];
 int main()
 {
   IOS();
-  int t;
   cin>>t;
   while (t--) {
     cin>>n;
-    MEM(status,0);
-    MEM(cnt,0);
-
-
-    REP (u,3) {
-      char color;
-      int x,y;
-      cin>>color>>x>>y;
-
-
-      if (color == 'Y') {
-        status[x][y] = 2;
-        cnt[2]++;
-        a[0].pb(mp(x+1,y+1));
-        a[0].pb(mp(-1,-1));
-      } else if (color == 'B') {
-        status[x][y] = 4;
-        cnt[4]++;
-        a[1].pb(mp(x+1,y+1));
-        a[1].pb(mp(-1,-1));
-      } else if (color == 'R') {
-        status[x][y] = 1;
-        cnt[1]++;
-        a[2].pb(mp(x+1,y+1));
-        a[2].pb(mp(-1,-1));
+    ans = 0;
+    MEM(stat,0);
+    MEM(visit,0);
+    cnt = 0;
+    REP (j,3) {
+      REP (i,n+2) {
+        visit[j][0][i] = 1;
+        visit[j][i][n+1] = 1;
+        visit[j][i][0] = 1;
+        visit[j][n+1][i] = 1;
       }
-
     }
-    char tmp;
-    cin>>tmp;
-    if (tmp == 'R') tg = 1;
-    else if (tmp == 'Y') tg = 2;
-    else if (tmp == 'B') tg = 4;
-    else if (tmp == 'O') tg = 3;
-    else if (tmp == 'P') tg = 5;
-    else if (tmp == 'G') tg = 6;
-    else tg = 7;
-    debug(tg);
-    solve();
+    REP (i,3) {
+      string c;
+      int x,y,j;
+      cin>>c>>x>>y;
+      if (c[0] == 'R') j=0;
+      else if (c[0] == 'Y') j=1;
+      else j=2;
+      visit[j][x+1][y+1] = 1;
+      paint[j].push(mp(x+1,y+1));
+      paint[j].push(mp(-1,-1));
+    }
+    string itg;
+    cin>>itg;
+    //debug(itg);
+    tg = colormap[itg[0]];
+    if (tg==7) {
+      cout<<n*n<<endl;
+      continue;
+    }
+    //debug(tg);
+    while (paint[0].size()||paint[1].size()||paint[2].size()) {
+      //debug(ans);
+      REP (i,3) {
+        while (paint[i].size()) {
+          int curX = paint[i].front().X;
+          int curY = paint[i].front().Y;
+          paint[i].pop();
+          if (curX == -1) {
+            paint[i].push(mp(-1,-1));
+            if (paint[i].front().X == -1) {
+              paint[i].pop();
+            }
+            break;
+          }
+          if (stat[curX][curY]==tg)cnt--;
+          stat[curX][curY]+=(1<<i);
+          if (stat[curX][curY]==tg)cnt++;
+          int dx;
+          int dy;
+          REP (j,9) {
+            dx = curX + foodx[j];
+            dy = curY + foody[j];
+            if (!visit[i][dx][dy]) {
+              paint[i].push(mp(dx,dy));
+              visit[i][dx][dy] = 1;
+            }
+          }
+        }
+      }
+      ans = max(ans,cnt);
+      //debug(ans);
+    }
+    cout<<ans<<endl;
   }
-
 	return 0;
 }

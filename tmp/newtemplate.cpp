@@ -1,20 +1,7 @@
 #include <bits/stdc++.h>
+
 using namespace std;
-typedef long long ll;
-#define MEM(a, b) memset(a, (b), sizeof(a))
-#define FOR(i, j, k, in) for (ll i=j ; i<k ; i+=in)
-#define RFOR(i, j, k, in) for (ll i=j ; i>=k ; i-=in)
-#define REP(i, j) FOR(i, 0, j, 1)
-#define REP1(i,j) FOR(i, 1, j+1, 1)
-#define RREP(i, j) RFOR(i, j, 0, 1)
-#define ALL(_a) _a.begin(),_a.end()
-#define FOREACH(it, l) for (auto it = l.begin(); it != l.end(); it++)
-#define mp make_pair
-#define pb push_back
-#define X first
-#define Y second
-typedef pair<ll, ll> pi;
-#ifdef tmd
+
 #define debug(...) do{\
     fprintf(stderr,"%s - %d (%s) = ",__PRETTY_FUNCTION__,__LINE__,#__VA_ARGS__);\
     _do(__VA_ARGS__);\
@@ -35,22 +22,13 @@ template<typename It> ostream& _OUTC(ostream &_s,It _ita,It _itb)
 template<typename _a> ostream &operator << (ostream &_s,vector<_a> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _a> ostream &operator << (ostream &_s,set<_a> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _a,typename _b> ostream &operator << (ostream &_s,map<_a,_b> &_c){return _OUTC(_s,ALL(_c));}
-template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
-#define IOS()
-#else
-#define debug(...)
-#define pary(...)
-#define endl '\n'
-#define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
-#endif
+template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}#define INITIO()    ios_base::sync_with_stdio(false);cin.tie(NULL);
 
-const ll INF = (ll)1e18 + 7;
-const ll MOD = 1000000007;
+const double Eps  = 1e-8;
+const int Inf     = 0x3F3F3F3F;
+const int Mod     = 1e9+7;
 
-/********** Main()  function **********/
-int main()
-{
-  IOS();
-
-	return 0;
+int main() {
+  int n = 3;
+  debug(n)
 }

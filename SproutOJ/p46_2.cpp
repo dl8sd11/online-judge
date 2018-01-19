@@ -46,89 +46,101 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll INF = (ll)1e18 + 7;
 const ll MOD = 1000000007;
-const ll MAXN = 3e5;
-
+const ll MAXN = int(1e3)+7;
+map<char,int> colormap = {{'R',1},{'Y',2},{'O',3},{'B',4},{'P',5},{'G',6},{'D',7}};
+string colorstr = "XRYOBPGD";
+int t,n,tg;
+int stat[MAXN][MAXN];
+pair<int,int> start[3];
+int cnt;
+int ans = 0;
+bool con (int dis) {
+  REP (i,3) {
+    if (start[i].X-dis>=0||start[i].X+dis<n||start[i].Y-dis>=0||start[i].Y+dis<n) return true;
+  }
+  return false;
+}
+bool veri(int x,int y) {
+  if (x>=0&&x<n&&y>=0&&y<n) return true;
+  return false;
+}
 int main()
 {
   IOS();
-  int t;
   cin>>t;
   while (t--) {
-    int n;
     cin>>n;
-    queue<pair<int,int> > p[3];
-    int status[n][n] = {};
-    bool visited[3][n+2][n+2];
-    REP (u,3) {
-      REP (i,n+2) {
-        visited[u][i][0] = 1;
-        visited[u][0][i] = 1;
-        visited[u][n+1][i] = 1;
-        visited[u][i][n+1] = 1;
-      }
-    }
-    int cnt[8] = {};
+    ans = 0;
+    MEM(stat,0);
+    cnt = 0;
+
     REP (i,3) {
-      char color;
-      int a,b,j;
-      cin>>color;
-      cin>>a>>b;
-      if (color == 'Y') j = 0;
-      else if (color == 'B') j = 1;
-      else  j = 2;
-      visited[j][a+1][b+1] = 1;
-      p[j].push(mp(a+1,b+1));
-      p[j].push(mp(-1,-1));
-      j*=2;
-      if (!j) j++;
-      status[a][b] = j;
-      cnt[status[a][b]]++;
+      string c;
+      int x,y,j;
+      cin>>c>>x>>y;
+      if (c[0] == 'R') j=0;
+      else if (c[0] == 'Y') j=1;
+      else j=2;
+      start[j] = {x,y};
+      if (stat[x][y] == tg) cnt--;
+      stat[x][y] += (1<<j);
+      if (stat[x][y] == tg) cnt++;
     }
-    int tg;
-    char tmp;
-    cin>>tmp;
-    if (tmp == 'R') tg = 4;
-    else if (tmp == 'Y') tg = 1;
-    else if (tmp == 'B') tg = 2;
-    else if (tmp == 'O') tg = 5;
-    else if (tmp == 'P') tg = 6;
-    else if (tmp == 'G') tg = 3;
-    else tg = 7;
-    int ans = 0;
-    while (p[0].size()||p[1].size()||p[2].size()) {
-      debug(p[0].size());
+    string itg;
+    cin>>itg;
+    tg = colormap[itg[0]];
+    if (tg==7) {
+      cout<<n*n<<endl;
+      continue;
+    }
+    ans = max(ans,cnt);
+    debug("input");
+    int dis = 0;
+    while (con(dis)) {
       REP (i,3) {
-        while (p[i].size()) {
-          debug(i);
-          pair<int,int> cur = p[i].front();
-          debug(p[i].front());
-          p[i].pop();
-          debug(p[i].size());
-          int cx = cur.X;
-          int cy = cur.Y;
-          if (cx < 0) {
-            p[i].push(mp(-1,-1));
-            if (p[i].front().X < 0) p[i].pop();
-            break;
+        int startX = start[i].X;
+        int startY = start[i].Y;
+        for (int j=-dis;j<=dis;j++) {
+          if (dis==0) break;
+          int curX = startX+j;
+          int curY = startY+dis;
+          if (veri(curX,curY)) {
+            if (stat[curX][curY] == tg) cnt--;
+            stat[curX][curY] += (1<<i);
+            if (stat[curX][curY] == tg) cnt++;
           }
-          cnt[status[cx-1][cy-1]]--;
-          status[cx-1][cy-1]+= !i?i+1:i*2;
-          cnt[status[cx-1][cy-1]]++;
-          REP (j,9) {
-            int dx = cx;
-            int dy = cy;
-            if (j<3) dx--;
-            else if (j>=6) dx++;
-            if (j%3 == 0) dy++;
-            else if (j%3 == 2) dy--;
-            if (!visited[i][dx][dy]) {
-              p[i].push(mp(dx,dy));
-              visited[i][dx][dy] = 1;
-            }
+          curX = startX+j;
+          curY = startY-dis;
+          if (veri(curX,curY)) {
+            if (stat[curX][curY] == tg) cnt--;
+            stat[curX][curY] += (1<<i);
+            if (stat[curX][curY] == tg) cnt++;
+          }
+          curX = startX+dis;
+          curY = startY+j;
+          if (veri(curX,curY)) {
+            if (stat[curX][curY] == tg) cnt--;
+            stat[curX][curY] += (1<<i);
+            if (stat[curX][curY] == tg) cnt++;
+          }
+          curX = startX-dis;
+          curY = startY-j;
+          if (veri(curX,curY)) {
+            if (stat[curX][curY] == tg) cnt--;
+            stat[curX][curY] += (1<<i);
+            if (stat[curX][curY] == tg) cnt++;
           }
         }
       }
-      ans = max(ans,cnt[tg]);
+      dis++;
+      debug(cnt);
+      REP (v,5){
+        REP (w,5) {
+          cout<<colorstr[stat[v][w]]<<' ';
+        }cout<<endl;
+      }
+      cout<<endl<<endl;
+      ans = max(ans,cnt);
     }
     cout<<ans<<endl;
   }
