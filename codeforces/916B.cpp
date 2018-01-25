@@ -46,30 +46,40 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll INF = (ll)1e18 + 7;
 const ll MOD = 1000000007;
-const int MAXN = 1e5;
-int BIT[MAXN];
-void add(int x,int v){
-  for(;x<MAXN;x+=x&-x) {
-     BIT[x]+=v;
+
+map<int,int> cnt;
+ll n,k,m;
+void solve(){
+  for (int i=0;i<64;i++) if(n>>i&1)cnt[i]++,m++;
+  if (m>k) {
+    cout<<"No"<<endl;
+    return;
   }
-}
-int qry(int x) {
-  int ret = 0;
-  for (;x;x-=x&-x) {
-    ret+=BIT[x];
+  for (int i=63;i>=-63;i--) {
+    if (m+cnt[i]<=k) {
+      m+=cnt[i];
+      cnt[i-1]+=cnt[i]*2;
+      cnt[i]=0;
+    } else break;
   }
-  return ret;
+  cout<<"Yes"<<endl;
+  multiset<int> op;
+  for (int i=63;i>=-63;i--) REP(j,cnt[i])op.insert(i);
+  while (ll(op.size())<k) {
+    int last = *op.begin();
+    op.erase(op.begin());
+    op.insert(last-1);
+    op.insert(last-1);
+  }
+  for (auto v=op.rbegin();v!=op.rend();v++) {
+    cout<<*v<<' ';
+  }cout<<endl;
 }
 /********** Main()  function **********/
 int main()
 {
   IOS();
-  int array[] = {0,1,5,4,6,7};
-  REP1(i,5)add(i,array[i]);
-  int l;
-  while (cin>>l&&l>=0) {
-    cout<<qry(l)<<endl;
-  }
-
+  cin>>n>>k;
+  solve();
 	return 0;
 }
