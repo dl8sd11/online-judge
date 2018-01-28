@@ -1,6 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
+typedef unsigned short int usi;
 #define MEM(a, b) memset(a, (b), sizeof(a))
 #define FOR(i, j, k, in) for (ll i=j ; i<k ; i+=in)
 #define RFOR(i, j, k, in) for (ll i=j ; i>=k ; i-=in)
@@ -46,92 +47,40 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll INF = (ll)1e18 + 7;
 const ll MOD = 1000000007;
-
-ll n,t;
-int m[5];
-ll state[5],bac[5];
-queue<ll> Q;
-set<ll> visit;
-
-inline void comp(){
-  ll ex = 1,compData = 0;
-  REP (i,5) {
-    compData += ex*state[i];
-    ex*=51;
+ll l,r;
+ll solve(ll n) {
+  if (n==0) return 0;
+  if (n<10) return 1;
+  vector<ll> digi;
+  ll tmpn = n,pre;
+  ll tens = 1;
+  while (tmpn) {
+    digi.pb(tmpn%10);
+    tmpn/=10;
+    tens*=10;
   }
-  if (!visit.count(compData)) {
-    Q.push(compData);
-    visit.insert(compData);
-  }
+  tens/=10;
 
-}
-inline void decomp() {
-  ll tmp = Q.front();Q.pop();
-  ll idx = 0;
-  REP (i,n) {
-    state[idx++] = tmp%51;
-    tmp/=51;
+  ll ret = (digi.back()==1)?n%tens+1:tens;
+  for (ll i=ll(digi.size()-2);i>=0;i--) {
+    pre = n/tens;
+    if (digi[i]>1) {
+      ret+=(pre+1)*(tens/10);
+    } else {
+      ret+=pre*(tens/10);
+      ret+=(digi[i])?n%(tens/10)+1:0;
+    }
+    tens/=10;
   }
+  return ret;
 }
 /********** Main()  function **********/
 int main()
 {
   IOS();
-  cin>>n;
-  int mgcd = 0;
-  int maxm = 0;
-  REP(i,n) {
-    cin>>m[i];
-    maxm = max(maxm,m[i]);
-    mgcd = (i==0)?m[0]:__gcd(mgcd,m[i]);
-  }
-  cin>>t;
-  if (t%mgcd||t>maxm) {
-    cout<<-1<<endl;
-    return 0;
-  }
-  comp();
-  ll sz,ans=0;
-  while (Q.size()) {
-    debug(ans);
-    sz = Q.size();
-    while(sz--) {
-      decomp();
-      pary(state,state+n);
-      REP (i,n) {
-        bac[i] = state[i];
-        if (state[i]==t) {
-          cout<<ans<<endl;
-          return 0;
-        }
-      }
-      for (ll i=0;i<n;i++) {
-        state[i] = 0;
-        comp();
-        state[i] = m[i];
-        comp();
-        state[i] = bac[i];
-      }
-      REP (i,n) {
-        if (state[i]==0) continue;
-        REP (j,n) {
-          if (i==j) continue;
-          if (state[i]>m[j]-state[j]) {
-            state[i] -= m[j] - state[j];
-            state[j] = m[j];
-          } else {
-            state[j] += state[i];
-            state[i] = 0;
-          }
-          comp();
-          state[i] = bac[i];
-          state[j] = bac[j];
-        }
-      }
-    }
-    ans++;
-  }
-  cout<<-1<<endl;
+  cin>>l>>r;
+  cout<<solve(r)-solve(l-1)<<endl;
+
 
 	return 0;
 }

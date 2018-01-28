@@ -46,92 +46,26 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll INF = (ll)1e18 + 7;
 const ll MOD = 1000000007;
-
-ll n,t;
-int m[5];
-ll state[5],bac[5];
-queue<ll> Q;
-set<ll> visit;
-
-inline void comp(){
-  ll ex = 1,compData = 0;
-  REP (i,5) {
-    compData += ex*state[i];
-    ex*=51;
-  }
-  if (!visit.count(compData)) {
-    Q.push(compData);
-    visit.insert(compData);
-  }
-
-}
-inline void decomp() {
-  ll tmp = Q.front();Q.pop();
-  ll idx = 0;
-  REP (i,n) {
-    state[idx++] = tmp%51;
-    tmp/=51;
-  }
-}
+unordered_map<ll,ll> cnt[4];
 /********** Main()  function **********/
 int main()
 {
   IOS();
-  cin>>n;
-  int mgcd = 0;
-  int maxm = 0;
-  REP(i,n) {
-    cin>>m[i];
-    maxm = max(maxm,m[i]);
-    mgcd = (i==0)?m[0]:__gcd(mgcd,m[i]);
+  ll n,q,x,y;
+  cin>>n>>q;
+  REP (i,q) {
+    cin>>x>>y;
+    cnt[0][x]++;
+    cnt[1][y]++;
+    cnt[2][y-x]++;
+    cnt[3][y+x]++;
   }
-  cin>>t;
-  if (t%mgcd||t>maxm) {
-    cout<<-1<<endl;
-    return 0;
-  }
-  comp();
-  ll sz,ans=0;
-  while (Q.size()) {
-    debug(ans);
-    sz = Q.size();
-    while(sz--) {
-      decomp();
-      pary(state,state+n);
-      REP (i,n) {
-        bac[i] = state[i];
-        if (state[i]==t) {
-          cout<<ans<<endl;
-          return 0;
-        }
-      }
-      for (ll i=0;i<n;i++) {
-        state[i] = 0;
-        comp();
-        state[i] = m[i];
-        comp();
-        state[i] = bac[i];
-      }
-      REP (i,n) {
-        if (state[i]==0) continue;
-        REP (j,n) {
-          if (i==j) continue;
-          if (state[i]>m[j]-state[j]) {
-            state[i] -= m[j] - state[j];
-            state[j] = m[j];
-          } else {
-            state[j] += state[i];
-            state[i] = 0;
-          }
-          comp();
-          state[i] = bac[i];
-          state[j] = bac[j];
-        }
-      }
+  ll ans = 0;
+  REP (i,4) {
+    for (auto it:cnt[i]) {
+      ans += it.second-1;
     }
-    ans++;
   }
-  cout<<-1<<endl;
-
+  cout<<ans<<endl;
 	return 0;
 }
