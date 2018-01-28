@@ -5,31 +5,29 @@
 #define X first
 #define Y second
 using namespace std;
-int n;
-int vSize;
-vector<pair<int,int> > stone;
-
+int n,u,v,c,sz,t;
+const int MAXN = 5003;
+int w[MAXN],m[MAXN],dp[2][10003];
 int main(){
   cin>>n;
-  
   REP(i,n){
-   int w,v,c;
-   cin>>w>>v>>c;
-   REP(j,c){
-     stone.pb(make_pair(w,v));
+   cin>>u>>v>>c;
+   REP (j,c) {
+     w[sz] = u;
+     m[sz++] = v;
    }
   }
-  sort(stone.begin(),stone.end());
-  vSize = stone.size();
-  int t;
   cin>>t;
-  int dp[t][n];
-  memset(dp,0,sizeof(dp));
   bool roll = false;
-  for(int i=0;i<vSize;i++){
-  	for(int j=0;j<t;j++){
-			int ret = 0;
-			
-		}			
-	}
-} 
+  dp[0][w[0]] = m[0];
+  REP (i,sz-1) {
+    roll = !roll;
+    REP (j,t+1) {
+      if (j-w[i+1]>=0) dp[roll][j] = max(dp[!roll][j],dp[!roll][j-w[i+1]]+m[i+1]);
+      else dp[roll][j] = dp[!roll][j];
+    }
+  }
+  int ans = 0;
+  REP (i,t+1) ans = max(ans,dp[roll][i]);
+  cout<<ans<<endl;
+}
