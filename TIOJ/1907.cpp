@@ -2,8 +2,8 @@
 using namespace std;
 typedef long long ll;
 #define MEM(a, b) memset(a, (b), sizeof(a))
-#define FOR(i, j, k, in) for (ll i=j ; i<k ; i+=in)
-#define RFOR(i, j, k, in) for (ll i=j ; i>=k ; i-=in)
+#define FOR(i, j, k, in) for (int i=j ; i<k ; i+=in)
+#define RFOR(i, j, k, in) for (int i=j ; i>=k ; i-=in)
 #define REP(i, j) FOR(i, 0, j, 1)
 #define REP1(i,j) FOR(i, 1, j+1, 1)
 #define RREP(i, j) RFOR(i, j, 0, 1)
@@ -13,7 +13,7 @@ typedef long long ll;
 #define pb push_back
 #define X first
 #define Y second
-typedef pair<ll, ll> pi;
+typedef pair<int,int> pi;
 #ifdef tmd
 #define debug(...) do{\
     fprintf(stderr,"%s - %d (%s) = ",__PRETTY_FUNCTION__,__LINE__,#__VA_ARGS__);\
@@ -48,47 +48,49 @@ const ll INF = (ll)1e18 + 7;
 const ll MOD = 1000000007;
 
 /********** Main()  function **********/
-vector<int> s[1001];
-vector<int> a;
-int m[1001];
+vector<pair<int,int> > a;
+vector<pi > m(1001);
 int M,t,tmp,tmp2,l,r;
+bool operator< (const pi &p1,const pi &p2){
+  return p1.X<p2.X&&p1.Y<p2.Y;
+}
+bool cmp (const pi &p1,const pi &p2){
+  if (p1.X<p2.X) return true;
+  else if (p1.X>p2.X)return false;
+  if (p1.Y>p2.Y)return true;
+  else return false;
+}
 int main()
 {
   IOS();
   cin>>t;
   while (t--) {
-    REP (i,1001) s[i].clear();
     a.clear();
     cin>>M;
     REP (i,M) {
       cin>>tmp>>tmp2;
-      s[tmp].pb(tmp2);
+      a.pb({tmp,tmp2});
     }
-    REP (i,1001) {
-      int ret = 
-      for (auto it:s[i]) a.pb(it);
-    }
-    debug(a);
-    MEM(m,-1);
+    sort(a.begin(),a.end(),cmp);
+    pary(a.begin(),a.end());
     int maxidx = 1;
+    REP (i,1001) m[i] = mp(int(1e9),int(1e9));
+    m[0]=mp(-1,-1);
     m[1] = a[0];
     REP1 (i,M-1) {
       l=0;
-      r=maxidx+1;
-      debug(mp(l,r));
+      r=1000;
       while (r-l>1) {
         int mid = (l+r)>>1;
-        debug(mid);
-        debug(mp(m[mid],a[i]));
         if (m[mid]<a[i]) l=mid;
         else r = mid;
       }
-      debug(l);
       if (++l > maxidx) {
         maxidx = l;
         m[maxidx] = a[i];
-      } else m[l] = min(m[l],a[i]);
+      } else m[l] = a[i];
     }
+    pary(m.begin(),m.begin()+maxidx+1);
     cout<<maxidx<<endl;
 
   }
