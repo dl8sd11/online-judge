@@ -1,0 +1,16 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define REP(i,n) for(int i=0;i<n;i++)
+const int MAXN = 5e4+7;
+int m,r[MAXN],b[MAXN];
+int main () {
+  while (cin>>m) {
+    REP(i,m) cin>>a[i];
+    REP(i,m) cin>>b[i];
+    sort(a,a+m);
+    sort(b,b+m);
+    long long ret = 0;
+    REP(i,m) ret+=a[i]*b[i];
+    cout<<ret<<endl;
+  }
+}

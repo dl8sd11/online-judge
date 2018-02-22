@@ -1,0 +1,21 @@
+#include <bits/stdc++.h>
+using namespace std;
+int n,r,cnt;
+int a[10];
+int solve(int idx) {
+  if (idx==r) {
+    if (cnt==n+r) return 1;
+    else cnt++,return 0;
+  }
+  for (int i=0;i<=n;i++) {
+    if (!idx&&!i)continue;
+    a[idx] = i;
+    solve(idx++);
+  }
+}
+int main() {
+  cin>>n>>r;
+  int cnt=0;
+  solve(0);
+  for (int i=0;i<n;i++) cout<<a[i]<<endl;
+}
