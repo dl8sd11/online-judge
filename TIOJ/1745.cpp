@@ -1,7 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
-typedef unsigned short int usi;
 #define MEM(a, b) memset(a, (b), sizeof(a))
 #define FOR(i, j, k, in) for (ll i=j ; i<k ; i+=in)
 #define RFOR(i, j, k, in) for (ll i=j ; i>=k ; i-=in)
@@ -34,6 +33,7 @@ template<typename It> ostream& _OUTC(ostream &_s,It _ita,It _itb)
     return _s;
 }
 template<typename _a> ostream &operator << (ostream &_s,vector<_a> &_c){return _OUTC(_s,ALL(_c));}
+template<typename _a> ostream &operator << (ostream &_s,deque<_a> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _a> ostream &operator << (ostream &_s,set<_a> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _a,typename _b> ostream &operator << (ostream &_s,map<_a,_b> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
@@ -47,40 +47,55 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll INF = (ll)1e18 + 7;
 const ll MOD = 1000000007;
-ll l,r;
-ll solve(ll n) {
-  if (n==0) return 0;
-  if (n<10) return 1;
-  vector<ll> digi;
-  ll tmpn = n,pre;
-  ll tens = 1;
-  while (tmpn) {
-    digi.pb(tmpn%10);
-    tmpn/=10;
-    tens*=10;
-  }
-  tens/=10;
-
-  ll ret = (digi.back()==1)?n%tens+1:tens;
-  for (ll i=ll(digi.size()-2);i>=0;i--) {
-    pre = n/tens;
-    if (digi[i]>1) {
-      ret+=(pre+1)*(tens/10);
-    } else {
-      ret+=pre*(tens/10);
-      ret+=(digi[i])?n%(tens/10)+1:0;
-    }
-    tens/=10;
-  }
-  return ret;
-}
+const ll MAXN = (ll)1e6 + 3;
+ll n,a,b,c;
+ll x[MAXN];
+ll f(ll w){return a*w*w+b*w+c;}
+deque<pair<ll,ll>> dqu;
+ll dp[MAXN],s[MAXN];
 /********** Main()  function **********/
+ll calc(pair<ll,ll> line,ll w) {
+  return line.X*w+line.Y;
+}
+pair<ll,ll> getfront(ll w){
+  while(dqu.size()>=2) {
+    if(calc(dqu[0],w)<calc(dqu[1],w))dqu.pop_front();
+    else break;
+  }
+  return dqu.front();
+}
+bool cpfraction(pair<ll,ll> f1,pair<ll,ll> f2) {return (f1.X*f2.Y)>=(f1.Y*f2.X);}
+pair<ll,ll> intersect(pair<ll,ll> l1,pair<ll,ll> l2) {
+  if(l1.X-l2.X<0)return mp(-(l2.Y-l1.Y),-(l1.X-l2.X));
+  return mp((l2.Y-l1.Y),(l1.X-l2.X));
+}
+void addline(ll idx) {
+  pair<ll,ll> nl = {-2*a*s[idx],dp[idx]+f(s[idx])-2*b*s[idx]};
+  while(dqu.size()>=2) {
+      ll sz = (ll)dqu.size();
+      pair<ll,ll> d1 = intersect(dqu[sz-1],dqu[sz-2]);
+      pair<ll,ll> d2 = intersect(dqu[sz-2],nl);
+      debug(d1,d2);
+      if(cpfraction(intersect(dqu[sz-1],dqu[sz-2]),intersect(dqu[sz-2],nl)))dqu.pop_back();
+      else break;
+  }
+  dqu.push_back(nl);
+}
 int main()
 {
   IOS();
-  cin>>l>>r;
-  cout<<solve(r)-solve(l-1)<<endl;
-
-
+  cin>>n>>a>>b>>c;
+  REP1(i,n)cin>>x[i];
+  dqu.push_front({0,c});
+  dp[0] = 0,s[0] = 0;
+  REP1(i,n) {
+    debug(dqu);
+    s[i] = x[i]+s[i-1];
+    debug(calc(getfront(s[i]),s[i]));
+    dp[i] = f(s[i])-c+calc(getfront(s[i]),s[i]);
+    addline(i);
+    debug(dp[i]);
+  }
+  cout<<dp[n]<<endl;
 	return 0;
 }

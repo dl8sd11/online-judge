@@ -46,43 +46,46 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll INF = (ll)1e18 + 7;
 const ll MOD = 1000000007;
-const ll MAXN = 201720;
-
-ll n,m,pos,i;
-ll f[MAXN],s[MAXN];
-ll d[MAXN];
+const ll MAXN = 1000000;
+ll n;
+ll dp[15][15];
+bool sieve[MAXN];
+vector<ll> prime;
+void  linear_sieve(){
+  sieve[0]=1;
+  sieve[1]=1;
+  for(int i=2;i<MAXN;i++) {
+    if(!sieve[i])prime.pb(i);
+    for(int j=0;prime[j]*i<MAXN;j++) {
+      sieve[prime[j]*i]=1;
+      if(i%prime[j]==0)break;
+    }
+  }
+}
 /********** Main()  function **********/
 int main()
 {
   IOS();
   cin>>n;
-  REP (U,n-2) {
-    cin>>f[U+2];
-    if (f[U+2]) cin>>s[U+2];
+  linear_sieve();
+  ll cnt = 0;
+  for(auto v:prime) {
+    if(n%v==0) n/=v,cnt++;
+    if(n==1)break;
   }
-  debug("inputed");
-  cin>>m;
-
-  REP (U,m) cin>>d[U];
-  pos = 1;
-  for (i=0;i<m;i++) {
-    pos+=d[i];
-    if (pos>=n)break;
-    if (f[pos] == 1) {
-      pos+=s[pos];
-      if (pos>=n)break;
-    } else if (f[pos] == 2) {
-      pos-=s[pos];
-      if (pos<1) pos = 1;
-    } else if (f[pos] == 3) {
-      pos = s[pos];
+  debug(cnt);
+  dp[1][1] = 1;
+  for(int i=2;i<=cnt;i++) {
+    dp[1][i] = 1;
+    for(int j=2;j<i;j++) {
+      dp[j][i] = (dp[j-1][i-1] + (dp[j][i-1]*j)%MOD)%MOD;
     }
-    debug(pos);
+    dp[i][i] = dp[i-1][i-1];
   }
-  if (pos>=n) {
-    cout<<1<<' '<<i+1<<endl;
-  } else {
-    cout<<-1<<' '<<pos<<endl;
+  ll ans = 0;
+  for(int i=1;i<=cnt;i++) {
+    ans += dp[i][cnt];
   }
+  cout<<ans<<endl;
 	return 0;
 }

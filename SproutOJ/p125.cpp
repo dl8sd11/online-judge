@@ -1,6 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
+typedef pair<ll,ll> pii;
 #define MEM(a, b) memset(a, (b), sizeof(a))
 #define FOR(i, j, k, in) for (ll i=j ; i<k ; i+=in)
 #define RFOR(i, j, k, in) for (ll i=j ; i>=k ; i-=in)
@@ -45,37 +46,47 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #endif
 
 const ll INF = (ll)1e18 + 7;
-const ll MOD = 1000000007;
-const int MAXN = int(1e5)+7;
-int n;
-vector<int> a(MAXN);
-vector<int> b(MAXN);
-
-/********** Main()  function **********/
+const ll MOD = 10000019;
+const ll MAXN = ll(1e6)+3;
+int n,a[MAXN];
+void merge_part(int l,int r) {
+  int mid = (l+r)/2;
+  int d[MAXN];
+  int idx = l;
+  int idxl = l;
+  int idxr = mid;
+  for(int i=l;i<r;i++)d[i]=a[i];
+  while(idxl<mid) {
+    while(idxr<r&&d[idxr]<d[idxl]) {
+      a[idx++] = d[idxr++];
+    }
+    a[idx++] =d[idxl++];
+  }
+}
+int merge(int l,int r) {
+  if(r==l+1) return 0;
+  ll ret = 0;
+  ll mid = (l+r)/2;
+  ret+=(merge(l,mid)+merge(mid,r))%MOD;
+  int idxl=mid,idxr=r;
+  int sum = 0;
+  while(--idxr>=mid) {
+    while(idxl>l&&a[idxl-1]>a[idxr]) {
+      sum+=a[--idxl];
+      sum%=MOD;
+    }
+    ret+=a[idxr]*(mid-idxl)+sum;
+    ret%=MOD;
+  }
+  merge_part(l,r);
+  debug(l,r,ret);
+  return ret;
+}
 int main()
 {
   IOS();
   cin>>n;
-  REP1 (i,n) {
-    cin>>a[i];
-    b[a[i]] = i;
-  }
-  ll ans = 0;
-  debug(a);
-  debug(b);
-  REP (i,n) {
-    ans += abs((n-i) - b[(n-i)]);
-    debug(ans);
-    int posl = b[n-i];
-    int posr = n-i;
-    int vall = a[posr]; //end
-    int valr = n-i;
-    a[posl] = vall;
-    a[posr] = valr;
-    b[vall] = posl;
-    b[valr] = posr;
-    debug(b);
-  }
-  cout<<ans<<endl;
+  REP(i,n)cin>>a[i];
+  cout<<merge(0,n)<<endl;
 	return 0;
 }

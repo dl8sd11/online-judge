@@ -1,7 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
-typedef unsigned short int usi;
 #define MEM(a, b) memset(a, (b), sizeof(a))
 #define FOR(i, j, k, in) for (ll i=j ; i<k ; i+=in)
 #define RFOR(i, j, k, in) for (ll i=j ; i>=k ; i-=in)
@@ -47,23 +46,85 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll INF = (ll)1e18 + 7;
 const ll MOD = 1000000007;
-
+const ll MAXN = (ll)1e5 + 7;
+const ll MAXlg = __lg(MAXN) + 2;
+struct node{
+  ll l,r;
+  node *lc,*rc;
+  ll data;
+  node(ll li,ll ri,node *lci,node *rci,ll datai):l(li),r(ri),lc(lci),rc(rci),data(datai){}
+  void pull() {
+    data = (lc?lc->data:0) + (rc?rc->data:0);
+  }
+};
+ll n,K,t;
+ll a[MAXlg][MAXN],k[MAXN],d[MAXN],tin[MAXN],tout[MAXN];
+node *root[MAXN];
+vector<ll> e[MAXN];
+void mody(node *p,ll pos){
+  if(pos==p->l&&pos==p->r-1) {
+    p->data++;
+    return;
+  }
+  ll mid = (p->l+p->r)/2;
+  if(pos>=mid) {
+    if(!p->rc) p->rc = new node(mid,p->r,0,0,0);
+    mody(p->rc,pos);
+  }
+  else {
+    if(!p->lc) p->lc = new node(p->l,mid,0,0,0);
+    mody(p->lc,pos);
+  }
+  p->pull();
+}
+ll query(node *p,ll l,ll r) {
+  if(!p)return 0;
+  if(l==p->l&&r==p->r)return p->data;
+  ll mid = (p->l+p->r)/2;
+  if(l>=mid) return query(p->rc,l,r);
+  else if(r<=mid) return query(p->lc,l,r);
+  else return query(p->lc,l,mid)+query(p->rc,mid,r);
+}
+void DFS(ll idx,ll par) {
+  a[0][idx] = par;
+  d[idx] = d[par]+1;
+  tin[idx]=t++;
+  for(int i=1;i<MAXlg;i++) {
+    a[i][idx] = a[i-1][a[i-1][idx]];
+  }
+  for(auto u:e[idx]) {
+    DFS(u,idx);
+  }
+  tout[idx]=t++;
+}
 /********** Main()  function **********/
 int main()
 {
   IOS();
-  int n;
-  cin>>n;
-  int cnt[10003] = {};
-  int tmp;
-  REP (i,n) {
-    cin>>tmp;
-    cnt[tmp]++;
+  cin>>n>>K;
+  REP1(i,n) {
+    cin>>a[0][i];
+    cin>>k[i];
+    e[a[0][i]].pb(i);
   }
-  REP (i,10003) {
-    while (cnt[i]--) {
-      cout<<i<<' ';
+  debug(n);
+  DFS(0,0);
+  debug(d[0]);
+  debug(tin[0],tout[0]);
+  root[1] = new node(0,n*2+5,0,0,0);
+  mody(root[1],tin[0]);
+  REP1(i,n) {
+
+    if(!root[d[i]])root[d[i]] = new node(0,n*2+5,0,0,0);
+    mody(root[d[i]],tin[i]);
+    ll rd = d[i]-ceil(k[i]/2.0);
+    if(rd<=0)rd=1;
+    ll td = i;
+    for(ll j=MAXlg-1;j>=0;j--) {
+      if(d[a[j][td]]>=rd)td = a[j][td];
     }
+    cout<<query(root[d[i]-1],tin[td],tout[td]+1)-1<<endl;
   }
+
 	return 0;
 }

@@ -46,16 +46,56 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll INF = (ll)1e18 + 7;
 const ll MOD = 1000000007;
-
+const ll MAXN = ll(2e4);
+struct yearp{
+  ll st,ed,data;
+  yearp(ll sti,ll edi,ll datai):st(sti),ed(edi),data(datai){}
+};
+ll y,v[MAXN],n,a,l,r;
+ll BIT[MAXN],sz[MAXN],dp[MAXN];
+vector<yearp> year;
+vector<ll> e[MAXN];
 /********** Main()  function **********/
+ll low(ll x) {return -x&x;}
+ll solve(ll idx) {
+  if(dp[idx]!=-1)return dp[idx];
+  ll ret = 0;
+  for(auto u:e[idx]) {
+    ret = max(ret,solve(u)+year[u-1].data);
+  }
+  return dp[idx]=ret;
+}
+void ADD(ll pos,ll data) {
+  for(;pos<=y;pos+=low(pos)) BIT[pos]+=data;
+}
+ll QUERY(ll pos) {
+  ll ret = 0;
+  for(;pos>=1;pos-=low(pos)) ret+=BIT[pos];
+  return ret;
+}
 int main()
 {
   IOS();
-  int n;
+  cin>>y;
+  REP(i,y)cin>>v[i],ADD(i+1,v[i]);
   cin>>n;
-  string str;
-  cin>>str;
-  reverse(str.begin(),str.end());
-  cout<<"Hello, "<<str<<'.'<<endl;
+  REP(i,n) {
+    cin>>l>>r;
+    year.pb(yearp(l,r,QUERY(r)-QUERY(l-1)));
+  }
+  cin>>a;
+  REP(i,a) {
+    cin>>l>>r;
+    e[l].pb(r);
+    sz[r]++;
+  }
+  ll ans = 0;
+  MEM(dp,-1);
+  REP1(i,n) {
+    if(sz[i]==0) {
+      ans = max(ans,solve(i));
+    }
+  }
+  cout<<ans<<endl;
 	return 0;
 }

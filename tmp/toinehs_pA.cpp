@@ -1,6 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
+typedef pair<ll,ll> pii;
 #define MEM(a, b) memset(a, (b), sizeof(a))
 #define FOR(i, j, k, in) for (ll i=j ; i<k ; i+=in)
 #define RFOR(i, j, k, in) for (ll i=j ; i>=k ; i-=in)
@@ -46,26 +47,30 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll INF = (ll)1e18 + 7;
 const ll MOD = 1000000007;
-unordered_map<ll,ll> cnt[4];
+const ll MAXN = ll(1e5) + 7;
+ll n,k,ret,sum;
+pii c[MAXN];
+ll dp[MAXN];
 /********** Main()  function **********/
 int main()
 {
   IOS();
-  ll n,q,x,y;
-  cin>>n>>q;
-  REP (i,q) {
-    cin>>x>>y;
-    cnt[0][x]++;
-    cnt[1][y]++;
-    cnt[2][y-x]++;
-    cnt[3][y+x]++;
-  }
-  ll ans = 0;
-  REP (i,4) {
-    for (auto it:cnt[i]) {
-      ans += it.second-1;
+  cin>>n>>k;
+  REP(i,n)cin>>c[i].X>>c[i].Y;
+  sort(c,c+n);
+  REP(i,n) {
+    ret = INF;
+    sum=0;
+    for(ll j=i-1;j>=0;j--){
+      sum+=(c[i].X+k-c[j+1].X)*c[j+1].Y;
+      if(c[j].X+k>c[i].X)continue;
+      ret = min(ret,dp[j]+sum);
     }
+    sum+=(c[i].X+k-c[0].X)*c[0].Y;
+    ret = min(ret,sum);
+    dp[i]=ret;
+    debug(dp[i]);
   }
-  cout<<ans<<endl;
+  cout<<dp[n-1]<<endl;
 	return 0;
 }
