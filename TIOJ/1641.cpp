@@ -15,6 +15,7 @@ double dis[MAXN];
 priority_queue<pii,vector<pii>,greater<pii>> pq;
 
 int main(){
+  ios_base::sync
   cin>>n>>m>>s>>t;
   while(m--){
     cin>>a>>b>>c;
