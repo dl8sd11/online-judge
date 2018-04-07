@@ -13,7 +13,7 @@ typedef long long ll;
 #define pb push_back
 #define X first
 #define Y second
-typedef pair<ll, ll> pi;
+typedef pair<int, int> pii;
 #ifdef tmd
 #define debug(...) do{\
     fprintf(stderr,"%s - %d (%s) = ",__PRETTY_FUNCTION__,__LINE__,#__VA_ARGS__);\
@@ -46,76 +46,58 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll INF = (ll)1e18 + 7;
 const ll MOD = 1000000007;
-const ll MAXN = 1503;
-ll n,m;
-char p[MAXN][MAXN];
-ll cnt1[2][MAXN][27];
-ll cnt2[2][MAXN];
-bool vis[2][MAXN];
-struct pline{
-  bool X;
-  ll Y;
-  char Z;
-};
+const ll MAXN = 2001;
+int n,m,q,cmd,posx,posy,c,r;
+pii g[MAXN][MAXN];
+pii l[2][MAXN];
 int main()
 {
   IOS();
-  cin>>n>>m;
-  REP(i,n){
-    REP(j,m){
-      cin>>p[i][j];
-      if(cnt1[0][i][p[i][j]-'a']++==0)cnt2[0][i]++;
-      if(cnt1[1][j][p[i][j]-'a']++==0)cnt2[1][j]++;
-    }
-  }
-
-
-
-  vector<pline> q; //0,x -> row
-  vector<pline> ans;
-  REP(i,n) {
-    if(cnt2[0][i]==1)q.pb({0,i,p[i][0]}),vis[0][i]=1;
-  }
-
-  REP(j,m) {
-    if(cnt2[1][j]==1)q.pb({1,j,p[0][j]}),vis[1][j]=1;
-  }
-
-  debug(q.size());
-  pary(cnt2[0],cnt2[0]+n);
-  pary(cnt2[1],cnt2[1]+m);
-
-  REP(u,m+n){
-    pline now = q.back();
-    q.pop_back();
-    ans.pb(now);
-
-    if(!now.X){
-      REP(j,m) {
-        if(vis[1][j])continue;
-        if(--cnt1[1][j][p[now.Y][j]-'a']==0)cnt2[1][j]--;
-        if(cnt2[1][j]==1){
-          debug(1,j,now.Y);
-          REP(k,26)if(cnt1[1][j][k]>0)q.pb({!now.X,j,char(k+'a')});
-          vis[!now.X][j]=1;
-        }
-      }
+  cin>>n>>m>>q;
+  REP1(u,q){
+    cin>>cmd>>c;
+    if(cmd==1){
+      cin>>posx;
+      if(posx-1>0)l[0][posx-1]={u,c};
+      l[0][posx]={u,c};
+      if(posx+1<=n)l[0][posx+1]={u,c};
+    }else if(cmd==2){
+      cin>>posy;
+      if(posy-1>0)l[1][posy-1]={u,c};
+      l[1][posy]={u,c};
+      if(posy+1<=m)l[1][posy+1]={u,c};
     }else{
-      REP(i,n) {
-        if(vis[!now.X][i])continue;
-        if(--cnt1[0][i][p[i][now.Y]-'a']==0)cnt2[0][i]--;
-        if(cnt2[0][i]==1){
-          REP(k,26)if(cnt1[0][i][k]>0)q.pb({!now.X,i,char(k+'a')});
-          vis[!now.X][i]=1;
+      cin>>posx>>posy>>r;
+      for(int i=posx-r;i<=posx+r;i++){
+        if(i<=0||i>n)continue;
+        for(int j=posy-r;j<=posy+r;j++){
+          if(j<=0||j>m)continue;
+          if((i-posx)*(i-posx)+(j-posy)*(j-posy)<=r*r)g[i][j]={u,c};
         }
       }
     }
   }
-  REP(i,n+m){
-    pline now = ans[n+m-i-1];
-    cout<<(now.X?"column ":"row ")<<now.Y+1<<" "<<(now.Z=='@'?'a':now.Z)<<endl;
+  int ans[3] = {};
+  REP1(i,n){
+    REP1(j,m){
+      if(l[0][i].X>g[i][j].X)g[i][j]=l[0][i];
+      if(l[1][j].X>g[i][j].X)g[i][j]=l[1][j];
+      debug(g[i][j].Y);
+      ans[g[i][j].Y]++;
+    }
   }
-
-
+  cout<<ans[1]<<' '<<ans[2]<<' '<<ans[0]<<endl;
 	return 0;
 }
+
+
+// 4 5 4
+// 2 1 1
+// 1 2 3
+// 3 1 4 5 3
+// 3 2 3 4 0
+
+// 4 5 3
+// 2 1 1
+// 1 2 3
+// 1 1 4
