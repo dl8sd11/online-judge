@@ -1,8 +1,8 @@
 #include <bits/stdc++.h>
 using namespace std;
-void Report(int a,int b,int c,int d,int e,int f){
-  cout<<"Report("<<a<<","<<b<<","<<c<<","<<d<<","<<e<<","<<f<<");"<<endl;
-}
+// void Report(int a,int b,int c,int d,int e,int f){
+//   cout<<"Report("<<a<<","<<b<<","<<c<<","<<d<<","<<e<<","<<f<<");"<<endl;
+// }
 void solve(int l,int t,int N,int X,int Y){
   int dir = (X>=N/2+l)+(Y>=N/2+t)*2;
   vector<pair<int,int> > mid = {{l+N/2-1,t+N/2-1},{l+N/2,t+N/2-1},{l+N/2-1,t+N/2},{l+N/2,t+N/2}};
