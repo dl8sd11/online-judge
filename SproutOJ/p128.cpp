@@ -2,7 +2,7 @@
 using namespace std;
 
 void Report(int n){
-  cout<<n<<endl;
+  // cout<<n<<endl;
 }
 int ans[1025][1025];
 void solve2(int N,int l,int t,int dl,int dr);
@@ -43,10 +43,10 @@ void solve(int N){
       Report(ans[i][j]);
 }
 int main(){
-  solve(16);
-  for(int i=0;i<16;i++){
-    for(int j=0;j<16;j++){
-      cout<<setw(2)<<ans[i][j]<<' ';
+  solve(1024);
+  for(int i=0;i<1024;i++){
+    for(int j=0;j<1024;j++){
+      cout<<setw(4)<<ans[i][j]<<' ';
     }cout<<endl;
   }
 }
