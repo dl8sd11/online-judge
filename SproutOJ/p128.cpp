@@ -1,9 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-void Report(int n){
-  // cout<<n<<endl;
-}
 int ans[1025][1025];
 void solve2(int N,int l,int t,int dl,int dr);
 void solve1(int N,int l,int t,int dl,int dr){
@@ -38,9 +35,7 @@ void solve2(int N,int l,int t,int dl,int dr){
 void solve(int N){
   memset(ans,0,sizeof(ans));
   solve1(N,0,0,1,N*2-1);
-  for(int i=0;i<N;i++)
-    for(int j=0;j<N;j++)
-      Report(ans[i][j]);
+  for(int i=0;i<N;i++)for(int j=0;j<N;j++)Report(ans[i][j]);
 }
 int main(){
   solve(1024);
