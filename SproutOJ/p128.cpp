@@ -14,6 +14,7 @@ void solve1(int N,int l,int t,int dl,int dr){
     ans[t+1][l] = 3;
     return;
   }
+  // int dis = (dr-dl+1)/2;
   solve1(N/2,l,t,dl,(dl+dr-1)/2);
   solve1(N/2,l+N/2,t+N/2,dl,(dl+dr-1)/2);
   solve2(N/2,l+N/2,t,(dl+dr)/2,((dl+dr)/2+dr)/2);
@@ -28,10 +29,11 @@ void solve2(int N,int l,int t,int dl,int dr){
     return;
   }
   //dl,(dl+dr-1)/2
-  solve2(N/2,l,t,dl,(dl+dr-1)/2);
-  solve2(N/2,l+N/2,t+N/2,dl,(dl+dr-1)/2);
-  solve2(N/2,l+N/2,t,((dl+dr)/2+dr+1)/2,dr);
-  solve2(N/2,l,t+N/2,((dl+dr)/2+dr+1)/2,dr);
+  int dis = (dr-dl+1)/2;
+  solve2(N/2,l,t,dl,dl+dis-1);
+  solve2(N/2,l+N/2,t+N/2,dl,dl+dis-1);
+  solve2(N/2,l+N/2,t,dl+dis,dr);
+  solve2(N/2,l,t+N/2,dl+dis,dr);
 }
 void solve(int N){
   memset(ans,0,sizeof(ans));
