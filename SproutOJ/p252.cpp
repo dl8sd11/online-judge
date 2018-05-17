@@ -47,56 +47,47 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 const ll INF = (ll)1e18 + 7;
 const ll MOD = 1000000007;
 const ll MAXN = 3e5;
-
-ll n,m;
-const ll k = 300;
-list<ll> cps[1000];
-
+ll n,m,a,b,idx,cnt;
+vector<ll> e[100000];
+vector<pair<ll,ll> > edges;
+bool am[740][100000] = {};
+map<ll,ll> id_tab;
 int main()
 {
   IOS();
   cin>>n>>m;
-  ll idx = 0,tmp;
-  REP(i,n){
-    cin>>tmp;
-    if(cps[idx].size()>=k)idx++;
-    cps[idx].pb(tmp);
-  }
-  string cmd;
-  ll i,x;
+  ll sqrtm = ll(sqrt(m));
   while(m--){
-    cin>>cmd;
-    if(cmd[0]=='A'){
-      cin>>i>>x;
-      idx = (--i)/k;
-      auto it = cps[idx].begin();
-      ll tmod = i%k;
-      REP(j,tmod)it++;
-      cps[idx].insert(it,x);
-      while(cps[idx].size()>k){
-        cps[idx+1].push_front(cps[idx].back());
-        cps[idx].pop_back();
-        idx++;
-      }
-    }else if(cmd[0]=='Q'){
-      cin>>i;
-      i--;
-      auto it = cps[i/k].begin();
-      ll tmod = i%k;
-      REP(j,tmod)it++;
-      cout<<(*it)<<endl;
-    }else{
-      cin>>i;
-      idx = (--i)/k;
-      auto it = cps[idx].begin();
-       ll tmod = i%k;
-      REP(j,tmod)it++;
-      cps[idx].erase(it);
-      while(cps[idx].size()<k&&cps[idx+1].size()>0){
-        cps[idx].push_back(cps[idx+1].front());
-        cps[++idx].pop_front();
-      }
+    cin>>a>>b;
+    e[a].pb(b);
+    e[b].pb(a);
+    edges.pb({a,b});
+  }
+
+  REP(i,n) {
+    sort(e[i].begin(),e[i].end());
+    if(e[i].size()>sqrtm){
+      for(auto v:e[i])am[idx][v]=1;
+      id_tab[i] = idx++;
     }
   }
+
+  for(auto ed:edges){
+    if(e[ed.X].size()>sqrtm)swap(ed.X,ed.Y);
+    if(e[ed.Y].size()>sqrtm){
+      ll id = id_tab[ed.Y];
+      for(auto v:e[ed.X]){
+        if(am[id][v])cnt++;
+      }
+    } else {
+      vector<ll> tmp;
+      auto it = set_intersection(e[ed.X].begin(),e[ed.X].end(),e[ed.Y].begin(),e[ed.Y].end(),tmp.begin());
+      cnt+=it-tmp.begin();
+    }
+  }
+
+  cout<<cnt/3<<endl;
+
+
 	return 0;
 }
