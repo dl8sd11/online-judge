@@ -20,7 +20,7 @@ void solve(int N,ll K,ll A[]){
   ra.clear();
 
   if(N==1){
-    Report(A[0]);
+    Report(1);
     Report(-1);
     return;
   }
@@ -85,8 +85,8 @@ void solve(int N,ll K,ll A[]){
       //pass
 
       if(y.sum==tg){
-        for(int i=0;i<N/2;i++)if(1<<i&x.nel)Report(A[i]);
-        for(int i=0;i<N-N/2;i++)if(1<<i&y.nel)Report(A[i+N/2]);
+        for(int i=0;i<N/2;i++)if(1<<i&x.nel)Report(i+1);
+        for(int i=0;i<N-N/2;i++)if(1<<i&y.nel)Report(i+N/2+1);
         Report(-1);
         break;
       }
