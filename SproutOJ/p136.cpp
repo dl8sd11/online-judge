@@ -95,7 +95,7 @@ void solve(int N,ll K,ll A[]){
   // Sample test in problem description.
 int main() {
   // You may change it to any data that you'd like to test with.
-  for(int x=0;x<1;x++){
+  for(int x=0;x<100;x++){
     long long A[40];
     long long n,k;
     cin>>n>>k;
