@@ -52,6 +52,24 @@ vector<ll> e[100000];
 vector<pair<ll,ll> > edges;
 bool am[740][100000] = {};
 map<ll,ll> id_tab;
+
+ll cnt_intersection(vector<ll> &va,vector<ll> &vb){
+  ll idx1=0,idx2=0,ret=0;
+  while(1){
+    if(va[idx1]>vb[idx2]){
+      idx2++;
+    } else if(va[idx1]<vb[idx2]){
+      idx1++;
+    } else {
+      ret++;
+      idx1++;
+      idx2++;
+    }
+    if(idx1>=va.size()||idx2>=vb.size())break;
+  }
+  return ret;
+}
+
 int main()
 {
   IOS();
@@ -81,8 +99,7 @@ int main()
       }
     } else {
       vector<ll> tmp;
-      auto it = set_intersection(e[ed.X].begin(),e[ed.X].end(),e[ed.Y].begin(),e[ed.Y].end(),tmp.begin());
-      cnt+=it-tmp.begin();
+      cnt+= cnt_intersection(e[ed.X],e[ed.Y]);
     }
   }
 
