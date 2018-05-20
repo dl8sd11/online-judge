@@ -4,13 +4,17 @@ using namespace std;
 
 int main()
 {
-  cout<<RAND_MAX<<endl;
-  int sum = 0;
-  for(int i=0;i<40;i++){
-    int tmp = rand()%1000000;
-    sum+=tmp;
-    cout<<tmp<<',';
+  for(int j=0;j<100;j++){
+    int A[40] = {};
+    const int n = rand()%40+1;
+    long long  k = 0;
+    for(int i=0;i<n;i++){
+      A[i] = rand()%RAND_MAX+1;
+      if(rand()&1)k+=A[i];
+    }
+    cout<<n<<' '<<k<<endl;
+    for(int i=0;i<n;i++)cout<<A[i]<<' ';
   }
-  cout<<endl<<sum<<endl;
-	return 0;
+  return 0;
+
 }
