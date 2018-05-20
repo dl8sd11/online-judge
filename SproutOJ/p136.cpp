@@ -28,6 +28,7 @@ void solve(int N,ll K,ll A[]){
 
   for(ll i=0;i<(1<<N/2);i++){
     nd tmp;
+    tmp.sum = 0;
     for(ll j=0;j<N/2;j++){
       if(1<<j&i){
         tmp.sum+=A[j];
@@ -40,6 +41,7 @@ void solve(int N,ll K,ll A[]){
   ll rsz = N - N/2;
   for(ll i=0;i<(1<<rsz);i++){
     nd tmp;
+    tmp.sum = 0;
     for(ll j=0;j<rsz;j++){
       if(1<<j&i){
         tmp.sum+=A[j+N/2];
