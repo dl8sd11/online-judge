@@ -1,6 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
-typedef long long ll;
+typedef int ll;
 #define MEM(a, b) memset(a, (b), sizeof(a))
 #define FOR(i, j, k, in) for (ll i=j ; i<k ; i+=in)
 #define RFOR(i, j, k, in) for (ll i=j ; i>=k ; i-=in)
@@ -46,12 +46,34 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll INF = (ll)1e18 + 7;
 const ll MOD = 1000000007;
-const ll MAXN = 3e5;
+const ll MAXN = 1e5 + 7;
 ll n,m;
-vector<pair<ll,bool> > e[MAXN];
+ll ans = 0;
+vector<ll> e[MAXN];
+ll dis[MAXN];
+ll sz[MAXN];
 ll dp[MAXN];
+void init(){
+  REP(i,MAXN)dis[i]=i,sz[i]=1;
+}
+ll find(ll x){
+  if(dis[x]!=x)dis[x]=find(dis[x]);
+  return dis[x];
+}
+void merge(ll x,ll y){
+  if(sz[x=find(x)]<sz[y=find(y)])swap(x,y);
+  dis[y]=x;
+  sz[x] = sz[x] + sz[y];
+}
 ll dfs(ll id,ll root){
-
+  if(dp[id]!=-1)return dp[id];
+  ll ret = 0;
+  for(auto v:e[id]){
+    if(v==root)break;
+    ret = max(ret,dfs(v,id));
+  }
+  ans = max(ans,ret+1);
+  return dp[id] = ret + 1;
 }
 ll pos2id(ll i,ll j){
   return j+i*m;
@@ -61,12 +83,23 @@ int main()
   IOS();
   cin>>n>>m;
   ll f[n][m];
-  pair<ll,ll> mpos = {0,0};
+  MEM(dp,-1);
+  init();
+  REP(i,n)REP(j,m)cin>>f[i][j];
+
+
   REP(i,n){
-    REP(j,m){
-      cin>>f[i][j];
-      if(f[i][j]>f[mpos.X][mpos.Y])mpos={i,j};
-    }
+    vector<pair<ll,ll> > far;
+    REP(j,m)far.pb({j,f[i][j]});
+    sort(ALL(far),[](const pair<ll,ll> &a,const pair<ll,ll> &b){return a.Y<b.Y;});
+    REP(j,m-1)if(far[j].Y==far[j+1].Y)merge(pos2id(i,far[j].X),pos2id(i,far[j+1].X));
+  }
+
+  REP(j,m){
+    vector<pair<ll,ll> > far;
+    REP(i,n)far.pb({i,f[i][j]});
+    sort(ALL(far),[](const pair<ll,ll> &a,const pair<ll,ll> &b){return a.Y<b.Y;});
+    REP(i,n-1)if(far[i].Y==far[i+1].Y)merge(pos2id(far[i].X,j),pos2id(far[i+1].X,j));
   }
 
   REP(i,n){
@@ -74,22 +107,29 @@ int main()
     REP(j,m)far.pb({j,f[i][j]});
     sort(ALL(far),[](const pair<ll,ll> &a,const pair<ll,ll> &b){return a.Y<b.Y;});
     REP(j,m-1){
-
-      e[pos2id(i,j+1)].pb({pos2id(i,j),(f[i][j+1]==f[i][j]?0:1)});
+      if(far[j].Y<far[j+1].Y){
+        e[find(pos2id(i,far[j+1].X))].pb(find(pos2id(i,far[j].X)));
+      }
     }
   }
 
   REP(j,m){
     vector<pair<ll,ll> > far;
-    REP(i,n)far.pb({j,f[i][j]});
+    REP(i,n)far.pb({i,f[i][j]});
     sort(ALL(far),[](const pair<ll,ll> &a,const pair<ll,ll> &b){return a.Y<b.Y;});
     REP(i,n-1){
-      e[pos2id(i,j)].pb({pos2id(i+1,j),(f[i+1][j]==f[i][j]?0:1)});
-      e[pos2id(i+1,j)].pb({pos2id(i,j),(f[i+1][j]==f[i][j]?0:1)});
+      if(far[i].Y<far[i+1].Y){
+        e[find(pos2id(far[i+1].X,j))].pb(find(pos2id(far[i].X,j)));
+      }
     }
   }
-  debug(mpos);
-  cout<<dfs(pos2id(mpos.X,mpos.Y))<<endl;
+  REP(i,n*m){
+    if(find(i)==i)dfs(i,i);
+  }
+  REP(i,n*m)debug(find(i));
+  REP(i,n*m)debug(dp[i]);
+
+  cout<<ans<<endl;
 	return 0;
 }
 
