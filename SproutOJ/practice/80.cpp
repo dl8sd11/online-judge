@@ -46,106 +46,61 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll INF = (ll)1e18 + 7;
 const ll MOD = 1000000007;
-const ll MAXN = 3e5;
+const ll MAXN = 1e6 + 3;
+
+int a[MAXN];
 struct node{
   int l,r;
   node *lc,*rc;
-  pair<int,int> d;
-  bool tag;
-  void pull() {
-    if(lc&&rc) {
-      lc->push();
-      rc->push();
-      d.X = lc->d.X+rc->d.X;
-      d.Y = lc->d.Y+rc->d.Y;
+  int data;
+  node(int li,int ri,node *lci,node *rci,int datai):l(li),r(ri),lc(lci),rc(rci),data(datai){
+    if(lc){
+      data = min(lc->data,rc->data);
     }
   }
-  void push() {
-    if(tag) {
-      d.X +=d.Y;
-      d.Y=0;
-      if(lc&&rc) {
-        rc->tag =1;
-        lc->tag = 1;
-      }
-    }
-    tag=0;
-  }
-  node(int li,int ri,node *lci,node *rci,pair<int,int> di):l(li),r(ri),lc(lci),rc(rci),d(di),tag(0){pull();}
 };
-void printTree(node *nd) {
-  debug(nd->l,nd->r);
-  debug(nd->d);
-  if(nd->lc) {
-    printTree(nd->lc);
-    printTree(nd->rc);
-  }
-}
+
 node *build(int l,int r){
-  if(l==r-1)return new node(l,r,0,0,{1,0});
+  if(r==l+1)return new node(l,r,0,0,a[l]);
   int mid = (l+r)/2;
-  return new node(l,r,build(l,mid),build(mid,r),{-1,-1});
+  return new node(l,r,build(l,mid),build(mid,r),0);
 }
-void add(int l,int r,node *nd) {
-  nd->push();
+
+int query(int l,int r,node *nd){
+  if(l==nd->l&&r==nd->r)return nd->data;
+  int mid = (nd->l+nd->r)/2;
+  if(r<=mid)return query(l,r,nd->lc);
+  else if(l>=mid)return query(l,r,nd->rc);
+  else return min(query(l,mid,nd->lc),query(mid,r,nd->rc));
+}
+
+void modify(int l,int r,node *nd,int x){
   if(l==nd->l&&r==nd->r) {
-    swap(nd->d.X,nd->d.Y);
+    nd->data = x;
     return;
   }
-  int mid=(nd->l+nd->r)/2;
-  if(l>=mid) add(l,r,nd->rc);
-  else if(r<=mid) add(l,r,nd->lc);
-  else {
-    add(l,mid,nd->lc);
-    add(mid,r,nd->rc);
-  }
-  nd->pull();
+  int mid = (nd->l+nd->r)/2;
+  if(r<=mid) modify(l,r,nd->lc,x);
+  else if(l>=mid) modify(l,r,nd->rc,x);
+  nd->data = min(nd->lc->data,nd->rc->data);
 }
-int query(int l,int r,node *nd) {
-  nd->push();
-  if(l==nd->l&&r==nd->r) {
-    return nd->d.X;
-  }
-  int mid=(nd->l+nd->r)/2;
-  if(l>=mid)  return query(l,r,nd->rc);
-  else if(r<=mid) return query(l,r,nd->lc);
-  else return query(l,mid,nd->lc) + query(mid,r,nd->rc);
-}
-void clear(int l,int r,node *nd){
-  if(nd->tag)return;
-  if(l==nd->l&&r==nd->r) {
-    debug(l,r);
-    nd->tag=1;
-    return;
-  }
-  int mid=(nd->l+nd->r)/2;
-  if(l>=mid) clear(l,r,nd->rc);
-  else if(r<=mid) clear(l,r,nd->lc);
-  else {
-    clear(l,mid,nd->lc);
-    clear(mid,r,nd->rc);
-  }
-  nd->pull();
-}
-int n,m,x,y;
-string cmd;
+
 int main()
 {
   IOS();
-  cin>>n>>m;
+  int n,m,x,y;
+  cin>>m>>n;
+  REP(i,n)cin>>a[i];
+
   node *root = build(0,n);
-  printTree(root);
-  while(m--) {
+  int cmd;
+  while(m--){
     cin>>cmd>>x>>y;
-    if(cmd[0]=='T') {
-      add(x-1,y,root);
-    } else if(cmd[0]=='C') {
-      debug(cmd);
-      cout<<query(x-1,y,root)<<endl;
-    } else {
-      clear(x-1,y,root);
+    if(cmd==1){
+      cout<<query(x,y+1,root)<<endl;
+    }else {
+      modify(x,x+1,root,y);
     }
-    printTree(root);
   }
 	return 0;
 }

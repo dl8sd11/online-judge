@@ -46,22 +46,24 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll INF = (ll)1e18 + 7;
 const ll MOD = 1000000007;
-const ll MAXN = 3e5;
 
-int c[MAXN];
-vector<int> p[10000];
+/********** Main()  function **********/
 int main()
 {
   IOS();
-  int n,m,q;
-  cin>>n>>m>>q;
-  REP(i,n)cin>>c[i];
-  REP(i,m){
-    int t;
-    cin>>t;
-    while(t--){
-      cin>>
-    }
+
+  int n;
+  cin>>n;
+  int pos[102];
+  REP(i,n/2)cin>>pos[i];
+  sort(pos,pos+(n/2));
+  int t1 = 0, t2 = 0;
+  for(int i=1;i<=n-1;i+=2){
+    t1 += abs(i-pos[(i-1)/2]);
   }
+  for(int i=2;i<=n;i+=2){
+    t2 += abs(i-pos[(i-2)/2]);
+  }
+  cout<<min(t1,t2)<<endl;
 	return 0;
 }

@@ -1,20 +1,13 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-
+int n,m,a,b;
+int A[1000000];
+const int trans[3][4] = {{0,1,2,3},{0,3,7,2},{0,2,3,1}};
 int main()
 {
-  for(int j=0;j<100;j++){
-    int A[40] = {};
-    const int n = rand()%40+1;
-    long long  k = 0;
-    for(int i=0;i<n;i++){
-      A[i] = rand()%RAND_MAX+1;
-      if(rand()&1)k+=A[i];
-    }
-    cout<<n<<' '<<k<<endl;
-    for(int i=0;i<n;i++)cout<<A[i]<<' ';
-  }
+  cout<<trans[1][2];
+
   return 0;
 
 }
