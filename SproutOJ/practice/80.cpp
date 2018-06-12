@@ -46,20 +46,92 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll INF = (ll)1e18 + 7;
 const ll MOD = 1000000007;
+<<<<<<< HEAD:SproutOJ/practice/80.cpp
 const ll MAXN = 1e6 + 3;
 
 int a[MAXN];
+=======
+const ll MAXN = 3e5;
+
+>>>>>>> a96265d008ec31824eda429fd8f54398c98f7402:SproutOJ/p257.cpp
 struct node{
-  int l,r;
+  ll l,r;
   node *lc,*rc;
+<<<<<<< HEAD:SproutOJ/practice/80.cpp
   int data;
   node(int li,int ri,node *lci,node *rci,int datai):l(li),r(ri),lc(lci),rc(rci),data(datai){
     if(lc){
       data = min(lc->data,rc->data);
+=======
+  ll data[3];
+  ll reset,turn;
+  node(ll li,ll ri,node *lci,node *rci):l(li),r(ri),lc(lci),rc(rci),reset(0),turn(0){
+    data[0] = r-l;
+    data[1] = 0;
+    data[2] = 0;
+  }
+  void pull(){
+    if(!lc)return;
+    if(lc->reset) {
+      lc->data[0] = lc->r-lc->l;
+      lc->data[1] = 0;
+      lc->data[2] = 0;
+    }
+
+    if(rc->reset) {
+      rc->data[0] = rc->r-rc->l;
+      rc->data[1] = 0;
+      rc->data[2] = 0;
+    }
+
+    ll pos;
+    REP(i,3){
+      pos = i - lc->turn;
+      if(pos<0)pos+=3;
+      data[i] = lc->data[pos];
+    }
+
+    REP(i,3){
+      pos = i - rc->turn;
+      if(pos<0)pos+=3;
+      data[i] += rc->data[pos];
+    }
+  }
+
+  void push(){
+    if(reset>0){
+      data[0] = r-l;
+      data[1] = 0;
+      data[2] = 0;
+      if(lc){
+        lc->reset = 1;
+        rc->reset = 1;
+        lc->turn = 0;
+        rc->turn = 0;
+      }
+      reset = 0;
+    }
+    if(turn>0){
+      ll tmp[3],pos;
+      REP(i,3){
+        pos = i - turn;
+        if(pos<0)pos+=3;
+        tmp[i] = data[pos];
+      }
+      REP(i,3)data[i] = tmp[i];
+      if(lc){
+        lc->turn += turn;
+        rc->turn += turn;
+        if(lc->turn >= 3)lc->turn -= 3;
+        if(rc->turn >= 3)rc->turn -= 3;
+      }
+      turn = 0;
+>>>>>>> a96265d008ec31824eda429fd8f54398c98f7402:SproutOJ/p257.cpp
     }
   }
 };
 
+<<<<<<< HEAD:SproutOJ/practice/80.cpp
 node *build(int l,int r){
   if(r==l+1)return new node(l,r,0,0,a[l]);
   int mid = (l+r)/2;
@@ -85,6 +157,54 @@ void modify(int l,int r,node *nd,int x){
   nd->data = min(nd->lc->data,nd->rc->data);
 }
 
+=======
+node *build(ll l,ll r){
+  if(r==l+1)return new node(l,r,0,0);
+  ll mid = (l+r)/2;
+  return new node(l,r,build(l,mid),build(mid,r));
+}
+
+void reset(ll l,ll r,node *nd){
+  nd->push();
+  if(l==nd->l&&r==nd->r){
+    nd->reset = 1;
+    nd->turn = 0;
+    return;
+  }
+  ll mid = (nd->l+nd->r)/2;
+  if(r<=mid) reset(l,r,nd->lc);
+  else if(l>=mid) reset(l,r,nd->rc);
+  else reset(l,mid,nd->lc),reset(mid,r,nd->rc);
+  nd->pull();
+}
+
+void add(ll l,ll r,node *nd){
+  nd->push();
+  if(l==nd->l&&r==nd->r){
+    nd->turn += 1;
+    if(nd->turn >= 3) nd->turn -=3;
+    return;
+  }
+  ll mid = (nd->l+nd->r)/2;
+  if(r<=mid) add(l,r,nd->lc);
+  else if(l>=mid) add(l,r,nd->rc);
+  else add(l,mid,nd->lc),add(mid,r,nd->rc);
+  nd->pull();
+}
+
+ll query(ll l,ll r,node *nd){
+  debug(nd->reset,nd->turn);
+  pary(nd->data,nd->data+3);
+  nd->push();
+  if(l==nd->l&&r==nd->r) return nd->data[0];
+  ll mid = (nd->l+nd->r)/2;
+  if(r<=mid) return query(l,r,nd->lc);
+  else if(l>=mid) return query(l,r,nd->rc);
+  else return query(l,mid,nd->lc)+query(mid,r,nd->rc);
+}
+int n,m,x,y;
+string cmd;
+>>>>>>> a96265d008ec31824eda429fd8f54398c98f7402:SproutOJ/p257.cpp
 int main()
 {
   IOS();
@@ -93,6 +213,7 @@ int main()
   REP(i,n)cin>>a[i];
 
   node *root = build(0,n);
+<<<<<<< HEAD:SproutOJ/practice/80.cpp
   int cmd;
   while(m--){
     cin>>cmd>>x>>y;
@@ -100,6 +221,16 @@ int main()
       cout<<query(x,y+1,root)<<endl;
     }else {
       modify(x,x+1,root,y);
+=======
+  while(m--) {
+    cin>>cmd>>x>>y;
+    if(cmd[0]=='T') {
+      add(x-1,y,root);
+    } else if(cmd[0]=='C') {
+      cout<<query(x-1,y,root)<<endl;
+    } else {
+      reset(x-1,y,root);
+>>>>>>> a96265d008ec31824eda429fd8f54398c98f7402:SproutOJ/p257.cpp
     }
   }
 	return 0;
