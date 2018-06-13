@@ -55,7 +55,7 @@ ll f[MAXN];
 int main()
 {
   IOS();
-  cin>>a>>b; // b is longer
+  cin>>a; // b is longer
 
   ll p = -1;
   f[0] = -1;
@@ -71,25 +71,9 @@ int main()
   }
 
   pary(f,f+SZ(a));
-  
-  p = -1;
 
-  vector<ll> ans;
-  for(ll i=0;b[i];i++){
-    while(p!=-1&&a[p+1]!=b[i]){
-      p = f[p];
-    }
-    if(a[p+1]==b[i]){
-      p++;
-    }
-    if(!a[p+1]){
-      ans.pb(i-p);
-      p = f[p];
-    }
-  }
-  for(ll i=0;i<SZ(ans);i++){
-    cout<<ans[i]<<(i==SZ(ans)-1?"":" ");
-  }
-  cout<<endl;
+
+  if(SZ(a)%(SZ(a)-f[SZ(a)-1]-1)==0)cout<<SZ(a)-f[SZ(a)-1]-1<<endl;
+  else cout<<SZ(a)<<endl;
 	return 0;
 }
