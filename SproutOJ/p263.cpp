@@ -72,10 +72,17 @@ int main()
 
   pary(f,f+SZ(a));
 
-  ll xplusy = SZ(a)-f[SZ(a)-1]-1;
-  ll x = SZ(a) % xplusy;
-  ll y = xplusy - x;
+  p = SZ(a) - 1;
+  while(p-f[p]-1!=p){
+    p = p - f[p] -1;
+  }
+  debug(p);
+  ll idx = 0;
+  while(p+1+idx<SZ(a)&&a[idx]==a[p+1+idx]){
+    idx++;
+  }
 
-  cout<<x*2+y<<endl;
+  debug(idx);
+  cout<<p+1+(idx%(p+1))<<endl;
 	return 0;
 }
