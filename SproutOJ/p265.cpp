@@ -70,7 +70,8 @@ int main()
     f[i] = p;
   }
 
-
+  pary(f,f+SZ(a));
+  
   p = -1;
 
   vector<ll> ans;
@@ -87,8 +88,8 @@ int main()
     }
   }
   for(ll i=0;i<SZ(ans);i++){
-    cout<<ans[i]<<(i==SZ(ans)-1?"\n":" ");
+    cout<<ans[i]<<(i==SZ(ans)-1?"":" ");
   }
-
+  cout<<endl;
 	return 0;
 }

@@ -72,17 +72,8 @@ int main()
 
   pary(f,f+SZ(a));
 
-  p = SZ(a) - 1;
-  while(p-f[p]-1!=p){
-    p = p - f[p] -1;
-  }
-  debug(p);
-  ll idx = 0;
-  while(p+1+idx<SZ(a)&&a[idx]==a[p+1+idx]){
-    idx++;
-  }
 
-  debug(idx);
-  cout<<p+1+(idx%(p+1))<<endl;
+  if(SZ(a)%(SZ(a)-f[SZ(a)-1]-1)==0)cout<<SZ(a)-f[SZ(a)-1]-1<<endl;
+  else cout<<SZ(a)<<endl;
 	return 0;
 }
