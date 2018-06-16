@@ -50,6 +50,16 @@ const ll MAXN = 3e5;
 ll t,tmp;
 ll n,m;
 vector<ll> b,f;
+bool check(int k){
+  priority_queue<ll> pq;
+  for(auto subb:b)pq.push(subb);
+  for(ll i=k-1;i>=0;i--){
+    if(f[i]>pq.top())return false;
+    pq.push(pq.top()-f[i]);
+    pq.pop();
+  }
+  return true;
+}
 int main()
 {
   IOS();
@@ -60,16 +70,16 @@ int main()
     f.clear();
     REP(i,n)cin>>tmp,b.pb(tmp);
     REP(i,m)cin>>tmp,f.pb(tmp);
-    sort(ALL(b));
+
     sort(ALL(f));
-    ll cnt = 0,idx = 0;
-    for(auto v:b){
-      while(idx<m&&v-f[idx]>=0){
-        v-=f[idx++];
-        cnt++;
-      }
+
+    int l=0,r=m+1;
+    while(r!=l+1){
+      int mid = (l+r)/2;
+      if(check(mid)) l = mid;
+      else r = mid;
     }
-    cout<<cnt<<endl;
+    cout<<l<<endl;
   }
 	return 0;
 }
