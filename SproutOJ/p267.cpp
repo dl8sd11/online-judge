@@ -46,43 +46,60 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll INF = (ll)1e18 + 7;
 const ll MOD = 1000000007;
+const ll MAXN = 3e5;
+int n,m;
+struct Trie{
+  map<int,Trie*> c;
+  int cnt;
 
-const ll MAXN = 1e6 + 3;
-pair<ll,ll> dq[MAXN]; //i,x val
-ll pos[MAXN];
+  Trie():cnt(0){}
+};
+Trie *root;
 
+void insert(string s){
+  Trie *ptr = root;
+
+  auto it = s.begin();
+  while(it!=s.end()){
+    auto fit = ptr->c.find(int(*it));
+    if(fit==ptr->c.end())
+      ptr->c[int(*it)] = new Trie();
+    ptr = ptr->c[int(*it)];
+    debug(ptr);
+    it++;
+  }
+  ptr->cnt++;
+}
+
+int find(string s){
+  Trie *ptr = root;
+
+  auto it = s.begin();
+  while(it!=s.end()){
+    auto fit = ptr->c.find(int(*it));
+    if(fit==ptr->c.end())
+      return 0;
+    ptr = ptr->c[int(*it)];
+    it++;
+  }
+  return ptr->cnt;
+}
 int main()
 {
   IOS();
-  int n;
-  string a;
-  cin>>n>>a;
+  cin>>n>>m;
 
-  vector<int> z(n);
-  for(int i=1,l=0,r=0;i<n;i++){
-    if(i<=r)
-      z[i] = min(r-i+1,z[i-l]);
-    while(i+z[i]<n&&a[z[i]]==a[i+z[i]])
-      ++z[i];
-    if(i+z[i]-1>r)
-      l=i,r=i+z[i]-1;
+  string tmp;
+  REP(i,n){
+    debug(i);
+    cin>>tmp;
+    insert(tmp);
   }
-  debug(z);
 
-  ll ed = 0;
-  REP1(i,n-1){
-    pair<ll,ll> now = {i,min(z[i]+i,i*2)};
-    if(z[i]!=0){
-      while(ed!=0&&dq[ed-1].Y<=now.Y)ed--;
-      dq[ed++] = now;
-    }
-
-    while(ed!=0&&i+1>dq[ed-1].Y)ed--;
-    if(ed!=0)pos[i] = dq[ed-1].X * 2;
+  REP(i,m){
+    debug(i);
+    cin>>tmp;
+    cout<<find(tmp)<<endl;
   }
-  pary(pos,pos+n);
-  ll sum = 0;
-  REP(i,n)sum += pos[i];
-  cout<<sum<<endl;
 	return 0;
 }
