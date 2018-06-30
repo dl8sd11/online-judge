@@ -44,69 +44,38 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
 #endif
 
-const ll INF = (ll)1e18 + 7;
+const ll INF = (ll)1e7 + 7;
 const ll MOD = 1000000007;
-const ll MAXN = 3e5;
-
-
-struct Trie{
-  int cnt;
-  Trie *c[26];
-  int val[26];
-  Trie():cnt(0){
-    REP(i,26)c[i] = NULL,val[i]=0;
-  }
-};
-Trie *root;
-void clear_Trie(Trie *nd){
-  REP(i,26){
-    if(nd->c[i])clear_Trie(nd->c[i]);
-  }
-  delete nd;
-}
-void insert(string str){
-  auto it = str.begin();
-  Trie *ptr = root;
-  while(it!=str.end()){
-    if(!ptr->c[*it-'a'])ptr->c[*it-'a'] = new Trie();
-    ptr->val[*it-'a']++;
-    ptr = ptr->c[*it-'a'];
-    it ++;
-  }
-  ptr->cnt++;
-}
-ll find(string str){
-  auto it = str.begin();
-  Trie *ptr = root;
-  ll ret = 0;
-  while(it!=str.end()){
-    ret++;
-    if(ptr->val[*it-'a']==1)return ret;
-    ptr = ptr->c[*it-'a'];
-    it++;
-  }
-  return ret;
-}
+const ll MAXN = 503;
+ll n,tmp;
+ll dp[MAXN][MAXN];
+vector<ll> vans;
 int main()
 {
   IOS();
-  ll t,n,ans;
-  string str;
-  cin>>t;
-  REP1(_i,t){
-      cin>>n;
-      ans = 0;
-
-      if(root)clear_Trie(root);
-      root = NULL;
-
-      root = new Trie();
-      REP(i,n){
-        cin>>str;
-        insert(str);
-        ans += find(str);
+  cin>>n;
+  REP(i,n)REP(j,n)cin>>tmp,dp[i][j] = (tmp==-1?INF:tmp);
+  ll ans;
+  REP(k,n){
+    ans = 0;
+    REP(i,n){
+      REP(j,n){
+        dp[i][j] = min(dp[i][j],dp[i][k]+dp[k][j]);
+        if(i<=k&&j<=k)ans = max(ans,dp[i][j]);
       }
-      cout<<"Case #"<<_i<<": "<<ans<<endl;
+    }
+
+    bool flag = 0;
+    REP(i,k+1)REP(j,k+1)if(i!=j&&(dp[i][j]>=INF||dp[j][i]>=INF))flag=1;
+
+
+    if(flag)vans.pb(-1);
+    else vans.pb(ans);
   }
-  return 0;
+  REP(i,ll(vans.size())){
+    if(i==ll(vans.size()-1))cout<<vans[i]<<endl;
+    else cout<<vans[i]<<' ';
+  }
+
+	return 0;
 }

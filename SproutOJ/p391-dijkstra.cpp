@@ -1,6 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
-typedef long long ll;
+typedef unsigned long long ll;
+typedef pair<ll,ll> pii;
 #define MEM(a, b) memset(a, (b), sizeof(a))
 #define FOR(i, j, k, in) for (ll i=j ; i<k ; i+=in)
 #define RFOR(i, j, k, in) for (ll i=j ; i>=k ; i-=in)
@@ -47,66 +48,51 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 const ll INF = (ll)1e18 + 7;
 const ll MOD = 1000000007;
 const ll MAXN = 3e5;
-
-
-struct Trie{
-  int cnt;
-  Trie *c[26];
-  int val[26];
-  Trie():cnt(0){
-    REP(i,26)c[i] = NULL,val[i]=0;
-  }
-};
-Trie *root;
-void clear_Trie(Trie *nd){
-  REP(i,26){
-    if(nd->c[i])clear_Trie(nd->c[i]);
-  }
-  delete nd;
-}
-void insert(string str){
-  auto it = str.begin();
-  Trie *ptr = root;
-  while(it!=str.end()){
-    if(!ptr->c[*it-'a'])ptr->c[*it-'a'] = new Trie();
-    ptr->val[*it-'a']++;
-    ptr = ptr->c[*it-'a'];
-    it ++;
-  }
-  ptr->cnt++;
-}
-ll find(string str){
-  auto it = str.begin();
-  Trie *ptr = root;
-  ll ret = 0;
-  while(it!=str.end()){
-    ret++;
-    if(ptr->val[*it-'a']==1)return ret;
-    ptr = ptr->c[*it-'a'];
-    it++;
-  }
-  return ret;
-}
+ll n,m,s,e,f;
+ll a,b,c1,d,c2;
+ll cost;
+vector<pii > edge[107];
 int main()
 {
   IOS();
-  ll t,n,ans;
-  string str;
+  ll t;
   cin>>t;
-  REP1(_i,t){
-      cin>>n;
-      ans = 0;
+  while(t--){
+    cin>>n>>m>>s>>e>>f;
+    REP(i,107)edge[i].clear();
+    REP(i,m){
+      cin>>a>>b>>c1>>d>>c2;
+      if(f>d)cost = c2 * (f-d) + c1 * d;
+      else cost = c1 * f;
+      debug(a,b,cost);
+      edge[a].pb({b,cost});
+      edge[b].pb({a,cost});
+    }
+    ll dis[107] = {};
+    REP(i,107)dis[i]=INF;
+    bool visited[107] = {};
+    priority_queue<pii,vector<pii>,greater<pii>> pq;
+    dis[s] = 0;
+    visited[s] = 1;
+    pq.push({0,s});
+    REP(i,n){
 
-      if(root)clear_Trie(root);
-      root = NULL;
-
-      root = new Trie();
-      REP(i,n){
-        cin>>str;
-        insert(str);
-        ans += find(str);
+      ll found = INF;
+      while(pq.size()&&visited[found=pq.top().Y])pq.pop();
+      if(found==INF)break;
+      visited[found] = 1;
+      debug(found);
+      for(auto v:edge[found]){
+        if(!visited[v.X]&&dis[found] + v.Y<dis[v.X]){
+          dis[v.X] = dis[found] + v.Y;
+          debug("push",dis[v.X],v.X);
+          pq.push({dis[v.X],v.X});
+        }
       }
-      cout<<"Case #"<<_i<<": "<<ans<<endl;
+    }
+    pary(dis+1,dis+5);
+    assert(dis[e]!=INF);
+    cout<<dis[e]<<endl;
   }
-  return 0;
+	return 0;
 }

@@ -1,6 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
-typedef long long ll;
+typedef int ll;
 #define MEM(a, b) memset(a, (b), sizeof(a))
 #define FOR(i, j, k, in) for (ll i=j ; i<k ; i+=in)
 #define RFOR(i, j, k, in) for (ll i=j ; i>=k ; i-=in)
@@ -13,7 +13,7 @@ typedef long long ll;
 #define pb push_back
 #define X first
 #define Y second
-typedef pair<ll, ll> pi;
+typedef pair<ll, ll> pii;
 #ifdef tmd
 #define debug(...) do{\
     fprintf(stderr,"%s - %d (%s) = ",__PRETTY_FUNCTION__,__LINE__,#__VA_ARGS__);\
@@ -46,67 +46,66 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll INF = (ll)1e18 + 7;
 const ll MOD = 1000000007;
-const ll MAXN = 3e5;
-
-
-struct Trie{
-  int cnt;
-  Trie *c[26];
-  int val[26];
-  Trie():cnt(0){
-    REP(i,26)c[i] = NULL,val[i]=0;
-  }
-};
-Trie *root;
-void clear_Trie(Trie *nd){
-  REP(i,26){
-    if(nd->c[i])clear_Trie(nd->c[i]);
-  }
-  delete nd;
+const ll MAXN = 2003;
+ll n,m;
+char tmp;
+ll x1,x2,z1,z2;
+pii bfs[MAXN*MAXN];
+ll dirx[4] = {-1,0,1,0};
+ll diry[4] = {0,1,0,-1};
+ll ft,bk;
+bool sea[MAXN][MAXN];
+bool vis[MAXN][MAXN];
+void push(pii x){
+  bfs[bk++] = x;
 }
-void insert(string str){
-  auto it = str.begin();
-  Trie *ptr = root;
-  while(it!=str.end()){
-    if(!ptr->c[*it-'a'])ptr->c[*it-'a'] = new Trie();
-    ptr->val[*it-'a']++;
-    ptr = ptr->c[*it-'a'];
-    it ++;
-  }
-  ptr->cnt++;
+void pop(){
+  ft++;
 }
-ll find(string str){
-  auto it = str.begin();
-  Trie *ptr = root;
-  ll ret = 0;
-  while(it!=str.end()){
-    ret++;
-    if(ptr->val[*it-'a']==1)return ret;
-    ptr = ptr->c[*it-'a'];
-    it++;
+pii front(){
+  return bfs[ft];
+}
+bool valid(ll posx,ll posy){
+  if(posx>=0&&posx<n&&posy>=0&&posy<m)return true;
+  else return false;
+}
+bool dfs(ll x,ll y){
+  debug(x,y);
+  if(x==x2&&y==z2)return true;
+  for(int i=0;i<4;i++){
+    if(!valid(x+dirx[i],y+diry[i]))continue;
+    ll nowx = x+dirx[i];
+    ll nowy = y+diry[i];
+    if(vis[nowx][nowy])continue;
+    vis[nowx][nowy] = 1;
+    if(sea[nowx][nowy])push(mp(nowx,nowy));
+    else if(dfs(nowx,nowy))return true;
   }
-  return ret;
+  return false;
 }
 int main()
 {
   IOS();
-  ll t,n,ans;
-  string str;
-  cin>>t;
-  REP1(_i,t){
-      cin>>n;
-      ans = 0;
-
-      if(root)clear_Trie(root);
-      root = NULL;
-
-      root = new Trie();
-      REP(i,n){
-        cin>>str;
-        insert(str);
-        ans += find(str);
+  cin>>n>>m;
+  REP(i,n)REP(j,m)cin>>tmp,sea[i][j] = (tmp=='#'?0:1);
+  cin>>x1>>z1>>x2>>z2;
+  push(mp(--x1,--z1));
+  x2--,z2--;
+  ll step = 0;
+  while(ft!=bk){
+    debug(step);
+    ll len = bk-ft;
+    REP(i,len){
+      pii now = front();
+      pop();
+      vis[now.X][now.Y] = 1;
+      if(dfs(now.X,now.Y)){
+          cout<<step<<endl;
+          return 0;
       }
-      cout<<"Case #"<<_i<<": "<<ans<<endl;
+    }
+    step++;
   }
-  return 0;
+
+	return 0;
 }
