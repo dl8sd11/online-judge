@@ -47,59 +47,66 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 const ll INF = (ll)1e18 + 7;
 const ll MOD = 1000000007;
 const ll MAXN = 3e5;
-int n,m;
-struct Trie{
-  map<int,Trie*> c;
-  int cnt;
 
-  Trie():cnt(0){}
+
+struct Trie{
+  int cnt;
+  Trie *c[26];
+  int val[26];
+  Trie():cnt(0){
+    REP(i,26)c[i] = NULL,val[i]=0;
+  }
 };
 Trie *root;
-
-void insert(string s){
+void clear_Trie(Trie *nd){
+  REP(i,26){
+    if(nd->c[i])clear_Trie(nd->c[i]);
+  }
+  delete nd;
+}
+void insert(string str){
+  auto it = str.begin();
   Trie *ptr = root;
-
-  auto it = s.begin();
-  while(it!=s.end()){
-    auto fit = ptr->c.find(int(*it));
-    if(fit==ptr->c.end())
-      ptr->c[int(*it)] = new Trie();
-    ptr = ptr->c[int(*it)];
-    debug(ptr);
-    it++;
+  while(it!=str.end()){
+    if(!ptr->c[*it-'a'])ptr->c[*it-'a'] = new Trie();
+    ptr->val[*it-'a']++;
+    ptr = ptr->c[*it-'a'];
+    it ++;
   }
   ptr->cnt++;
 }
-
-int find(string s){
+ll find(string str){
+  auto it = str.begin();
   Trie *ptr = root;
-
-  auto it = s.begin();
-  while(it!=s.end()){
-    auto fit = ptr->c.find(int(*it));
-    if(fit==ptr->c.end())
-      return 0;
-    ptr = ptr->c[int(*it)];
+  ll ret = 0;
+  while(it!=str.end()){
+    ret++;
+    if(ptr->val[*it-'a']==1)return ret;
+    ptr = ptr->c[*it-'a'];
     it++;
   }
-  return ptr->cnt;
+  return ret;
 }
 int main()
 {
   IOS();
-  cin>>n>>m;
+  ll t,n,ans;
+  string str;
+  cin>>t;
+  REP1(_i,t){
+      cin>>n;
+      ans = 0;
 
-  string tmp;
-  REP(i,n){
-    debug(i);
-    cin>>tmp;
-    insert(tmp);
-  }
+      if(root)clear_Trie(root);
+      root = NULL;
 
-  REP(i,m){
-    debug(i);
-    cin>>tmp;
-    cout<<find(tmp)<<endl;
+      root = new Trie();
+      REP(i,n){
+        cin>>str;
+        insert(str);
+        ans += find(str);
+      }
+      cout<<"Case #"<<_i<<": "<<ans<<endl;
   }
-	return 0;
+  return 0;
 }
