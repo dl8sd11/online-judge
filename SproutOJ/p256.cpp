@@ -58,6 +58,7 @@ ll pt[16800000];
 vector<ll> cover[26];
 
 ll myexp(ll base,ll x){
+  if(x==1)return base;
   ll tmp = myexp(base,x/2);
   if(x&1)return tmp*tmp*base;
   else return tmp*tmp;
