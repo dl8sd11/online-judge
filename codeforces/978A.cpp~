@@ -1,0 +1,9 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+int n,used[1007];
+vector<int> input;
+vector<int> output;
+int main(){
+  
+}

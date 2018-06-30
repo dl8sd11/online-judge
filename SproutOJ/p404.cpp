@@ -78,7 +78,7 @@ int main()
     }
 
     while(ed!=0&&i+1>dq[ed-1].Y)ed--;
-    if(ed!=0)pos[i] = dq[ed-1].X * 2;
+    if(ed!=0)pos[i] = dq[ed-1].X;
   }
   pary(pos,pos+n);
   ll sum = 0;
