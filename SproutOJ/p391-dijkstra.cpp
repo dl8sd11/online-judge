@@ -66,7 +66,6 @@ int main()
       else cost = c1 * f;
       debug(a,b,cost);
       edge[a].pb({b,cost});
-      edge[b].pb({a,cost});
     }
     ll dis[107] = {};
     REP(i,107)dis[i]=INF;
