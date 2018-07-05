@@ -57,17 +57,17 @@ ll dp[16800000];
 ll pt[16800000];
 vector<ll> cover[26];
 
-ll myexp(ll base,ll x){
-  if(x==1)return base;
-  ll tmp = myexp(base,x/2);
-  if(x&1)return tmp*tmp*base;
+ll myexp(ll base,ll _x){
+  if(_x==1)return base;
+  ll tmp = myexp(base,_x/2);
+  if(_x&1)return tmp*tmp*base;
   else return tmp*tmp;
 }
 ll mul(ll a,ll b,ll c){
   return (((a*b)%MOD)*c)%MOD;
 }
 ll mydiv(ll a,ll b){
-  return (a * myexp(b,MOD-1))%MOD;
+  return (a * myexp(b,MOD-2))%MOD;
 }
 pdd solve(ll x1,ll x2,ll y1,ll y2){
   ll delta = (mul(x1,x1,x2)-mul(x2,x2,x1));
