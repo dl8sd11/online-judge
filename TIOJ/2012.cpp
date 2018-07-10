@@ -101,3 +101,4 @@ int main()
   }
 	return 0;
 }
+//高斯消去
