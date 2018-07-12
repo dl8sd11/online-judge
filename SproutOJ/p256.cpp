@@ -57,23 +57,27 @@ ll dp[16800000];
 ll pt[16800000];
 vector<ll> cover[26];
 
-ll myexp(ll base,ll x){
-  if(x==1)return base;
-  ll tmp = myexp(base,x/2);
-  if(x&1)return tmp*tmp*base;
-  else return tmp*tmp;
-}
 ll mul(ll a,ll b,ll c){
   return (((a*b)%MOD)*c)%MOD;
 }
+ll myexp(ll base,ll _x){
+  if(_x==1)return base;
+  ll tmp = myexp(base,_x/2);
+  if(_x&1)return mul(tmp,tmp,base);
+  else return mul(tmp,tmp,1);
+}
 ll mydiv(ll a,ll b){
-  return (a * myexp(b,MOD-1))%MOD;
+  return (a * myexp(b,MOD-2))%MOD;
 }
 pdd solve(ll x1,ll x2,ll y1,ll y2){
-  ll delta = (mul(x1,x1,x2)-mul(x2,x2,x1));
-  ll deltaA = (mul(y1,x2,1)-mul(y1,x1,1));
-  ll deltaB = (mul(x1,x1,y2)-mul(x2,x2,y1));
-  if(delta==0||mydiv(deltaA,delta)>=0)return mp(87,87);
+  if(x1>x2)swap(x1,x2),swap(y1,y2);
+  if(x1==x2||x1*y2-x1*y1>=y1*x2-y1*x1)return mp(-1,-1);
+  ll delta = (mul(x1,x1,x2)-mul(x2,x2,x1))%MOD;
+  ll deltaA = (mul(y1,x2,1)-mul(y2,x1,1))%MOD;
+  ll deltaB = (mul(x1,x1,y2)-mul(x2,x2,y1))%MOD;
+  if(delta<0)delta+=MOD;
+  if(deltaA<0)deltaA+=MOD;
+  if(deltaB<0)deltaB+=MOD;
   return mp(mydiv(deltaA,delta),mydiv(deltaB,delta));
 }
 ll getans(ll status){
@@ -105,19 +109,23 @@ int main()
     set<pdd> lines;
     REP(i,n){
       REP(j,i){
+        if(i==j)continue;
         pdd ret = solve(pig[i].X,pig[j].X,pig[i].Y,pig[j].Y);
-        if(ret.X!=87)lines.insert(ret);
+        if(ret.X!=-1) {
+          lines.insert(ret);
+        }
       }
     }
 
     for(auto para:lines) {
+      debug(para);
       ll fliter = 0;
       REP(i,n){
         // tmpa +  tmpb - tmpc
         ll tmpa = mul(pig[i].X,pig[i].X,para.X);
         ll tmpb = mul(pig[i].X,para.Y,1);
         ll tmpc = pig[i].Y;
-        ll dici = (tmpa+tmpb-tmpc) % MOD;
+        ll dici = ((tmpa+tmpb)%MOD-tmpc) % MOD;
         if(dici<0)dici += MOD;
         if(dici== 0){
           fliter += (1<<i);
@@ -130,12 +138,12 @@ int main()
     }
     dp[0] = 0;
     cout<<getans((1<<n)-1)<<endl;
-    ll start = (1<<n)-1;
-    while(pt[start]!=start){
-      debug(start);
-      start=pt[start];
-    }
-    debug(start);
+    // ll start = (1<<n)-1;
+    // while(pt[start]!=start){
+    //   debug(start);
+    //   start=pt[start];
+    // }
+    // debug(start);
 
 
 
