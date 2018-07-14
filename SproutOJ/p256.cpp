@@ -57,6 +57,15 @@ ll dp[16800000];
 ll pt[16800000];
 vector<ll> cover[26];
 
+<<<<<<< HEAD
+=======
+ll myexp(ll base,ll _x){
+  if(_x==1)return base;
+  ll tmp = myexp(base,_x/2);
+  if(_x&1)return tmp*tmp*base;
+  else return tmp*tmp;
+}
+>>>>>>> 4356c301ebe251f6eaba4a4710804f6588679c53
 ll mul(ll a,ll b,ll c){
   return (((a*b)%MOD)*c)%MOD;
 }
