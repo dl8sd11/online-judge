@@ -1,19 +1,20 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
+typedef pair<ll, ll> pii;
+typedef pair<double,double> pdd;
 #define MEM(a, b) memset(a, (b), sizeof(a))
+#define SZ(i) ll(i.size())
 #define FOR(i, j, k, in) for (ll i=j ; i<k ; i+=in)
 #define RFOR(i, j, k, in) for (ll i=j ; i>=k ; i-=in)
 #define REP(i, j) FOR(i, 0, j, 1)
 #define REP1(i,j) FOR(i, 1, j+1, 1)
 #define RREP(i, j) RFOR(i, j, 0, 1)
 #define ALL(_a) _a.begin(),_a.end()
-#define FOREACH(it, l) for (auto it = l.begin(); it != l.end(); it++)
 #define mp make_pair
 #define pb push_back
 #define X first
 #define Y second
-typedef pair<ll, ll> pi;
 #ifdef tmd
 #define debug(...) do{\
     fprintf(stderr,"%s - %d (%s) = ",__PRETTY_FUNCTION__,__LINE__,#__VA_ARGS__);\
@@ -44,8 +45,15 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
 #endif
 
-const ll INF = (ll)1e18 + 7;
-const ll MOD = 1000000007;
+template<class T> inline bool cmax(T &a, const T &b) { return b > a ? a = b, true : false; }
+template<class T> inline bool cmin(T &a, const T &b) { return b < a ? a = b, true : false; }
+template<class T> using MaxHeap = priority_queue<T>;
+template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
+
+const ll MOD=1000000007;
+const ll INF=0x3f3f3f3f3f3f3f3f;
+const ll MAXN=1e5+5;
+const ll MAXLG=__lg(MAXN)+2;
 
 /********** Main()  function **********/
 int main()

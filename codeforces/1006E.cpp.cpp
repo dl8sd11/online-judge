@@ -13,6 +13,7 @@ typedef long long ll;
 #define pb push_back
 #define X first
 #define Y second
+#define SZ(i) int(i.size())
 typedef pair<ll, ll> pi;
 #ifdef tmd
 #define debug(...) do{\
@@ -46,52 +47,32 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll INF = (ll)1e18 + 7;
 const ll MOD = 1000000007;
-ll n,x,y,m,k;
-double ans;
-vector<pi > p;
-vector<pi > hull(1000);
-pi operator -(const pi &a,const pi &b){return mp(a.X-b.X,a.Y-b.Y);}
-ll operator *(const pi &a,const pi &b){return a.X*b.Y - a.Y*b.X;}
-double dis(const pi &a,const pi &b){return sqrt((a.X-b.X)*(a.X-b.X) + (a.Y-b.Y)*(a.Y-b.Y));}
-bool cmp(const pi &a,const pi &b)//排序方法
-{
-    if(a.X == b.X)
-        return a.Y < b.Y;
-    return a.X < b.X;
-}
+const ll MAXN = 200003;
+int n,q,x,k;
+int par[MAXN];
+int t[MAXN];
+int sz[MAXN];
+vector<int> e[MAXN];
+vector<int> ord(1,0);
 /********** Main()  function **********/
+void dfs(int cur){
+  sz[cur] = 1;
+  t[cur] = SZ(ord);
+  ord.pb(cur);
+  for(auto v:e[cur])dfs(v),sz[cur] += sz[v];
+}
 int main()
 {
   IOS();
-  while(cin>>n&&n!=0){
-    p.clear();
-    REP(i,n)cin>>x>>y,p.pb({x,y});
-    if(n==1){
-      cout<<0<<endl;
-      continue;
-    }
-    sort(ALL(p),cmp);
-    m = 0;
-    REP(i,n){
-      while(m>1&&(hull[m-1]-hull[m-2])*(p[i]-hull[m-2])<=0)m--;
-      hull[m++] = p[i];
-    }
-    k=m;
-    for(ll i=n-2;i >=0; i--) {
-      while(m>k&&(hull[m-1]-hull[m-2])*(p[i]-hull[m-2])<=0)m--;
-      hull[m++] = p[i];
-    }
-
-    if(n > 1)m--;
-
-    ans = 0;
-
-    for(int i = 1; i < m; i++)
-        ans+=dis(hull[i],hull[i-1]);
-    ans+=dis(hull[m-1],hull[0]);
-
-    if(n==2)ans/=2.0;
-    cout<<fixed<<setprecision(2)<<ans<<'\n';
+  cin>>n>>q;
+  for(int i=2;i<=n;i++)cin>>par[i],e[par[i]].pb(i);
+  dfs(1);
+  debug(ord);
+  REP(i,q){
+    cin>>x>>k;
+    debug(t[x]);
+    if(k>sz[x])cout<<-1<<endl;
+    else cout<<ord[t[x]+k-1]<<endl;
   }
 	return 0;
 }

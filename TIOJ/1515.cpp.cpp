@@ -2,8 +2,8 @@
 using namespace std;
 typedef long long ll;
 #define MEM(a, b) memset(a, (b), sizeof(a))
-#define FOR(i, j, k, in) for (ll i=j ; i<k ; i+=in)
-#define RFOR(i, j, k, in) for (ll i=j ; i>=k ; i-=in)
+#define FOR(i, j, k, in) for (int i=j ; i<k ; i+=in)
+#define RFOR(i, j, k, in) for (int i=j ; i>=k ; i-=in)
 #define REP(i, j) FOR(i, 0, j, 1)
 #define REP1(i,j) FOR(i, 1, j+1, 1)
 #define RREP(i, j) RFOR(i, j, 0, 1)
@@ -13,6 +13,7 @@ typedef long long ll;
 #define pb push_back
 #define X first
 #define Y second
+#define SZ(i) int(i.size())
 typedef pair<ll, ll> pi;
 #ifdef tmd
 #define debug(...) do{\
@@ -46,52 +47,69 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll INF = (ll)1e18 + 7;
 const ll MOD = 1000000007;
-ll n,x,y,m,k;
-double ans;
-vector<pi > p;
-vector<pi > hull(1000);
-pi operator -(const pi &a,const pi &b){return mp(a.X-b.X,a.Y-b.Y);}
-ll operator *(const pi &a,const pi &b){return a.X*b.Y - a.Y*b.X;}
-double dis(const pi &a,const pi &b){return sqrt((a.X-b.X)*(a.X-b.X) + (a.Y-b.Y)*(a.Y-b.Y));}
-bool cmp(const pi &a,const pi &b)//排序方法
-{
-    if(a.X == b.X)
-        return a.Y < b.Y;
-    return a.X < b.X;
+const ll MAXN = 200003;
+
+string t;
+int N;
+int sa[MAXN];
+int tmp[2][MAXN];
+int c[MAXN];
+int lcpa[MAXN];
+int ans = 0;
+void lcp_array(){
+  int lcp = 0;
+  int rank[MAXN];
+  REP(i,N)rank[sa[i]] = i;
+  REP(i,N){
+    if(rank[i]==0)lcpa[0]=0;
+    else {
+      int j = sa[rank[i]-1];
+      if(lcp>0)lcp--;
+      while(t[i+lcp]==t[j+lcp])lcp++;
+      ans = max(ans,lcp);
+      lcpa[rank[i]] = lcp;
+    }
+  }
+
+}
+void suffix_array(){
+  int A = 256;
+  int *rank = tmp[0];
+  int *new_rank = tmp[1];
+  REP(i,A)c[i] = 0;
+  REP(i,N)c[rank[i]=t[i]]++;
+  REP1(i,A-1)c[i] += c[i-1];
+  REP(i,N) sa[--c[rank[i]]] = i;
+  for(int n=1;n<N;n*=2){
+    REP(i,A)c[i] = 0;
+    REP(i,N)c[rank[i]]++;
+    REP1(i,A-1)c[i] += c[i-1];
+    int r = 0;
+    int *sa2 = new_rank;
+    for(int i=N-n;i<N;i++)sa2[r++] = i;
+    for(int i=0;i<N;i++)if(sa[i]>=n)sa2[r++] = sa[i]-n;
+    for(int i=N-1;i>=0;i--)sa[--c[rank[sa2[i]]]] = sa2[i];
+    new_rank[sa[0]] = r = 0;
+    for(int i=1;i<N;i++){
+      if(!(rank[sa[i]]==rank[sa[i-1]]&&sa[i-1]+n<N&&rank[sa[i]+n]==rank[sa[i-1]+n]))r++;
+      new_rank[sa[i]] = r;
+    }
+    swap(rank,new_rank);
+    if(r==N-1)break;
+    A = r+1;
+  }
 }
 /********** Main()  function **********/
 int main()
 {
   IOS();
-  while(cin>>n&&n!=0){
-    p.clear();
-    REP(i,n)cin>>x>>y,p.pb({x,y});
-    if(n==1){
-      cout<<0<<endl;
-      continue;
-    }
-    sort(ALL(p),cmp);
-    m = 0;
-    REP(i,n){
-      while(m>1&&(hull[m-1]-hull[m-2])*(p[i]-hull[m-2])<=0)m--;
-      hull[m++] = p[i];
-    }
-    k=m;
-    for(ll i=n-2;i >=0; i--) {
-      while(m>k&&(hull[m-1]-hull[m-2])*(p[i]-hull[m-2])<=0)m--;
-      hull[m++] = p[i];
-    }
-
-    if(n > 1)m--;
-
-    ans = 0;
-
-    for(int i = 1; i < m; i++)
-        ans+=dis(hull[i],hull[i-1]);
-    ans+=dis(hull[m-1],hull[0]);
-
-    if(n==2)ans/=2.0;
-    cout<<fixed<<setprecision(2)<<ans<<'\n';
-  }
+  cin>>N;
+  cin.ignore();
+  getline(cin,t);
+  assert(SZ(t)==N);
+  suffix_array();
+  lcp_array();
+  cout<<ans<<endl;
+  pary(sa,sa+N);
 	return 0;
 }

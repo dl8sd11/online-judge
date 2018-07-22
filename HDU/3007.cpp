@@ -14,6 +14,7 @@ typedef long long ll;
 #define X first
 #define Y second
 typedef pair<ll, ll> pi;
+typedef pair<double, double> pdd;
 #ifdef tmd
 #define debug(...) do{\
     fprintf(stderr,"%s - %d (%s) = ",__PRETTY_FUNCTION__,__LINE__,#__VA_ARGS__);\
@@ -46,52 +47,56 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll INF = (ll)1e18 + 7;
 const ll MOD = 1000000007;
-ll n,x,y,m,k;
-double ans;
-vector<pi > p;
-vector<pi > hull(1000);
-pi operator -(const pi &a,const pi &b){return mp(a.X-b.X,a.Y-b.Y);}
-ll operator *(const pi &a,const pi &b){return a.X*b.Y - a.Y*b.X;}
-double dis(const pi &a,const pi &b){return sqrt((a.X-b.X)*(a.X-b.X) + (a.Y-b.Y)*(a.Y-b.Y));}
-bool cmp(const pi &a,const pi &b)//排序方法
-{
-    if(a.X == b.X)
-        return a.Y < b.Y;
-    return a.X < b.X;
-}
+const ll MAXN = 503;
+int n;
+pdd p[MAXN];
+pdd ans;
+double r;
 /********** Main()  function **********/
+double pf(double x){return x*x;}
+pdd center(pdd a,pdd b,pdd c){
+    debug(a,b,c);
+    double A1 = (b.X - a.X) * 2,B1 = (b.Y - a.Y) * 2,C1 = pf(b.X) + pf(b.Y) - pf(a.X) - pf(a.Y);
+    double A2 = (c.X - b.X) * 2,B2 = (c.Y - b.Y) * 2,C2 = pf(c.X) + pf(c.Y) - pf(b.X) - pf(b.Y);
+    assert((A1 * B2 - A2 * B1)!=0);
+    if((A1 * B2 - A2 * B1)==0)return pdd{(a.X+c.X)/2,(a.Y+c.Y)/2};
+    return (pdd){(C1 * B2 - C2 * B1) / (A1 * B2 - A2 * B1),(A1 * C2 - A2 * C1) / (A1 * B2 - A2 * B1)};
+}
+
+double dis(pdd a,pdd b){
+  return sqrt((a.X-b.X)*(a.X-b.X)+(a.Y-b.Y)*(a.Y-b.Y));
+}
 int main()
 {
   IOS();
+  srand(time(0));
   while(cin>>n&&n!=0){
-    p.clear();
-    REP(i,n)cin>>x>>y,p.pb({x,y});
-    if(n==1){
-      cout<<0<<endl;
-      continue;
+    REP(i,n)cin>>p[i].X>>p[i].Y;
+    random_shuffle(p,p+n);
+    pary(p,p+n);
+    ans = p[0];
+    r = 0;
+    for(int i=0;i<n;i++){
+      if(dis(ans,p[i]) > r){
+        ans = p[i];
+        r = 0;
+        for(int j=0;j<i;j++){
+          if(dis(ans,p[j])>r){
+            ans.X = (p[i].X + p[j].X)/2;
+            ans.Y = (p[i].Y + p[j].Y)/2;
+            r = dis(p[i],ans);
+            for(int k=0;k<j;k++){
+              debug(p[k]);
+              if(dis(ans,p[k]) > r){
+                ans = center(p[i],p[j],p[k]);
+                r = dis(p[k],ans);
+              }
+            }
+          }
+        }
+      }
     }
-    sort(ALL(p),cmp);
-    m = 0;
-    REP(i,n){
-      while(m>1&&(hull[m-1]-hull[m-2])*(p[i]-hull[m-2])<=0)m--;
-      hull[m++] = p[i];
-    }
-    k=m;
-    for(ll i=n-2;i >=0; i--) {
-      while(m>k&&(hull[m-1]-hull[m-2])*(p[i]-hull[m-2])<=0)m--;
-      hull[m++] = p[i];
-    }
-
-    if(n > 1)m--;
-
-    ans = 0;
-
-    for(int i = 1; i < m; i++)
-        ans+=dis(hull[i],hull[i-1]);
-    ans+=dis(hull[m-1],hull[0]);
-
-    if(n==2)ans/=2.0;
-    cout<<fixed<<setprecision(2)<<ans<<'\n';
+    cout<<fixed<<setprecision(2)<<ans.X<<" "<<ans.Y<<" "<<r<<endl;
   }
 	return 0;
 }

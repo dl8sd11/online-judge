@@ -29,7 +29,7 @@ struct node{
   void pull(){data = max(lc->data,rc->data);}
   node(ll li,ll ri,node *lci,node *rci,ll datai):l(li),r(ri),lc(lci),rc(rci),data(datai){}
 };
-const ll MAXN = 1003;
+const ll MAXN = 10003;
 ll n,t,tm;
 ll par[MAXN],d[MAXN],w[MAXN],mc[MAXN],tin[MAXN],h[MAXN];
 vector<pii> edge[MAXN];
@@ -85,10 +85,10 @@ int main(){
   ll T;
   cin>>T;
   while(T--) {
-    debug(T);
       cin>>n;
       ll a,c,b;
-
+      for(ll i=1;i<=n;i++)edge[i].clear();
+      inputE.clear();
       REP(i,n-1) {
         cin>>a>>b>>c;
         edge[a].pb({b,c});
