@@ -46,12 +46,12 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll INF = (ll)1e18 + 7;
 const ll MOD = 1000000007;
-
+const ll MAXN = 100003;
 
 string t;
-int sa[100003];
-int c[100000];   // counting sort array
-int temp[2][500000];
+int sa[MAXN];
+int c[MAXN];   // counting sort array
+int temp[2][MAXN];
 
 void suffix_array()
 {
@@ -75,28 +75,21 @@ void suffix_array()
 //  for (int m=2; m<=N; m*=2)
     for (int n=1; n<=N*2; n*=2)
     {
-        debug(n);
         // counting sort：套用上回合的rank。
         for (int i=0; i<A; ++i) c[i] = 0;
         for (int i=0; i<N; ++i) c[rank[i]]++;
         for (int i=1; i<A; ++i) c[i] += c[i-1];
-        debug(c[97],c[98]);
         // 前半段次序：上回合已計算，不必重算。
 //      for (int i=N-1; i>=0; --i)
 //          sa[--c[rank[i]]] = i;
         // 後半段次序：採用前半段次序，另外考慮空字串。
         int* sa2 = new_rank;        // 借用記憶體、節省記憶體
-        debug(N,n);
-        pary(rank,rank+N);
-        pary(sa,sa+N);
-        pary(sa2,sa2+N);
         int r = 0;                  // 名次
         for (int i=N-n; i<N; ++i)   // 空字串，名次最小
             sa2[r++] = i;           // 索引值由小到大排名
         for (int i=0; i<N; ++i)     // 其餘部分等同前半段次序
             if (sa[i] >= n)         // 有前半段，才有後半段
                 sa2[r++] = sa[i] - n;
-        pary(sa2,sa2+N);
         // counting sort：前半段次序一樣者，按照後半段次序擷取。
         // 本回合的sa
         for (int i=N-1; i>=0; --i)
@@ -104,7 +97,6 @@ void suffix_array()
 
         // debug(r);
         // pary(rank,rank+N);
-        pary(sa,sa+N);
         // 本回合的rank
         new_rank[sa[0]] = r = 0;
         for (int i=1; i<N; ++i)
@@ -124,7 +116,6 @@ void suffix_array()
         // 修正counting sort數值範圍
         A = r + 1;
     }
-    for(int i=0;i<N;i++)sa[rank[i]] = i;
 }
 
 /********** Main()  function **********/
