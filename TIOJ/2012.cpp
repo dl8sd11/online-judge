@@ -56,12 +56,10 @@ double c;
 void gaussian_elimination()
 {
   for(ll i=0;i<n;i++) { //pivoting
-    if(matrix[i][i] == 0) {
-      for(ll j=i+1; j<n; j++) {
-        if(matrix[j][i] != 0) {
-          for(ll k=i;k<=n; k++) swap(matrix[i][k],matrix[j][k]);
-          break;
-        }
+    for(ll j=i+1; j<n; j++) {
+      if(matrix[j][i] > matrix[i][i]) {
+        for(ll k=i;k<=n; k++) swap(matrix[i][k],matrix[j][k]);
+        break;
       }
     }
     if(matrix[i][i] == 0)continue;

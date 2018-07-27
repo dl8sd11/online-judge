@@ -46,32 +46,36 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll INF = (ll)1e18 + 7;
 const ll MOD = 1000000007;
-const ll MAXN = ll(1e5)+7;
-ll T,p,q,k,a,b;
-ll mtx[MAXN],mty[MAXN];
+const ll MAXN = ll(2e5)+7;
+ll T,p,q,k,a,b,ans;
+ll mty[MAXN];
 bool vis[MAXN];
 vector<ll> e[MAXN];
 /********** Main()  function **********/
-ll greedy(){
-  ll ret = 0;
-  REP1(i,p){
-    if(mtx[i]!=-1)continue;
-    for(auto v:e[i]) {
-      if(mtx[v]==-1){mtx[i]=v;mty[v]=i;ret++;break;}
-    }
-  }
-  return ret;
-}
 bool DFS(ll idx) {
   for(auto v:e[idx]){
     if(vis[v])continue;
     vis[v]=1;
-    if(mty[v]==-1||DFS(v)){
-      mtx[idx]=v;mty[v]=idx;
+    if(mty[v]==-1||DFS(mty[v])){
+      mty[v]=idx;
       return 1;
     }
   }
   return 0;
+}
+void tree_sol(ll node,ll par){
+  debug(node);
+  for(auto v:e[node]){
+    if(v==par)continue;
+    tree_sol(v,node);
+  }
+  if(node!=par){
+    if(!vis[par]&&!vis[node]) {
+      vis[par]=1;
+      ans++;
+      debug(node,par);
+    }
+  }
 }
 int main()
 {
@@ -79,16 +83,19 @@ int main()
   cin>>T;
   while(T--){
     cin>>p>>q>>k;
-    REP(i,k)cin>>a>>b,e[a].pb(b);
-    REP(i,MAXN)e[i].clear();
-    MEM(mtx,-1);MEM(mty,-1);
-    ll ans = greedy();
+    ans = 0;
+    REP(i,p+q+3)e[i].clear();
+    REP(i,k)cin>>a>>b,e[a].pb(b+p),e[b+p].pb(a);
+    if(k == p + q - 1){
+      MEM(vis,0);
+      tree_sol(1,1);
+      cout<<ans<<endl;
+      continue;
+    }
+    MEM(mty,-1);
     REP1(i,p){
-      debug(i,mtx[i]);
-      if(mtx[i]!=-1)continue;
       MEM(vis,0);
       if(DFS(i))ans++;
-      debug(ans);
     }
     cout<<ans<<endl;
   }

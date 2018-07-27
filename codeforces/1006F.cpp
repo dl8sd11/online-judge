@@ -1,19 +1,20 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
+typedef pair<ll, ll> pii;
+typedef pair<double,double> pdd;
 #define MEM(a, b) memset(a, (b), sizeof(a))
+#define SZ(i) ll(i.size())
 #define FOR(i, j, k, in) for (ll i=j ; i<k ; i+=in)
 #define RFOR(i, j, k, in) for (ll i=j ; i>=k ; i-=in)
 #define REP(i, j) FOR(i, 0, j, 1)
 #define REP1(i,j) FOR(i, 1, j+1, 1)
 #define RREP(i, j) RFOR(i, j, 0, 1)
 #define ALL(_a) _a.begin(),_a.end()
-#define FOREACH(it, l) for (auto it = l.begin(); it != l.end(); it++)
 #define mp make_pair
 #define pb push_back
 #define X first
 #define Y second
-typedef pair<ll, ll> pi;
 #ifdef tmd
 #define debug(...) do{\
     fprintf(stderr,"%s - %d (%s) = ",__PRETTY_FUNCTION__,__LINE__,#__VA_ARGS__);\
@@ -44,47 +45,29 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
 #endif
 
-const ll INF = (ll)1e18 + 7;
-const ll MOD = 1000000007;
-const ll MAXN = 103;
+template<class T> inline bool cmax(T &a, const T &b) { return b > a ? a = b, true : false; }
+template<class T> inline bool cmin(T &a, const T &b) { return b < a ? a = b, true : false; }
+template<class T> using MaxHeap = priority_queue<T>;
+template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
-ll n,m;
-ll cnt,tmp;
-ll yp[MAXN];
-bool vis[MAXN];
-vector<ll> e[MAXN];
+const ll MOD=1000000007;
+const ll INF=0x3f3f3f3f3f3f3f3f;
+const ll MAXN=21;
+const ll MAXLG=__lg(MAXN)+2;
+
+ll n,m,k;
+ll a[MAXN][MAXN];
 /********** Main()  function **********/
-bool DFS(ll x){
-  for(auto v:e[x]){
-    if(vis[v])continue;
-    vis[v] = 1;
-    if(yp[v]==-1||DFS(yp[v])){
-      yp[v] = x;
-      return 1;
-    }  }
-  return 0;
+ll solve(ll x,ll y,ll t){
+  if(x==0&&y==0&&t==a[x][y])return 1;
+
+  return (x>0?solve(x-1,y,t^a[x][y]):0) + (y>0?solve(x,y-1,t^a[x][y]):0);
 }
 int main()
 {
   IOS();
-  while(cin>>n>>m){
-    REP(i,n)e[i].clear();
-    REP(i,m){
-      cin>>cnt;
-      while(cnt--){
-        cin>>tmp;
-        tmp--;
-        e[tmp].pb(i);
-      }
-    }
-
-    MEM(yp,-1);
-    ll c = 0;
-    REP(i,n){
-      MEM(vis,0);
-      if(DFS(i))c++;
-    }
-    cout<<c<<endl;
-  }
+  cin>>n>>m>>k;
+  REP(i,n)REP(j,m)cin>>a[i][j];
+  cout<<solve(n-1,m-1,k)<<endl;
 	return 0;
 }
