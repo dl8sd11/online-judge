@@ -46,61 +46,13 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll INF = (ll)1e18 + 7;
 const ll MOD = 1000000007;
-const ll MAXN = 603;
-
-ll t,n;
-double matrix[MAXN][MAXN];
-double x[MAXN];
-double c;
-
-double myabs(double _x){return (_x<0?-_x:_x);}
-void gaussian_elimination()
-{
-  for(ll i=0;i<n;i++) { //pivoting
-    int best_choice = i;
-    double ma = 0;
-    for(ll j=i+1; j<n; j++) {
-      if(myabs(matrix[j][i]) > ma) {
-        ma = myabs(matrix[j][i]);
-        best_choice = j;
-      }
-    }
-
-    for(ll k=i;k<=n; k++) swap(matrix[i][k],matrix[best_choice][k]);
-
-    c = matrix[i][i];
-    for(ll k=i;k<=n;k++) matrix[i][k] /= c;
-
-    for(ll j=i+1;j<n;j++){
-      c = matrix[j][i];
-      for(ll k=i;k<=n;k++)
-        matrix[j][k] -= matrix[i][k] * c;
-    }
-
-  }
-}
-
-void back_substitution()
-{
-  for(ll i=n-1;i>=0;i--) {
-    c = 0;
-    for (ll k=i+1;k<n;k++) c += matrix[i][k] * x[k];
-    x[i] = matrix[i][n] - c;
-  }
-}
+priority_queue<int,vector<int>,greater<int>> pq;
 /********** Main()  function **********/
 int main()
 {
   IOS();
-  cin>>t;
-  while(t--){
-    cin>>n;
-    double tmp;
-    REP(i,n)REP(j,n+1)cin>>tmp,matrix[i][j] = tmp;
-    gaussian_elimination();
-    back_substitution();
-    REP(i,n)cout<<fixed<<setprecision(30)<<double(x[i])<< '\n';
-  }
+  int n;
+  cin>>n;
+  REP(i,n)cin>>tmp,pq.push(tmp)
 	return 0;
 }
-//高斯消去

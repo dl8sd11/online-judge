@@ -1,19 +1,20 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
+typedef pair<ll, ll> pii;
+typedef pair<double,double> pdd;
 #define MEM(a, b) memset(a, (b), sizeof(a))
+#define SZ(i) ll(i.size())
 #define FOR(i, j, k, in) for (ll i=j ; i<k ; i+=in)
 #define RFOR(i, j, k, in) for (ll i=j ; i>=k ; i-=in)
 #define REP(i, j) FOR(i, 0, j, 1)
 #define REP1(i,j) FOR(i, 1, j+1, 1)
 #define RREP(i, j) RFOR(i, j, 0, 1)
 #define ALL(_a) _a.begin(),_a.end()
-#define FOREACH(it, l) for (auto it = l.begin(); it != l.end(); it++)
 #define mp make_pair
 #define pb push_back
 #define X first
 #define Y second
-typedef pair<ll, ll> pi;
 #ifdef tmd
 #define debug(...) do{\
     fprintf(stderr,"%s - %d (%s) = ",__PRETTY_FUNCTION__,__LINE__,#__VA_ARGS__);\
@@ -44,63 +45,59 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
 #endif
 
-const ll INF = (ll)1e18 + 7;
-const ll MOD = 1000000007;
-const ll MAXN = 603;
+template<class T> inline bool cmax(T &a, const T &b) { return b > a ? a = b, true : false; }
+template<class T> inline bool cmin(T &a, const T &b) { return b < a ? a = b, true : false; }
+template<class T> using MaxHeap = priority_queue<T>;
+template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
-ll t,n;
-double matrix[MAXN][MAXN];
-double x[MAXN];
-double c;
-
-double myabs(double _x){return (_x<0?-_x:_x);}
-void gaussian_elimination()
-{
-  for(ll i=0;i<n;i++) { //pivoting
-    int best_choice = i;
-    double ma = 0;
-    for(ll j=i+1; j<n; j++) {
-      if(myabs(matrix[j][i]) > ma) {
-        ma = myabs(matrix[j][i]);
-        best_choice = j;
-      }
-    }
-
-    for(ll k=i;k<=n; k++) swap(matrix[i][k],matrix[best_choice][k]);
-
-    c = matrix[i][i];
-    for(ll k=i;k<=n;k++) matrix[i][k] /= c;
-
-    for(ll j=i+1;j<n;j++){
-      c = matrix[j][i];
-      for(ll k=i;k<=n;k++)
-        matrix[j][k] -= matrix[i][k] * c;
-    }
-
-  }
-}
-
-void back_substitution()
-{
-  for(ll i=n-1;i>=0;i--) {
-    c = 0;
-    for (ll k=i+1;k<n;k++) c += matrix[i][k] * x[k];
-    x[i] = matrix[i][n] - c;
-  }
-}
+const ll MOD=1000000007;
+const ll INF=0x3f3f3f3f3f3f3f3f;
+const ll MAXN=1e5+5;
+const ll MAXLG=__lg(MAXN)+2;
+ll n;
+ll e[403];
+ll q;
+ll dis[403][403];
+ll stx,sty,edx,edy;
 /********** Main()  function **********/
+ll real_dis(ll x,ll y,ll xx,ll yy){
+  return dis[x*n+y][xx*n+yy] + e[xx*n+yy]*2 - e[x*n+y];
+}
 int main()
 {
   IOS();
-  cin>>t;
-  while(t--){
-    cin>>n;
-    double tmp;
-    REP(i,n)REP(j,n+1)cin>>tmp,matrix[i][j] = tmp;
-    gaussian_elimination();
-    back_substitution();
-    REP(i,n)cout<<fixed<<setprecision(30)<<double(x[i])<< '\n';
+  cin>>n;
+  REP(i,n)REP(j,n)cin>>e[i*n+j];
+
+  MEM(dis,INF);
+  REP(i,n*n){
+    if((i+1)%n!=0)dis[i][i+1] = e[i]*2-e[i+1];
+    if(i%n!=0)dis[i][i-1] = e[i]*2-e[i-1];
+    if(i>=n)dis[i][i-n] = e[i]*2-e[i-n];
+    if(i<n*(n-1))dis[i][i+n] = e[i]*2-e[i+n];
+    dis[i][i] = 0;
+  }
+
+
+  REP(k,n*n){
+    REP(i,n*n){
+      REP(j,n*n){
+        dis[i][j] = min(dis[i][j],dis[i][k]+dis[k][j]);
+      }
+    }
+  }
+
+  cin>>q;
+  while(q--){
+    cin>>stx>>sty>>edx>>edy;
+    stx--,sty--,edx--,edy--;
+    ll ret = INF;
+    REP(i,n){
+      REP(j,n){
+        cmin(ret,real_dis(stx,sty,i,j)+real_dis(i,j,edx,edy)-e[i*n+j]*2);
+      }
+    }
+    cout<<ret<<endl;
   }
 	return 0;
 }
-//高斯消去

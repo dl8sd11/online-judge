@@ -1,19 +1,20 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
+typedef pair<ll, ll> pii;
+typedef pair<double,double> pdd;
 #define MEM(a, b) memset(a, (b), sizeof(a))
+#define SZ(i) ll(i.size())
 #define FOR(i, j, k, in) for (ll i=j ; i<k ; i+=in)
 #define RFOR(i, j, k, in) for (ll i=j ; i>=k ; i-=in)
 #define REP(i, j) FOR(i, 0, j, 1)
 #define REP1(i,j) FOR(i, 1, j+1, 1)
 #define RREP(i, j) RFOR(i, j, 0, 1)
 #define ALL(_a) _a.begin(),_a.end()
-#define FOREACH(it, l) for (auto it = l.begin(); it != l.end(); it++)
 #define mp make_pair
 #define pb push_back
 #define X first
 #define Y second
-typedef pair<ll, ll> pi;
 #ifdef tmd
 #define debug(...) do{\
     fprintf(stderr,"%s - %d (%s) = ",__PRETTY_FUNCTION__,__LINE__,#__VA_ARGS__);\
@@ -44,63 +45,49 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
 #endif
 
-const ll INF = (ll)1e18 + 7;
-const ll MOD = 1000000007;
-const ll MAXN = 603;
+template<class T> inline bool cmax(T &a, const T &b) { return b > a ? a = b, true : false; }
+template<class T> inline bool cmin(T &a, const T &b) { return b < a ? a = b, true : false; }
+template<class T> using MaxHeap = priority_queue<T>;
+template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
-ll t,n;
-double matrix[MAXN][MAXN];
-double x[MAXN];
-double c;
+const ll MOD=1000000007;
+const ll INF=0x3f3f3f3f3f3f3f3f;
+const ll MAXN=10000003;
+const ll MAXLG=__lg(MAXN)+2;
 
-double myabs(double _x){return (_x<0?-_x:_x);}
-void gaussian_elimination()
-{
-  for(ll i=0;i<n;i++) { //pivoting
-    int best_choice = i;
-    double ma = 0;
-    for(ll j=i+1; j<n; j++) {
-      if(myabs(matrix[j][i]) > ma) {
-        ma = myabs(matrix[j][i]);
-        best_choice = j;
-      }
-    }
-
-    for(ll k=i;k<=n; k++) swap(matrix[i][k],matrix[best_choice][k]);
-
-    c = matrix[i][i];
-    for(ll k=i;k<=n;k++) matrix[i][k] /= c;
-
-    for(ll j=i+1;j<n;j++){
-      c = matrix[j][i];
-      for(ll k=i;k<=n;k++)
-        matrix[j][k] -= matrix[i][k] * c;
-    }
-
+int n;
+int z[MAXN*2];
+int org[MAXN];
+int nw[MAXN*2];
+void z_build() {
+  int bst = 0;
+  z[0] = 0;
+  for(int i=1;i<n;i++){
+    if(bst+z[bst]<i)z[i]=0;
+    else if(z[bst*2-i]+i>=bst+z[bst]) z[i] = z[bst]+bst-i;
+    else z[i] = z[bst*2-i];
+    while(i+z[i]+1<n&&i-z[i]-1>=0&&nw[i+z[i]+1]==nw[i-z[i]-1])z[i]++;
+    if(i+z[i]>bst+z[bst])bst = i;
   }
 }
-
-void back_substitution()
-{
-  for(ll i=n-1;i>=0;i--) {
-    c = 0;
-    for (ll k=i+1;k<n;k++) c += matrix[i][k] * x[k];
-    x[i] = matrix[i][n] - c;
+int longest_palindromic_substring() {
+  memset(nw,-1,(2*n+1)*(sizeof (int)));
+  REP(i,n)nw[i*2+1] = org[i];
+  n = n*2+1;
+  pary(nw,nw+n);
+  z_build();
+  int ans = -1;
+  REP(i,n){
+    cmax(ans,z[i]);
   }
+  return ans;
 }
 /********** Main()  function **********/
 int main()
 {
   IOS();
-  cin>>t;
-  while(t--){
-    cin>>n;
-    double tmp;
-    REP(i,n)REP(j,n+1)cin>>tmp,matrix[i][j] = tmp;
-    gaussian_elimination();
-    back_substitution();
-    REP(i,n)cout<<fixed<<setprecision(30)<<double(x[i])<< '\n';
-  }
+  cin>>n;
+  REP(i,n)cin>>org[i];
+  cout<<longest_palindromic_substring()-1<<endl;
 	return 0;
 }
-//高斯消去
