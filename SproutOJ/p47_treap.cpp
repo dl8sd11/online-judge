@@ -1,6 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
-typedef long long ll;
+typedef int ll;
 #define MEM(a, b) memset(a, (b), sizeof(a))
 #define FOR(i, j, k, in) for (ll i=j ; i<k ; i+=in)
 #define RFOR(i, j, k, in) for (ll i=j ; i>=k ; i-=in)
@@ -46,12 +46,104 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll INF = (ll)1e18 + 7;
 const ll MOD = 1000000007;
+const ll MAXN = 3e5;
 
-/********** Main()  function **********/
+struct node{
+  node *l,*r;
+  ll key, pri;
+}*root;
+
+node *merge(node *a,node *b){
+  if(!a||!b)return a?a:b;
+  if(a->pri < b->pri){
+    a->r =merge(a->r,b);
+    return a;
+  } else {
+    b->l = merge(a,b->l);
+    return b;
+  }
+}
+
+void split(node *o,node *&a,node *&b,ll k){
+  if(!o){
+    a=0,b=0;
+    return;
+  }
+  if(o->key < k){
+    a = o;
+    split(o->r,a->r,b,k);
+  } else {
+    b = o;
+    split(o->l,a,b->l,k);
+  }
+}
+
+void insert(ll val){
+  if(!root){
+    root = new node{0,0,val,rand()};
+    return;
+  }
+  node *a=0,*b=0;
+  split(root,a,b,val);
+  root = merge(a,merge(new node{0,0,val,rand()},b));
+}
+
+void query(ll val){
+    node *a=0,*b=0,*aa,*bb;
+    split(root,a,b,val);
+    debug(a,b);
+    aa =a,bb = b;
+    if(a)while(a->r)a=a->r;
+    if(b)while(b->l)b=b->l;
+    root = merge(aa,bb);
+    if(!a) {
+      cout<<b->key<<endl;
+      return;
+    }
+    if(!b){
+      cout<<a->key<<endl;
+      return;
+    }
+
+    if(abs(a->key-val)>abs(b->key-val)){
+      cout<<b->key<<endl;
+    } else if (abs(a->key-val) < abs(b->key-val)){
+      cout<<a->key<<endl;
+    } else {
+      cout<<a->key<<" "<<b->key<<endl;
+    }
+}
+
+void erase(ll val){
+  node *a=0,*b=0,*c=0;
+  split(root,a,b,val);
+  split(b,b,c,val+1);
+
+  debug(a,b,c);
+  node *tmp = b;
+  b = merge(b->l,b->r);
+  delete tmp;
+
+  root = merge(a,merge(b,c));
+}
 int main()
 {
   IOS();
-
-
+  srand(time(0));
+  ll n;
+  cin>>n;
+  ll x;
+  string cmd;
+  root = 0;
+  REP(i,n){
+    cin>>cmd>>x;
+    if(cmd[0]=='i'){
+      insert(x);
+    }else if(cmd[0]=='d'){
+      erase(x);
+    } else {
+      query(x);
+    }
+  }
 	return 0;
 }

@@ -1,6 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
-typedef long long ll;
+typedef int ll;
 typedef pair<ll, ll> pii;
 typedef pair<double,double> pdd;
 #define MEM(a, b) memset(a, (b), sizeof(a))
@@ -51,14 +51,89 @@ template<class T> using MaxHeap = priority_queue<T>;
 template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
-const ll INF=0x3f3f3f3f3f3f3f3f;
+const ll INF=0x3f3f3f3f;
 const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
+int n,m;
+int a,b;
+vector<int> e[MAXN],vtx;
+int dis[MAXLG][MAXN],fat[MAXN],mx[MAXN],sz[MAXN],dep[MAXN],ans[MAXN];
+bool v[MAXN];
 /********** Main()  function **********/
+
+void get_center(int now){
+  v[now] = true;
+  vtx.pb(now);
+  sz[now] = 1;
+  mx[now] = 0;
+  for(auto u:e[now]) if(!v[u]) {
+    get_center(u);
+    mx[now] = max(mx[now],sz[u]);
+    sz[now] += sz[u];
+  }
+}
+
+void get_dis(int now,int d,int cnt){
+  dis[d][now] = cnt;
+  v[now] = 1;
+  for(auto u:e[now])if(!v[u]){
+    get_dis(u,d,cnt+1);
+  }
+}
+
+
+void dfs(int now,int par,int d){
+  get_center(now);
+  int c= - 1;
+  for(auto i:vtx){
+    if(max(mx[i],SZ(vtx) - sz[i])<=SZ(vtx)/2)c=i;
+    v[i] = false;
+  }
+  get_dis(c,d,0);
+  for(auto i:vtx)v[i] = false;
+  v[c] = true;
+  vtx.clear();
+  dep[c] = d;
+  fat[c] = par;
+  for(auto u:e[c])if(u!=par&&!v[u]){
+    dfs(u,c,d+1);
+  }
+}
+
+void modify(int now){
+  ans[now] = 0;
+  int cur = now;
+  for(int d=dep[now];d>=0;d--){
+    ans[cur] = min(ans[cur],ans[now]+dis[d][now]);
+    cur = fat[cur];
+  }
+}
+
+int query(int now){
+  int ret = INF;
+  int cur = now;
+  for(int d=dep[now];d>=0;d--){
+    ret = min(ret,ans[cur] + dis[d][now]);
+    debug(cur,d,ans[cur],dis[d][now]);
+    cur = fat[cur];
+  }
+  return ret;
+}
 int main()
 {
   IOS();
-
-  return 0;
+  cin>>n>>m;
+  REP(i,n-1)cin>>a>>b,e[a].pb(b),e[b].pb(a);
+  dfs(1,0,0);
+  MEM(ans,0x3f3f3f3f);
+  modify(1);
+  int cmd,idx;
+  while(m--){
+    cin>>cmd>>idx;
+    debug(cmd,idx);
+    if(cmd==1)modify(idx);
+    else cout<<query(idx)<<endl;
+  }
+	return 0;
 }

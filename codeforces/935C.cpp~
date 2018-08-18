@@ -1,9 +1,0 @@
-#include <bits/stdc++.h>
-using namespace std;
-int main (){
-  int r,x,y,u,v;
-  if ((x-u)*(x-u)+(y-v)*(y-v)>=r*r) cout<<x<<' '<<y<<' '<<r<<endl;
-  double dis = sqrt((x-u)*(x-u)+(y-v)*(y-v));
-  cout<<fixed<<setprecision(10);
-  cout<<u-(u-x)*(dis+r)/2/dis<<' '<<v-(v-y)*(dis+r)/2/dis<<' '<<(dis+r)/2<<endl;
-}

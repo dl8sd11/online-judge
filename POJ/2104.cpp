@@ -1,6 +1,18 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <assert.h>
+#include <algorithm>
+#include <vector>
+#include <cstring>
+#include <string>
+#include <cmath>
+#include <utility>
+#include <sstream>
+#include <stack>
+#include <queue>
+#include <set>
+#include <map>
 using namespace std;
-typedef long long ll;
+typedef int ll;
 typedef pair<ll, ll> pii;
 typedef pair<double,double> pdd;
 #define MEM(a, b) memset(a, (b), sizeof(a))
@@ -45,20 +57,87 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
 #endif
 
-template<class T> inline bool cmax(T &a, const T &b) { return b > a ? a = b, true : false; }
-template<class T> inline bool cmin(T &a, const T &b) { return b < a ? a = b, true : false; }
-template<class T> using MaxHeap = priority_queue<T>;
-template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
 const ll MAXN=1e5+5;
-const ll MAXLG=__lg(MAXN)+2;
 
+struct node{
+  node *lc,*rc;
+  ll l,r;
+  ll data;
+  node(node *lci,node *rci,ll li,ll ri,ll datai):lc(lci),rc(rci),l(li),r(ri),data(datai){}
+  void pull(){
+    data = 0;
+    if(lc)data += lc->data ;
+    if(rc)data += rc->data;
+  }
+};
+
+node *build(ll l,ll r){
+  if(r==l+1)return new node(0,0,l,r,0);
+  ll mid = (l+r)/2;
+  return new node(build(l,mid),build(mid,r),l,r,0);
+}
+
+
+node *add(ll l,node *nd){
+  nd = new node(*nd);
+  if(l==nd->l&&l==nd->r-1){
+    nd->data++;
+    return nd;
+  }
+  ll mid = (nd->l + nd->r)/2;
+  if(l>=mid) nd->rc = add(l,nd->rc);
+  else nd->lc = add(l,nd->lc);
+  nd->pull();
+  return nd;
+}
+
+ll query(ll l,ll r,node *nd1,node *nd2,ll kt){
+  if(nd1->l==nd1->r-1)return l;
+  ll mid = (l+r)/2,add = nd2->lc->data - nd1->lc->data;
+  if(add >= kt){
+    debug("left");
+    return query(l,mid,nd1->lc,nd2->lc,kt);
+  } else {
+    debug("right");
+    return query(mid,r,nd1->rc,nd2->rc,kt-add);
+  }
+
+}
+
+ll n,m,x,y,k;
+ll a[MAXN],b[MAXN],c[MAXN];
+node *root[MAXN];
+vector<ll> input;
 /********** Main()  function **********/
 int main()
 {
   IOS();
+  cin>>n>>m;
+  REP(i,n)cin>>a[i],c[i]=a[i];
 
-  return 0;
+  sort(a,a+n);
+  n = unique(a,a+n)-a;
+
+  REP(i,n){
+    b[i] = lower_bound(a,a+n,c[i])-a;
+  }
+
+  root[0] = build(0,n+2);
+
+  for(ll i=0;i<n;i++){
+    root[i+1] = add(b[i],root[i]);
+  }
+
+  assert(0);
+  for(int i=0;i<m;i++){
+    cin>>x>>y>>k;
+    x--;
+
+    cout<<a[query(0,n+2,root[x],root[y],k)]<<endl;
+  }
+
+	return 0;
 }

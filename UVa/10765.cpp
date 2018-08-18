@@ -1,6 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
-typedef long long ll;
+typedef int ll;
 typedef pair<ll, ll> pii;
 typedef pair<double,double> pdd;
 #define MEM(a, b) memset(a, (b), sizeof(a))
@@ -51,14 +51,83 @@ template<class T> using MaxHeap = priority_queue<T>;
 template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
-const ll INF=0x3f3f3f3f3f3f3f3f;
+const ll INF=0x3f3f3f3f;
 const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
+int n,m;
+int x,y;
+vector<int> edge[MAXN];
+vector<pii> rk;
+int comp,low[MAXN],dfn[MAXN],timestamp;
+bool vis[MAXN];
+
+bool cmp(const pii &a,const pii &b){
+  if(a.Y!=b.Y) return a.Y>b.Y;
+  else return a.X < b.X;
+}
+void DFS(int nd,int par){
+  vis[nd] = 1;
+  for(auto v:edge[nd]){
+    if(v==par||vis[v])continue;
+    DFS(v,nd);
+  }
+
+}
+
+void DFS2(int nd,int par){
+  low[nd] = dfn[nd] = ++timestamp;
+  int compp = 0;
+  int child = 0;
+  for(auto v:edge[nd]){
+    if(v==par)continue;
+    if(!dfn[v]){
+      DFS2(v,nd);
+      child++;
+      low[nd] = min(low[nd],low[v]);
+      if(low[v]>=dfn[nd])compp++;
+    } else low[nd] = min(low[nd],dfn[v]);
+  }
+  debug(nd,compp,comp);
+  if(nd!=par) rk.pb({nd,comp+compp});
+  else rk.pb({nd,comp+child-1});
+}
+int cnt,root[MAXN];
 /********** Main()  function **********/
 int main()
 {
   IOS();
+  while(cin>>n>>m&&(n!=0||m!=0)){
+    REP(i,n)edge[i].clear();
+    rk.clear();
+    MEM(vis,0);
+    MEM(low,0);
+    MEM(dfn,0);
+    timestamp = 0;
+    while(cin>>x>>y&&(x!=-1&&y!=-1)){
+      edge[x].pb(y);
+      edge[y].pb(x);
+    }
+    comp = 0;
+    cnt = 0;
+    REP(i,n){
+      if(!vis[i]){
+        DFS(i,i);
+        comp++;
+        root[cnt++]=i;
+      }
+    }
 
-  return 0;
+    debug(comp);
+
+    REP(i,cnt)DFS2(root[i],root[i]);
+
+    sort(ALL(rk),cmp);
+    debug(rk);
+    for(int i=0;i<m;i++){
+      cout<<rk[i].X<<" "<<rk[i].Y<<endl;
+    }
+    cout<<endl;
+  }
+	return 0;
 }
