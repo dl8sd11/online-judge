@@ -12,7 +12,7 @@
 #include <set>
 #include <map>
 using namespace std;
-typedef int ll;
+typedef long long ll;
 typedef pair<ll, ll> pii;
 typedef pair<double,double> pdd;
 #define MEM(a, b) memset(a, (b), sizeof(a))
@@ -59,7 +59,6 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 
 const ll MOD=1000000007;
-const ll INF=0x3f3f3f3f3f3f3f3f;
 const ll MAXN=1e5+5;
 
 struct node{
@@ -93,16 +92,14 @@ node *add(ll l,node *nd){
   nd->pull();
   return nd;
 }
-
-ll query(ll l,ll r,node *nd1,node *nd2,ll kt){
-  if(nd1->l==nd1->r-1)return l;
-  ll mid = (l+r)/2,add = nd2->lc->data - nd1->lc->data;
-  if(add >= kt){
-    debug("left");
-    return query(l,mid,nd1->lc,nd2->lc,kt);
+ll tmp;
+ll query(node *nd1,node *nd2,ll kt){
+  if(nd1->l==nd1->r-1)return nd1->l;
+  tmp = nd2->lc->data - nd1->lc->data;
+  if(tmp >= kt){
+    return query(nd1->lc,nd2->lc,kt);
   } else {
-    debug("right");
-    return query(mid,r,nd1->rc,nd2->rc,kt-add);
+    return query(nd1->rc,nd2->rc,kt-tmp);
   }
 
 }
@@ -110,7 +107,6 @@ ll query(ll l,ll r,node *nd1,node *nd2,ll kt){
 ll n,m,x,y,k;
 ll a[MAXN],b[MAXN],c[MAXN];
 node *root[MAXN];
-vector<ll> input;
 /********** Main()  function **********/
 int main()
 {
@@ -119,24 +115,24 @@ int main()
   REP(i,n)cin>>a[i],c[i]=a[i];
 
   sort(a,a+n);
-  n = unique(a,a+n)-a;
+  ll nn = unique(a,a+n)-a;
 
   REP(i,n){
-    b[i] = lower_bound(a,a+n,c[i])-a;
+    b[i] = lower_bound(a,a+nn,c[i])-a;
   }
 
-  root[0] = build(0,n+2);
+  root[0] = build(0,nn);
 
   for(ll i=0;i<n;i++){
     root[i+1] = add(b[i],root[i]);
   }
 
-  assert(0);
-  for(int i=0;i<m;i++){
+
+  for(ll i=0;i<m;i++){
     cin>>x>>y>>k;
     x--;
 
-    cout<<a[query(0,n+2,root[x],root[y],k)]<<endl;
+    cout<<a[query(root[x],root[y],k)]<<endl;
   }
 
 	return 0;
