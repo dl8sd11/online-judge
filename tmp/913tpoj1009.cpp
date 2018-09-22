@@ -53,84 +53,35 @@ template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=1e2+5;
+const ll MAXN=2e5+5;
 const ll MAXLG=__lg(MAXN)+2;
-
-ll n,m,s,t;
-struct E{ll f,t,cap,flow,rev;};
-vector<E> edge[MAXN];
-ll cur[MAXN];
-
-void init(){
-  REP(i,MAXN)edge[i].clear();
-}
-
-void addEdge(ll u,ll v,ll c){
-  edge[u].pb((E){u,v,c,0,SZ(edge[v])});
-  edge[v].pb((E){v,u,0,0,SZ(edge[u])-1});
-}
-ll dis[MAXN];
-bool BFS(){
-  MEM(dis,-1);
-  queue<ll> q;
-  dis[s] = 0;
-  q.push(s);
-  while(!q.empty()){
-    ll nd = q.front();q.pop();
-    for(auto v:edge[nd]){
-      if(dis[v.t]==-1&&v.cap!=v.flow){
-        dis[v.t] = dis[v.f] + 1;
-        q.push(v.t);
-      }
-    }
+ll Z[MAXN];
+string a,b;
+ll bst;
+void build(){
+  bst = Z[0] = 0;
+  for(ll i=1;i<SZ(a);i++){
+    if(Z[bst] + bst <= i)Z[i] = 0;
+    else Z[i] = min(Z[bst]+bst -i,Z[i-bst]);
+    while(Z[i] + i < SZ(a) && a[Z[i]] == a[i+Z[i]])Z[i] ++;
+    if(bst+Z[bst] < i+Z[i])bst = i;
   }
-  return dis[t]!=-1;
-}
-
-ll DFS(ll nd,ll cap){
-  if(nd==t||!cap)return cap;
-  for(ll &i=cur[nd];i<SZ(edge[nd]);i++){
-    E &e = edge[nd][i];
-    if(dis[e.t]==dis[e.f]+1&&e.flow!=e.cap){
-      ll df = DFS(e.t,min(cap,e.cap - e.flow));
-      if(df){
-        e.flow += df;
-        edge[e.t][e.rev].flow -= df;
-        return df;
-      }
-    }
-  }
-  dis[nd] = -1;
-  return 0;
-}
-
-ll Dinic(){
-  ll flow = 0,df;
-  while(BFS()){
-    MEM(cur,0);
-    while(df=DFS(s,INF)){
-      flow += df;
-    }
-  }
-  return flow;
 }
 /********** Main()  function **********/
 int main()
 {
   IOS();
-  ll u,v,c,cnt = 0;
-  while(cin>>n&&n){
-    init();
-    cin>>s>>t>>m;
-    REP(i,m){
-      cin>>u>>v>>c;
-      addEdge(u,v,c);
-      addEdge(v,u,c);
-    }
-    cout<<"Network "<<(++cnt)<<endl;
-    cout<<"The bandwidth is "<<Dinic()<<"."<<endl<<endl;
-
+  cin>>a>>b;
+  ll n =SZ(a);
+  ll m = SZ(b);
+  debug(n);
+  a = a + '#' + b;
+  build();
+  ll ans = 0;
+  pary(Z,Z+SZ(a));
+  for(ll i=n+1;i<SZ(a);i++){
+    if(Z[i] == n)ans++;
   }
-
+  cout<<ans<<endl;
   return 0;
 }

@@ -17,22 +17,22 @@ typedef pair<double,double> pdd;
 #define X first
 #define Y second
 #ifdef tmd
-#define debug(...) do{							\
-    fprintf(stderr,"%s - %d (%s) = ",__PRETTY_FUNCTION__,__LINE__,#__VA_ARGS__); \
-    _do(__VA_ARGS__);							\
-  }while(0)
+#define debug(...) do{\
+    fprintf(stderr,"%s - %d (%s) = ",__PRETTY_FUNCTION__,__LINE__,#__VA_ARGS__);\
+    _do(__VA_ARGS__);\
+}while(0)
 template<typename T>void _do(T &&_x){cerr<<_x<<endl;}
 template<typename T,typename ...S> void _do(T &&_x,S &&..._t){cerr<<_x<<" ,";_do(_t...);}
 template<typename _a,typename _b> ostream& operator << (ostream &_s,const pair<_a,_b> &_p){return _s<<"("<<_p.X<<","<<_p.Y<<")";}
 template<typename It> ostream& _OUTC(ostream &_s,It _ita,It _itb)
 {
-  _s<<"{";
-  for(It _it=_ita;_it!=_itb;_it++)
+    _s<<"{";
+    for(It _it=_ita;_it!=_itb;_it++)
     {
-      _s<<(_it==_ita?"":",")<<*_it;
+        _s<<(_it==_ita?"":",")<<*_it;
     }
-  _s<<"}";
-  return _s;
+    _s<<"}";
+    return _s;
 }
 template<typename _a> ostream &operator << (ostream &_s,vector<_a> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _a> ostream &operator << (ostream &_s,set<_a> &_c){return _OUTC(_s,ALL(_c));}
@@ -53,84 +53,74 @@ template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=1e2+5;
+const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
-
-ll n,m,s,t;
-struct E{ll f,t,cap,flow,rev;};
-vector<E> edge[MAXN];
-ll cur[MAXN];
-
-void init(){
-  REP(i,MAXN)edge[i].clear();
-}
-
-void addEdge(ll u,ll v,ll c){
-  edge[u].pb((E){u,v,c,0,SZ(edge[v])});
-  edge[v].pb((E){v,u,0,0,SZ(edge[u])-1});
-}
-ll dis[MAXN];
-bool BFS(){
-  MEM(dis,-1);
-  queue<ll> q;
-  dis[s] = 0;
-  q.push(s);
-  while(!q.empty()){
-    ll nd = q.front();q.pop();
-    for(auto v:edge[nd]){
-      if(dis[v.t]==-1&&v.cap!=v.flow){
-        dis[v.t] = dis[v.f] + 1;
-        q.push(v.t);
-      }
+ll n;
+vector<ll> edge[MAXN];
+struct DP{
+  ll h,l;
+  void merge(const DP &a){
+    if(a.h > h){
+      h = a.h;
+      l = a.l;
+    } else if(a.h == h){
+      l = 0;
     }
   }
-  return dis[t]!=-1;
+
+  DP get_up(){
+    return (DP){h+1,l+1};
+  }
+};
+DP down[MAXN],up[MAXN];
+ll ans[MAXN];
+void DFS1(ll nd,ll par){
+  down[nd] = DP{0,0};
+  for(auto v:edge[nd])if(v!=par){
+    DFS1(v,nd);
+    down[nd].merge(down[v].get_up());
+  }
 }
 
-ll DFS(ll nd,ll cap){
-  if(nd==t||!cap)return cap;
-  for(ll &i=cur[nd];i<SZ(edge[nd]);i++){
-    E &e = edge[nd][i];
-    if(dis[e.t]==dis[e.f]+1&&e.flow!=e.cap){
-      ll df = DFS(e.t,min(cap,e.cap - e.flow));
-      if(df){
-        e.flow += df;
-        edge[e.t][e.rev].flow -= df;
-        return df;
-      }
-    }
+void DFS2(ll nd,ll par){
+  DP suf({0,0});
+  for(ll i=SZ(edge[nd])-1;i>=0;i--)if(edge[nd][i]!=par){
+    up[edge[nd][i]] = suf;
+    suf.merge(down[edge[nd][i]].get_up());
   }
-  dis[nd] = -1;
-  return 0;
-}
 
-ll Dinic(){
-  ll flow = 0,df;
-  while(BFS()){
-    MEM(cur,0);
-    while(df=DFS(s,INF)){
-      flow += df;
-    }
+  DP pre({0,0});
+  for(ll i=0;i<SZ(edge[nd]);i++)if(edge[nd][i]!=par){
+    ll cur = edge[nd][i];
+    DP tmp = up[cur];
+    tmp.merge(pre);
+    tmp.merge(up[nd]);
+
+    up[cur] = tmp.get_up();
+
+    pre.merge(down[cur].get_up());
+    DFS2(cur,nd);
   }
-  return flow;
+
+  pre.merge(up[nd]);
+  ans[nd] = pre.l;
 }
 /********** Main()  function **********/
 int main()
 {
   IOS();
-  ll u,v,c,cnt = 0;
-  while(cin>>n&&n){
-    init();
-    cin>>s>>t>>m;
-    REP(i,m){
-      cin>>u>>v>>c;
-      addEdge(u,v,c);
-      addEdge(v,u,c);
-    }
-    cout<<"Network "<<(++cnt)<<endl;
-    cout<<"The bandwidth is "<<Dinic()<<"."<<endl<<endl;
-
+  cin>>n;
+  ll u,v;
+  REP(i,n-1){
+    cin>>u>>v;
+    edge[u].pb(v);
+    edge[v].pb(u);
   }
 
+  DFS1(1,1);
+  REP1(i,n)debug(down[i].l,down[i].h);
+  DFS2(1,1);
+
+  REP1(i,n)cout<<n-1-ans[i]<<endl;
   return 0;
 }

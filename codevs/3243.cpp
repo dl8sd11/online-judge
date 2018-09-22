@@ -46,91 +46,126 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
 #endif
 
-template<class T> inline bool cmax(T &a, const T &b) { return b > a ? a = b, true : false; }
-template<class T> inline bool cmin(T &a, const T &b) { return b < a ? a = b, true : false; }
-template<class T> using MaxHeap = priority_queue<T>;
-template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
-
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=1e2+5;
+const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-ll n,m,s,t;
-struct E{ll f,t,cap,flow,rev;};
-vector<E> edge[MAXN];
-ll cur[MAXN];
+ll n,m,u,v;
+ll ar[MAXN];
 
-void init(){
-  REP(i,MAXN)edge[i].clear();
-}
-
-void addEdge(ll u,ll v,ll c){
-  edge[u].pb((E){u,v,c,0,SZ(edge[v])});
-  edge[v].pb((E){v,u,0,0,SZ(edge[u])-1});
-}
-ll dis[MAXN];
-bool BFS(){
-  MEM(dis,-1);
-  queue<ll> q;
-  dis[s] = 0;
-  q.push(s);
-  while(!q.empty()){
-    ll nd = q.front();q.pop();
-    for(auto v:edge[nd]){
-      if(dis[v.t]==-1&&v.cap!=v.flow){
-        dis[v.t] = dis[v.f] + 1;
-        q.push(v.t);
-      }
+struct node {
+  node *l,*r;
+  ll data,pri,size;
+  bool tag;
+  node (ll datai){
+    l = 0;
+    r = 0;
+    data = datai;
+    pri = rand();
+    tag = 0;
+    size = 1;
+  }
+  void push(){
+    if(tag){
+      if(l)l->tag ^= 1;
+      if(r)r->tag ^= 1;
+      swap(l,r);
+      tag = 0;
     }
   }
-  return dis[t]!=-1;
+  void pull(){
+    size = 1;
+    if(l)size += l->size;
+    if(r)size += r->size;
+  }
+};
+
+ll SIZ(node *a){return a?a->size:0;}
+
+
+void pre_order(node *nd,vector<ll> *ret){
+  if(!nd)return;
+  nd->push();
+  pre_order(nd->l,ret);
+  ret->eb(nd->data);
+  pre_order(nd->r,ret);
+}
+void print_tree(node *nd){
+  vector<ll> output;
+  pre_order(nd,&output);
+  REP(i,SZ(output)){
+    cout<<output[i]<<" \n"[i==SZ(output)-1];
+  }
 }
 
-ll DFS(ll nd,ll cap){
-  if(nd==t||!cap)return cap;
-  for(ll &i=cur[nd];i<SZ(edge[nd]);i++){
-    E &e = edge[nd][i];
-    if(dis[e.t]==dis[e.f]+1&&e.flow!=e.cap){
-      ll df = DFS(e.t,min(cap,e.cap - e.flow));
-      if(df){
-        e.flow += df;
-        edge[e.t][e.rev].flow -= df;
-        return df;
-      }
-    }
+node *merge(node *a,node *b){
+  if(!a||!b)return a?a:b;
+  a->push();
+  b->push();
+  if(a->pri > b->pri){
+    a->r = merge(a->r,b);
+    a->pull();
+    return a;
+  } else {
+    b->l = merge(a,b->l);
+    b->pull();
+    return b;
   }
-  dis[nd] = -1;
-  return 0;
+}
+void split_by_sz(node *o,node *&a,node *&b,ll goal){
+  if(!o){
+    a = b = 0;
+    return;
+  }
+  o->push();
+  if(SIZ(o->l) + 1 <= goal){
+    a = o;
+    split_by_sz(o->r,a->r,b,goal - SIZ(o->l) - 1);
+    a->pull();
+  } else {
+    b = o;
+    split_by_sz(o->l,a,b->l,goal);
+    b->pull();
+  }
 }
 
-ll Dinic(){
-  ll flow = 0,df;
-  while(BFS()){
-    MEM(cur,0);
-    while(df=DFS(s,INF)){
-      flow += df;
-    }
-  }
-  return flow;
+node *insert(ll val,node *&nd){
+  if(!nd) return new node(val);
+  return merge(nd,new node(val));
 }
+
+node *flip(node *o,ll l,ll r){
+  node *na,*nb,*nc;
+  split_by_sz(o,na,nb,l-1);
+  split_by_sz(nb,nb,nc,r-l+1);
+  nb->tag ^= 1;
+  debug(SIZ(na),SIZ(nb),SIZ(nc));
+  //  print_tree(na);
+  //  print_tree(nb);
+  //  print_tree(nc);
+  return merge(na,merge(nb,nc));
+}
+
 /********** Main()  function **********/
 int main()
 {
   IOS();
-  ll u,v,c,cnt = 0;
-  while(cin>>n&&n){
-    init();
-    cin>>s>>t>>m;
-    REP(i,m){
-      cin>>u>>v>>c;
-      addEdge(u,v,c);
-      addEdge(v,u,c);
-    }
-    cout<<"Network "<<(++cnt)<<endl;
-    cout<<"The bandwidth is "<<Dinic()<<"."<<endl<<endl;
+  srand(910607);
+  cin>>n;
+  REP(i,n)cin>>ar[i];
+  node *root = 0;
+  REP(i,n)root = insert(ar[i],root);
+  cin>>m;
 
+
+  while(m--){
+    debug(m);
+    cin>>u>>v;
+    root = flip(root,u,v);
   }
+  print_tree(root);
+
 
   return 0;
 }
