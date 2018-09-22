@@ -53,84 +53,58 @@ template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=1e2+5;
+const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
-
-ll n,m,s,t;
-struct E{ll f,t,cap,flow,rev;};
-vector<E> edge[MAXN];
-ll cur[MAXN];
-
-void init(){
-  REP(i,MAXN)edge[i].clear();
-}
-
-void addEdge(ll u,ll v,ll c){
-  edge[u].pb((E){u,v,c,0,SZ(edge[v])});
-  edge[v].pb((E){v,u,0,0,SZ(edge[u])-1});
-}
-ll dis[MAXN];
-bool BFS(){
-  MEM(dis,-1);
-  queue<ll> q;
-  dis[s] = 0;
-  q.push(s);
-  while(!q.empty()){
-    ll nd = q.front();q.pop();
-    for(auto v:edge[nd]){
-      if(dis[v.t]==-1&&v.cap!=v.flow){
-        dis[v.t] = dis[v.f] + 1;
-        q.push(v.t);
-      }
-    }
+const double EPS = 1e-7;
+double X1,X2,X3,X4,Y1,Y2,Y3,Y4;
+struct point{
+  double px,py;
+  point(double xx,double yy){
+    px = xx;
+    py = yy;
   }
-  return dis[t]!=-1;
+  point operator - (const point &a){
+    return point{px-a.px,py-a.py};
+  }
+  bool operator != (const point &a){
+    return a.px != px || a.py != py;
+  }
+};
+
+double cross(const point &a,const point &b){
+  double ret = a.px * b.py - a.py*b.px;
+  if (ret <= EPS && ret >= -EPS)ret = 0;
+  return ret;
+}
+double cross2(const point &a,const point &b){
+  return a.px * b.py - a.py*b.px;
+}
+double dot(const point &a,const point &b){
+  return a.px*b.px + b.py*a.py;
 }
 
-ll DFS(ll nd,ll cap){
-  if(nd==t||!cap)return cap;
-  for(ll &i=cur[nd];i<SZ(edge[nd]);i++){
-    E &e = edge[nd][i];
-    if(dis[e.t]==dis[e.f]+1&&e.flow!=e.cap){
-      ll df = DFS(e.t,min(cap,e.cap - e.flow));
-      if(df){
-        e.flow += df;
-        edge[e.t][e.rev].flow -= df;
-        return df;
-      }
-    }
-  }
-  dis[nd] = -1;
-  return 0;
-}
-
-ll Dinic(){
-  ll flow = 0,df;
-  while(BFS()){
-    MEM(cur,0);
-    while(df=DFS(s,INF)){
-      flow += df;
-    }
-  }
-  return flow;
+bool btw(point &a,point &b,point &c){
+  debug("HI");
+  return dot(a-c,b-c) <= EPS;
 }
 /********** Main()  function **********/
 int main()
 {
   IOS();
-  ll u,v,c,cnt = 0;
-  while(cin>>n&&n){
-    init();
-    cin>>s>>t>>m;
-    REP(i,m){
-      cin>>u>>v>>c;
-      addEdge(u,v,c);
-      addEdge(v,u,c);
-    }
-    cout<<"Network "<<(++cnt)<<endl;
-    cout<<"The bandwidth is "<<Dinic()<<"."<<endl<<endl;
 
-  }
-
+  cin>>X1>>Y1>>X2>>Y2>>X3>>Y3>>X4>>Y4;
+  point p1(X1,Y1),p2(X2,Y2),p3(X3,Y3),p4(X4,Y4);
+  bool flag = 0;
+  if(cross(p2-p1,p3-p1) == 0 && btw(p1,p2,p3))flag = 1;
+  else if(cross(p2-p1,p4-p1) == 0 && btw(p1,p2,p4)) flag = 1;
+  else if(cross(p4-p3,p2-p3) == 0 && btw(p3,p4,p2)) flag = 1;
+  else if(cross(p4-p3,p1-p3) == 0 && btw(p3,p4,p1)) flag = 1;
+  else if(cross2(p2-p1,p3-p1)*cross2(p1-p2,p4-p2) > 0 && cross2(p4-p3,p1-p3)*cross2(p3-p4,p2-p3) > 0)flag = 1;
+  
+  if(flag)cout<<"YES"<<endl;
+  else cout<<"NO"<<endl;
   return 0;
 }
+
+
+// && cross(point(X4-X3,Y4-Y3)*point(X1-X3,Y1-X3))*(point(X3-X4,Y3-Y4)*point(X2-X4,Y2-X4)) > 0

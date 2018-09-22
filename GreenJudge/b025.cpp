@@ -1,20 +1,30 @@
 #include <iostream>
 using namespace std;
-long long int solve(int x,int y){
-	const int xMAX = x+1;
-	const int yMAX = y+1;
-	long long int map[xMAX][yMAX];
-	for(int i=0;i<=x;i++){
-		for(int j=0;j<=y;j++){
-			if(i==0||j==0)map[i][j]=1;
-			else map[i][j]=map[i-1][j]+map[i][j-1];
-		}
-	}
-	return map[x][y];
+
+
+long solve(ll x,ll y){
+  ll sum = x + y;
+  if(x > y)swap(x,y);
+  ll ret = 1;
+  for(ll i=0;i<x;i++){
+    if(ret%(i+1)==0){
+      ret /= (i+1);
+      ret *= (sum-i);
+    } else if((sum-i)%(i+1)==0){
+      ret *= (sum-i)/(i+1); 
+    } else {
+      ll tmptmp;
+      (sum - i) /= __gcd((sum-i),(i+1));
+      i+1 /= __gcd((sum-i),(i+1));
+      ret /= __gcd((ret),(i+1));
+      i+1 /= __gcd((ret),(i+1));
+      ret *= ;
+    }
+  }
+  return long(ret);
 }
 int main(){
-	int x,y;
-	cin>>x>>y;
-	
-	cout<<solve(x,y);
+  long long x,y;
+  cin>>x>>y;
+  cout<<solve(x,y)<<endl;
 }
