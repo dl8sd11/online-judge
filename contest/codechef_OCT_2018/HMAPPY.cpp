@@ -13,7 +13,6 @@ typedef pair<double,double> pdd;
 #define ALL(_a) _a.begin(),_a.end()
 #define mp make_pair
 #define pb push_back
-#define eb emplace_back
 #define X first
 #define Y second
 #ifdef tmd
@@ -56,10 +55,35 @@ const ll INF=0x3f3f3f3f3f3f3f3f;
 const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-/********** Good Luck :) **********/
+ll n,m;
+ll a[MAXN],b[MAXN];
+
+ll ceildiv(ll _x,ll _y){
+  ll ret = _x/_y;
+  return (ret*_y==_x?ret:ret+1);
+}
+ll solve(ll C){
+  ll ret = 0;
+  REP(i,n){
+    ret += max(0LL,a[i]-C/b[i]);
+  }
+  return ret;
+}
+/********** Main()  function **********/
 int main()
 {
-    IOS();
+  IOS();
+  cin>>n>>m;
+  REP(i,n)cin>>a[i];
+  REP(i,n)cin>>b[i];
 
-    return 0;
+  ll l = 0,r = INF;
+  while(l < r-1){
+    ll mid = (l+r)/2;
+    if(solve(mid) <= m) r = mid;
+    else l = mid;
+  }
+
+  cout<<r<<endl;
+  return 0;
 }

@@ -56,10 +56,12 @@ const ll INF=0x3f3f3f3f3f3f3f3f;
 const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
+ll x,y;
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-
+    cin>>x>>y;
+    cout<<x+y/2<<endl;
     return 0;
 }

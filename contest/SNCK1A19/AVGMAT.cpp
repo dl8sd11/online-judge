@@ -13,7 +13,6 @@ typedef pair<double,double> pdd;
 #define ALL(_a) _a.begin(),_a.end()
 #define mp make_pair
 #define pb push_back
-#define eb emplace_back
 #define X first
 #define Y second
 #ifdef tmd
@@ -56,10 +55,51 @@ const ll INF=0x3f3f3f3f3f3f3f3f;
 const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-/********** Good Luck :) **********/
+
+int t,n,m;
+char b;
+bool g[302][302];
+ll dis[1000];
+ll cnt1[1000][1000];
+ll cnt2[1000][1000];
+/********** Main()  function **********/
 int main()
 {
-    IOS();
+  IOS();
+  cin>>t;
+  while(t--){
+    cin>>n>>m;
+    REP1(i,n)REP1(j,m)cin>>b,g[i][j]= (b=='1');
+    memset(dis,0,sizeof dis);
+    memset(cnt1,0,sizeof cnt1);
+    memset(cnt2,0,sizeof cnt2);
 
-    return 0;
+    REP1(i,n+m){
+      REP1(j,m){
+        cnt1[i][j] += cnt1[i][j-1];
+        if(i-j >= 1)cnt1[i][j] += g[i-j][j];
+      }
+    }
+
+    for(ll i=-n;i<m;i++){
+      REP1(j,m){
+        if(j-i >= 1)cnt2[i+n][j] += g[j-i][j];
+      }
+    }
+
+    REP1(i,n+m)pary(cnt1[i]+1,cnt1[i]+m+1);
+    debug("JI");
+    REP(i,n+m)pary(cnt2[i]+1,cnt2[i]+m+1);
+
+
+    REP1(i,n){
+      REP1(j,m){
+        REP1(k,n+m-2){
+          dis[k] += 
+        }
+      }
+    }
+    for(int i=1;i<=n+m-2;i++)cout<<dis[i]/2<<" \n"[i==m+n-2];
+  }
+  return 0;
 }

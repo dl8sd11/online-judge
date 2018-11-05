@@ -56,10 +56,19 @@ const ll INF=0x3f3f3f3f3f3f3f3f;
 const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
+ll n,m,k,l;
 /********** Good Luck :) **********/
 int main()
 {
+    //k + l < m * c < n 
     IOS();
+    cin>>n>>m>>k>>l;
+    
+    ll c = (k + l) / m;
+    if (c * m != k + l) c++;
+
+    if (m*c > n) cout << -1 <<endl;
+    else cout << c << endl;
 
     return 0;
 }

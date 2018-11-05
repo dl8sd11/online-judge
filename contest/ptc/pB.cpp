@@ -13,7 +13,6 @@ typedef pair<double,double> pdd;
 #define ALL(_a) _a.begin(),_a.end()
 #define mp make_pair
 #define pb push_back
-#define eb emplace_back
 #define X first
 #define Y second
 #ifdef tmd
@@ -56,10 +55,92 @@ const ll INF=0x3f3f3f3f3f3f3f3f;
 const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-/********** Good Luck :) **********/
+ll t,die[MAXN];
+ll n,a[MAXN];
+ll lpre[MAXN];
+ll rpre[MAXN];
+ll pre[MAXN];
+vector<ll> facv;
+vector<ll> ans;
+ll left(ll idx,ll day){
+  auto first = lower_bound(ALL(facv),idx-day);
+  auto last = lower_bound(ALL(facv),idx);
+  if(last == facv.begin() || first == facv.end()) return 0;
+  last--;
+  ll sum = day * (pre[idx]-pre[(*first)-1]);
+  ll rpresum = (rpre[idx]-rpre[(*first)-1]);
+  ll presum = (pre[idx]-pre[(*first)-1]);
+  return  presum;
+}
+ll right(ll idx,ll day){
+  auto first = lower_bound(ALL(facv),idx);
+  auto last = upper_bound(ALL(facv),idx+day);
+  last--;
+  if(first == facv.end()) return 0; // no right
+  if(*first - idx > day) return 0;
+  ll sum = day * (pre[*last]-pre[idx]);
+  ll lpresum = (lpre[*last]-lpre[idx-1]);
+  ll presum = (pre[*last]-pre[idx-1]);
+  return  presum;
+}
+/********** Main()  function **********/
 int main()
 {
-    IOS();
+  IOS();
+  cin>>t;
+  while(t--){
+    cin>>n;
+    facv.clear();
+    pre[0] = 0;
+    lpre[0] = 0;
+    rpre[0] = 0;
+    REP1(i,n) {
+      cin>>a[i];
+      pre[i] = pre[i-1];
+      lpre[i] = lpre[i-1];
+      rpre[i] = rpre[i-1];
+      if(a[i]<0){
+        facv.emplace_back(i);
+        pre[i] += a[i];
+        lpre[i] += a[i]*i;
+        rpre[i] += a[i]*(n-i+1);
+      }
+    }
 
-    return 0;
+    debug(left(1,1));
+    debug(right(1,1));
+    MEM(die,0);
+    REP1(i,n){
+      if(a[i] > 0) {
+        ll L = 0,R = 10000003;
+        while(L<R-1){
+          ll mid = (L+R)/2;
+          if(left(i,mid) + right(i,mid) + a[i] > 0 )L = mid;
+          else R = mid;
+        }
+        die[i] = L+1;
+      }
+    }
+
+    ll mx = -1;
+    ans.clear();
+    pary(die+1,die+n+1);
+    REP1(i,n){
+      if(a[i] < 0 )continue;
+      if(die[i] > mx){
+        ans.clear();
+        ans.pb(i);
+        mx = die[i];
+      } else if(die[i] == mx){
+        ans.pb(i);
+      }
+    }
+
+    cout<<ans.size();
+    REP(i,SZ(ans)){
+      cout<<" "<<ans[i];
+    }
+    cout<<endl;
+  }
+  return 0;
 }

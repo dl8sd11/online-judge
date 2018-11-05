@@ -13,7 +13,6 @@ typedef pair<double,double> pdd;
 #define ALL(_a) _a.begin(),_a.end()
 #define mp make_pair
 #define pb push_back
-#define eb emplace_back
 #define X first
 #define Y second
 #ifdef tmd
@@ -56,10 +55,46 @@ const ll INF=0x3f3f3f3f3f3f3f3f;
 const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-/********** Good Luck :) **********/
+ll n,x[MAXN],y[MAXN];
+double mx,mn;
+/********** Main()  function **********/
 int main()
 {
-    IOS();
+  IOS();
 
+  cin>>n;
+  REP(i,n)cin>>x[i]>>y[i];
+
+  bool psb = 1;
+  REP(i,n-1)if(y[i]*y[i+1]<0)psb = 0;
+  if(!psb){
+    cout<<-1<<endl;
     return 0;
+  }
+
+  REP(i,n)if(y[i]<0)y[i] *= -1;
+  double L = 0, R = 1e14+4; 
+  while((R-L)/L >= 1e-9){
+    // debug(L,R);
+    double mid = (L+R)/2;
+    mx = -1e15,mn = +1e15;
+
+    bool valid = 1;
+    REP(i,n){
+      double h = y[i] - mid;
+      if(y[i] > 2*mid)valid = 0;
+      // cout<<fixed<<setprecision(9)<<h<<endl;
+      // cout<<fixed<<setprecision(9)<<mid*mid-h*h<<endl;
+      double len = sqrt((mid+h)*(mid-h));
+      debug(len);
+      mx = max(mx,x[i]-len);
+      mn = min(mn,x[i]+len);
+    }
+
+    debug(valid,mn,mx);
+    if(valid&&mn >= mx)R = mid;
+    else L = mid;
+  }
+  cout<<fixed<<setprecision(9)<<R<<endl;
+  return 0;
 }

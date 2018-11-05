@@ -13,7 +13,6 @@ typedef pair<double,double> pdd;
 #define ALL(_a) _a.begin(),_a.end()
 #define mp make_pair
 #define pb push_back
-#define eb emplace_back
 #define X first
 #define Y second
 #ifdef tmd
@@ -56,10 +55,35 @@ const ll INF=0x3f3f3f3f3f3f3f3f;
 const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-/********** Good Luck :) **********/
+ll n,a[MAXN],b[MAXN],t[MAXN];
+bool DFS(ll idx) {
+  debug(idx);
+  if(idx==n)return true;
+  bool ret = 0;
+  for(ll i=0;i<4;i++){
+    if(((t[idx-1]&i) == b[idx-1]) && ((t[idx-1]|i) == a[idx-1])){
+      t[idx] = i;
+      ret |= DFS(idx+1);
+    }
+  }
+  return ret;
+}
+/********** Main()  function **********/
 int main()
 {
-    IOS();
-
-    return 0;
+  IOS();
+  cin>>n;
+  REP(i,n-1)cin>>a[i];
+  REP(i,n-1)cin>>b[i];
+  for(ll i=0;i<4;i++){
+    t[0] = i;
+    if(DFS(1)){
+      cout<<"YES"<<endl;
+      REP(j,n)cout<<t[j]<<" \n"[j==n-1];
+      return 0;
+    }
+    MEM(t,0);
+  }
+  cout<<"NO"<<endl;
+  return 0;
 }

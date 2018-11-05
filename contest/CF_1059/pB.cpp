@@ -13,7 +13,6 @@ typedef pair<double,double> pdd;
 #define ALL(_a) _a.begin(),_a.end()
 #define mp make_pair
 #define pb push_back
-#define eb emplace_back
 #define X first
 #define Y second
 #ifdef tmd
@@ -53,13 +52,31 @@ template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=1e5+5;
+const ll MAXN=1e3+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-/********** Good Luck :) **********/
+bool g[MAXN][MAXN];
+bool f[MAXN][MAXN];
+ll n,m;
+char tmp;
+ll di[] = {-1,-1,-1,0,0,1,1,1},dj[] = {-1,0,1,-1,1,-1,0,1};
+/********** Main()  function **********/
 int main()
 {
-    IOS();
+  IOS();
+  cin>>n>>m;
+  REP(i,n)REP(j,m)cin>>tmp,g[i][j]=(tmp=='#'?1:0);
 
-    return 0;
+  for(ll i=1;i<n-1;i++){
+    for(ll j=1;j<m-1;j++){
+      bool valid = 1;
+      REP(k,8)if(!g[i+di[k]][j+dj[k]])valid = 0;
+      if(valid)REP(k,8)f[i+di[k]][j+dj[k]] = 1;
+    }
+  }
+
+  bool ans = 1;
+  REP(i,n)REP(j,m)if(g[i][j]!=f[i][j])ans = 0;
+  cout<<(ans?"YES":"NO")<<endl;
+  return 0;
 }

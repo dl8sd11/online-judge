@@ -13,7 +13,6 @@ typedef pair<double,double> pdd;
 #define ALL(_a) _a.begin(),_a.end()
 #define mp make_pair
 #define pb push_back
-#define eb emplace_back
 #define X first
 #define Y second
 #ifdef tmd
@@ -53,13 +52,48 @@ template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=1e5+5;
+const ll MAXN=2e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-/********** Good Luck :) **********/
+bool cmp(const pair<ll,ll> &a,const pair<ll,ll> &b){
+  if(a.X == b.X) return a.Y < b.Y;
+  else return a.X > b.X;
+}
+map<ll,vector<pair<ll,ll> > > layer;
+ll dp[MAXN][2];
+ll n,x,y;
+
+ll dis(pair<ll,ll> pa,pair<ll,ll> pb){
+  return abs(pa.X - pb.X) + abs(pa.Y - pb.Y);
+}
+/********** Main()  function **********/
 int main()
 {
-    IOS();
+  IOS();
+  cin>>n;
+  REP(i,n){
+    cin>>x>>y;
+    layer[max(x,y)].emplace_back(make_pair(x,y));
+  }
 
-    return 0;
+  for(auto &p:layer){
+    sort(ALL(p.Y),cmp);
+  }
+
+  pair<ll,ll> posh,post;
+  posh = post = {0,0};
+  ll idx = 0;
+  for(auto &p:layer){
+    ll route = 0;
+    for (ll i=1;i<SZ(p.Y);i++){
+      route += dis(p.Y[i],p.Y[i-1]);
+    }
+    idx++;
+    dp[idx][0] = route + min(dp[idx-1][0]+dis(p.Y.back(),posh),dp[idx-1][1]+dis(p.Y.back(),post));
+    dp[idx][1] = route + min(dp[idx-1][0]+dis(p.Y[0],posh),dp[idx-1][1]+dis(p.Y[0],post));
+    posh = p.Y[0];
+    post = p.Y.back();
+  }
+  cout<<min(dp[idx][0],dp[idx][1])<<endl;
+  return 0;
 }

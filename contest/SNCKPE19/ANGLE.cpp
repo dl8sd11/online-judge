@@ -13,9 +13,9 @@ typedef pair<double,double> pdd;
 #define ALL(_a) _a.begin(),_a.end()
 #define mp make_pair
 #define pb push_back
-#define eb emplace_back
 #define X first
 #define Y second
+#define SQ(i) ((i)*(i))
 #ifdef tmd
 #define debug(...) do{\
     fprintf(stderr,"%s - %d (%s) = ",__PRETTY_FUNCTION__,__LINE__,#__VA_ARGS__);\
@@ -53,13 +53,63 @@ template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=1e5+5;
+const ll MAXN=1e4+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-/********** Good Luck :) **********/
+struct ANS{
+  ll pa,pb,pc;
+}ans;
+ll t,n,p,q,a[MAXN];
+bool cmp(ll i,ll j,ll k) {
+    return (SQ(a[i])+SQ(a[j])-SQ(a[k])) * a[ans.pa] * a[ans.pb]< (SQ(a[ans.pa])+SQ(a[ans.pb])-SQ(a[ans.pc]))*a[i]*a[j];
+}
+void check(ll i,ll j,ll k){
+  vector<ll> edg = {a[i],a[j],a[k]};
+  sort(ALL(edg));
+  if(edg[0]+edg[1] <= edg[2])return;
+  if (ans.pa==-1) {
+    ans.pa = i;
+    ans.pb = j;
+    ans.pc = k;
+  } else {
+    if(cmp(i,j,k)){
+      ans.pa = i;
+      ans.pb = j;
+      ans.pc = k;
+    }
+  }
+}
+bool grt(ll i,ll j,ll l){
+  return (SQ(a[i])+SQ(a[j])-SQ(a[l]))*q >= p*2*a[i]*a[j];
+}
+
+/********** Main()  function **********/
 int main()
 {
-    IOS();
+  IOS();
+  cin>>t;
+  while(t--){
+    cin>>n>>p>>q;
+    ans.pa = -1;
+    REP(i,n)cin>>a[i];
+    sort(a,a+n);
+    REP (i,n) {
+      REP (j,i) {
+        ll l = 0, r = n;
+        while(l<r-1){
+          ll mid = (l+r)/2;
+          if(grt(i,j,mid))l=mid;
+          else r = mid;
+          if(r==i||r==j)r--;
+          if(l==i||l==j)l++;
+        }
+        if(l!=i&&l!=j&&l==r-1&&grt(i,j,l))check(i,j,l);
+        debug(i,j,l,r);
+      }
+    }
+    if(ans.pa == -1)cout<<-1<<endl;
+    else cout<<ans.pa+1<<" "<<ans.pb+1<<" "<<ans.pc+1<<endl;
+  }
 
-    return 0;
+  return 0;
 }

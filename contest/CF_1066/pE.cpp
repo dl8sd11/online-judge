@@ -13,7 +13,6 @@ typedef pair<double,double> pdd;
 #define ALL(_a) _a.begin(),_a.end()
 #define mp make_pair
 #define pb push_back
-#define eb emplace_back
 #define X first
 #define Y second
 #ifdef tmd
@@ -51,15 +50,31 @@ template<class T> inline bool cmin(T &a, const T &b) { return b < a ? a = b, tru
 template<class T> using MaxHeap = priority_queue<T>;
 template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
-const ll MOD=1000000007;
+const ll MOD=998244353;
 const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=1e5+5;
+const ll MAXN=2e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-/********** Good Luck :) **********/
+ll n,m,ans;
+char c;
+bool a[MAXN];
+bool b[MAXN];
+ll pre[MAXN];
+/********** Main()  function **********/
 int main()
 {
-    IOS();
+  IOS();
+  cin>>n>>m;
+  for(ll i=n-1;i>=0;i--)cin>>c,a[i]=(c=='1');
+  for(ll i=m-1;i>=0;i--)cin>>c,b[i]=(c=='1');
+  pre[0] = b[0];
+  REP1(i,m-1)pre[i] += pre[i-1] + b[i];
+  ll base = 1;
+  for(ll i=0;i<n;i++){
+    if(i<m)ans = (ans + a[i]*(pre[m-1] - (i==0?0:pre[i-1]))*base)%MOD;
 
-    return 0;
+    base = (base*2)%MOD;
+  }
+  cout<<ans<<endl;
+  return 0;
 }

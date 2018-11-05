@@ -13,7 +13,6 @@ typedef pair<double,double> pdd;
 #define ALL(_a) _a.begin(),_a.end()
 #define mp make_pair
 #define pb push_back
-#define eb emplace_back
 #define X first
 #define Y second
 #ifdef tmd
@@ -42,7 +41,6 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #else
 #define debug(...)
 #define pary(...)
-#define endl '\n'
 #define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
 #endif
 
@@ -56,10 +54,45 @@ const ll INF=0x3f3f3f3f3f3f3f3f;
 const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-/********** Good Luck :) **********/
+ll n,sqt,ss,idx;
+vector<ll> s[MAXN];
+/********** Main()  function **********/
 int main()
 {
-    IOS();
+  IOS();
 
-    return 0;
+  cin>>n;
+
+  ss = -1;
+  for(ll i=1;i<=2*n;i++){
+    if(i*(i-1)==n*2){
+      ss = i;
+      break;
+    }
+  }
+
+
+  if(ss == -1) {
+    cout<<"No"<<endl;
+  } else {
+      cout<<"Yes"<<endl;
+      cout<<ss<<endl;
+      // assert(ss < MAXN);
+      for(ll i=0;i<ss;i++){
+        for(ll j=i+1;j<ss;j++){
+          s[j].pb(++idx);
+          s[i].pb(idx);
+        }
+      }
+      // assert(idx == n);
+
+      for(ll i=0;i<ss;i++){
+        cout<<s[i].size();
+        //assert(s[i].size() == ss - 1);
+        REP(j,SZ(s[i]))cout<<" "<<s[i][j];
+        cout<<endl;
+      }
+  }
+
+  return 0;
 }

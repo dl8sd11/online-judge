@@ -13,7 +13,6 @@ typedef pair<double,double> pdd;
 #define ALL(_a) _a.begin(),_a.end()
 #define mp make_pair
 #define pb push_back
-#define eb emplace_back
 #define X first
 #define Y second
 #ifdef tmd
@@ -53,13 +52,60 @@ template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=1e5+5;
+const ll MAXN=205;
 const ll MAXLG=__lg(MAXN)+2;
 
-/********** Good Luck :) **********/
+char tile;
+bool chess[MAXN][MAXN];
+ll n,m,q,c,prei[MAXN][MAXN],prej[MAXN][MAXN],bst[MAXN];
+/********** Main()  function **********/
 int main()
 {
-    IOS();
+  IOS();
+  cin>>n>>m;
 
-    return 0;
+  REP1(i,n)REP1(j,m)cin>>tile,chess[i][j]=(tile=='1');
+  REP1(i,n){
+    REP1(j,m){
+      if(chess[i][j]^(i&1)^(j&1))prei[i][j]++;
+      prei[i][j] += prei[i][j-1];
+    }
+  }
+
+  REP1(j,m){
+    REP1(i,n){
+      if((chess[i][j]^(j&1)^(i&1)))prej[i][j]++;
+      prej[i][j] += prej[i-1][j];
+    }
+  }
+
+
+  MEM(bst,INF);
+
+  bst[0] = 0;
+  REP1(i,n){
+    REP1(j,m){
+      ll sum = 0;
+      for(ll k=1;k<=min(n-i,m-j)+1;k++){
+        sum += prei[i+k-1][j+k-1] - prei[i+k-1][j-1];
+        sum += prej[i+k-1][j+k-1] - prej[i-1][j+k-1];
+        sum -= chess[i+k-1][j+k-1]^(j&1)^(i&1);
+        bst[k] = min(bst[k],min(sum,k*k-sum));
+      }
+    }
+  }
+
+  pary(bst+1,bst+1+min(n,m));
+
+  cin>>q;
+  debug(q);
+  while(q--){
+    cin>>c;
+    ll ret = 0;
+    for(ll i=0;i<=min(n,m);i++){
+      if(bst[i] <= c)ret = i;
+    }
+    cout<<ret<<endl;
+  }
+  return 0;
 }

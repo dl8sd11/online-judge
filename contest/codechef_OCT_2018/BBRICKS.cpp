@@ -13,7 +13,6 @@ typedef pair<double,double> pdd;
 #define ALL(_a) _a.begin(),_a.end()
 #define mp make_pair
 #define pb push_back
-#define eb emplace_back
 #define X first
 #define Y second
 #ifdef tmd
@@ -53,13 +52,31 @@ template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=1e5+5;
+const ll MAXN=1e3+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-/********** Good Luck :) **********/
+ll t,n,k;
+ll dp[MAXN][MAXN][2];
+/********** Main()  function **********/
 int main()
 {
-    IOS();
-
-    return 0;
+  IOS();
+  cin>>t;
+  while(t--){
+    cin>>n>>k;
+    MEM(dp,0);
+    dp[0][0][0] = 1;
+    if(k>n){
+      cout<<0<<endl;
+      continue;
+    }
+    REP(j,k+1){
+      REP1(i,n){
+        dp[i][j][0] = (dp[i-1][j][1] + dp[i-1][j][0])%MOD;
+        if(j>0)dp[i][j][1] = (dp[i-1][j-1][1] + dp[i-1][j-1][0]*2)%MOD;
+      }
+    }
+    cout<<(dp[n][k][0]+dp[n][k][1])%MOD<<endl;
+  }
+  return 0;
 }

@@ -56,10 +56,39 @@ const ll INF=0x3f3f3f3f3f3f3f3f;
 const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
+struct city{
+    ll X,Y,idx;
+    bool operator < (const city &cp) {
+        if(X == cp.X)return Y < cp.Y;
+        else return X < cp.X;
+    }
+}c[MAXN];
+
+ll n,m;
+pii ans[MAXN];
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
+    cin>>n>>m;
+    REP(i,m)cin>>c[i].X>>c[i].Y,c[i].idx=i;
+    sort(c,c+m);
+
+    ll idx = 0;
+    ll cnt = 0;
+    while(idx < m) {
+        
+        cnt = 0;
+        while(idx<m &&(cnt==0 || c[idx].X == c[idx-1].X)) {
+            ans[c[idx].idx].X = c[idx].X;
+            ans[c[idx].idx].Y = ++cnt;
+            idx++;
+        }
+    }
+
+    REP(i,m){
+        cout<<setfill('0')<<setw(6)<<ans[i].X<<setw(6)<<ans[i].Y<<endl;
+    }
 
     return 0;
 }

@@ -13,7 +13,6 @@ typedef pair<double,double> pdd;
 #define ALL(_a) _a.begin(),_a.end()
 #define mp make_pair
 #define pb push_back
-#define eb emplace_back
 #define X first
 #define Y second
 #ifdef tmd
@@ -56,10 +55,27 @@ const ll INF=0x3f3f3f3f3f3f3f3f;
 const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-/********** Good Luck :) **********/
+ll n;
+ll times;
+
+/********** Main()  function **********/
 int main()
 {
-    IOS();
+  IOS();
+  cin>>n;
+  times = 1;
+  while(n>3){
+    REP(i,n-n/2)cout<<times<<" ";
+    times *= 2;
+    n/=2;
+  }
+  if(n==1){
+    cout<<times<<endl;
+  } else if(n==2) {
+    cout<<times<<" "<<times*2<<endl;
+  } else {
+    cout<<times<<" "<<times<<" "<<times*3<<endl;
+  }
 
-    return 0;
+  return 0;
 }

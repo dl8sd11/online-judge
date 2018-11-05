@@ -13,7 +13,6 @@ typedef pair<double,double> pdd;
 #define ALL(_a) _a.begin(),_a.end()
 #define mp make_pair
 #define pb push_back
-#define eb emplace_back
 #define X first
 #define Y second
 #ifdef tmd
@@ -53,13 +52,111 @@ template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=1e5+5;
+const ll MAXN=2e3+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-/********** Good Luck :) **********/
+ll n,k;
+char grid[MAXN][MAXN];
+ll dp[MAXN][MAXN];
+ll lp = -1;
+vector<pair<ll,ll> > lh;
+vector<string> ans;
+ll rk[MAXN][MAXN];
+vector<pair<ll,ll> > st;
+
+ll getbst(ll i,ll j){
+  if(i==n-1)return rk[i][j+1];
+  else if(j==n-1)return rk[i+1][j];
+  return min(rk[i+1][j],rk[i][j+1]);
+}
+bool cmp (const pair<ll,ll> &a,const pair<ll,ll> &b){
+  if(grid[a.X][a.Y] != grid[b.X][b.Y]) {
+    return grid[a.X][a.Y] < grid[b.X][b.Y];
+  }
+  else {
+    return getbst(a.X,a.Y) < getbst(b.X,b.Y);
+  }
+}
+void build(){
+  rk[n-1][n-1] = 1;
+  for(ll i=2*n-3;i>=0;i--){
+    st.clear();
+    for(ll j=0;j<n;j++){
+      if(i-j<0 || i-j >= n)continue;
+      st.emplace_back(i-j,j);
+    }
+
+    sort(ALL(st),cmp);
+    debug(st);
+    ll rt = 0;
+    for(ll j=0;j<SZ(st);j++){
+      if(j==0 || grid[st[j].X][st[j].Y] != grid[st[j-1].X][st[j-1].Y] || getbst(st[j].X,st[j].Y) != getbst(st[j-1].X,st[j-1].Y)) rt++;
+
+      rk[st[j].X][st[j].Y] = rt;
+    }
+  }
+}
+void solve(ll i,ll j){
+  string ret;
+  while(i<n-1 || j<n-1){
+    if(i==n-1) ret += grid[i][++j];
+    else if(j==n-1) ret += grid[++i][j];
+    else {
+      if(rk[i][j+1] < rk[i+1][j]) {
+        ret += grid[i][++j];
+      } else {
+        ret += grid[++i][j];
+      }
+    }
+  }
+  ans.emplace_back(ret);
+}
+/********** Main()  function **********/
 int main()
 {
-    IOS();
+  IOS();
+  cin>>n>>k;
+  REP(i,n) {
+    REP(j,n) {
+      cin>>grid[i][j];
+      dp[i][j] = (grid[i][j]=='a') + max((i==0?0:dp[i-1][j]),(j==0?0:dp[i][j-1]));
+    }
+  }
+  build();
 
+
+
+  REP(i,n) {
+    REP(j,n){
+      if(i+j+1 <= dp[i][j] + k) {
+        if(i+j+1 > lp) {
+          lh.clear();
+          lp = i+j+1;
+          lh.emplace_back(i,j);
+        } else if(i+j+1 == lp) {
+          lh.emplace_back(i,j);
+        }
+      }
+    }
+  }
+
+  if(lh.size() == 0){
+    assert(grid[0][0] != 'a');
+    assert(k==0);
+    cout<<grid[0][0];
+    solve(0,0);
+    for(ll i=0;i<SZ(ans[0]);i++)cout<<ans[0][i];
+    cout<<endl;
     return 0;
+  }
+
+  for(auto p:lh){
+    solve(p.X,p.Y);
+  }
+
+  sort(ALL(ans));
+  REP(i,lh[0].X+lh[0].Y+1)cout<<'a';
+  for(ll i=0;i<SZ(ans[0]);i++)cout<<ans[0][i];
+  cout<<endl;
+  return 0;
 }

@@ -13,7 +13,6 @@ typedef pair<double,double> pdd;
 #define ALL(_a) _a.begin(),_a.end()
 #define mp make_pair
 #define pb push_back
-#define eb emplace_back
 #define X first
 #define Y second
 #ifdef tmd
@@ -56,10 +55,37 @@ const ll INF=0x3f3f3f3f3f3f3f3f;
 const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-/********** Good Luck :) **********/
+ll t,n,m,x,y,ans;
+ll fil(ll px,ll py){
+  return n + m - 1 + min(px,py) + min(n-px-1,m-py-1) + min(n-px-1,py) + min(px,m-py-1);
+}
+ll cob(ll ta){
+  return ta*(ta-1);
+}
+/********** Main()  function **********/
 int main()
 {
-    IOS();
+  IOS();
+  cin>>t;
+  while(t--){
+    cin>>n>>m>>x>>y;
+    ans = 0;
+    ll sum = 0;
+    sum += cob(n) * (m-1);
+    sum += cob(m) * (n-1);
+    sum += cob(x-1) + cob(n-x) + cob(y-1) + cob(m-y);
 
-    return 0;
+    debug(sum);
+    for(int i=1;i<=min(n,m);i++){
+      sum += cob(i) * 4;
+    }
+    sum -= cob(min(n,m))*2;
+    sum += cob(min(n,m)) *2* abs(n-m);
+    sum -= (min(x-1,y-1)*min(n-x,m-y) + min(n-x,y-1)* min(x-1,m-y))*2;
+    sum -= (min(x-1,y-1)+min(n-x,m-y) + min(n-x,y-1)+min(x-1,m-y))*2;
+    debug(sum);
+    cout<<(n*m-1)*(n*m-2) - sum<<endl;
+  }
+
+  return 0;
 }

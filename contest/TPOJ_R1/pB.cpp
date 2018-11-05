@@ -53,13 +53,30 @@ template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=1e5+5;
+const ll MAXN=2e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
+bool cmp(const pii &a,const pii &b){
+    return (a.X - a.Y) < (b.X - b.Y);
+}
+ll n,x,ans;
+pair<ll,ll> p[MAXN];
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
+    cin>>n>>x;
+    REP(i,n) cin>>p[i].X>>p[i].Y;
+    sort(p,p+n,cmp);
 
+    pary(p,p+n);
+    REP(i,x){
+        ans += p[i].X;
+    }
+    for(ll i=x;i<n;i++) {
+        ans += p[i].Y;
+    }
+
+    cout<<ans<<endl;
     return 0;
 }

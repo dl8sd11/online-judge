@@ -1,21 +1,27 @@
-#include <bits/stdc++.h>
+#include<iostream>
+#include<iomanip>
+#include<cstdio>
+#include<cstring>
+#include<string>
+#include<set>
+#include<map>
+#include<vector>
+#include<algorithm>
+#include<sstream>
+#include<cmath>
+#include<queue>
+#include<stack>
 using namespace std;
 typedef long long ll;
-typedef pair<ll, ll> pii;
-typedef pair<double,double> pdd;
-#define MEM(a, b) memset(a, (b), sizeof(a))
-#define SZ(i) ll(i.size())
-#define FOR(i, j, k, in) for (ll i=j ; i<k ; i+=in)
-#define RFOR(i, j, k, in) for (ll i=j ; i>=k ; i-=in)
-#define REP(i, j) FOR(i, 0, j, 1)
-#define REP1(i,j) FOR(i, 1, j+1, 1)
-#define RREP(i, j) RFOR(i, j, 0, 1)
-#define ALL(_a) _a.begin(),_a.end()
-#define mp make_pair
-#define pb push_back
-#define eb emplace_back
+typedef pair<ll,ll> pii;
+#define REP(i,n) for(ll i=0;i<n;i++)
+#define REP1(i,n) for(ll i=1;i<=n;i++)
+#define MEM(i,n) memset(i,n,sizeof i)
 #define X first
 #define Y second
+#define SZ(_a) (int)_a.size()
+#define ALL(_a) _a.begin(),_a.end()
+#define pb push_back
 #ifdef tmd
 #define debug(...) do{\
     fprintf(stderr,"%s - %d (%s) = ",__PRETTY_FUNCTION__,__LINE__,#__VA_ARGS__);\
@@ -43,23 +49,17 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define debug(...)
 #define pary(...)
 #define endl '\n'
-#define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
+#define IOS() ios_base::sync_with_stdio(0);cin.tie(0);
 #endif
 
-template<class T> inline bool cmax(T &a, const T &b) { return b > a ? a = b, true : false; }
-template<class T> inline bool cmin(T &a, const T &b) { return b < a ? a = b, true : false; }
-template<class T> using MaxHeap = priority_queue<T>;
-template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
+const ll MAXN=1e5+5,MAXlg=__lg(MAXN)+2;
 const ll MOD=1000000007;
-const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=1e5+5;
-const ll MAXLG=__lg(MAXN)+2;
+const ll INF=ll(1e18+7);
 
-/********** Good Luck :) **********/
+
 int main()
 {
     IOS();
-
-    return 0;
+    debug("Hi");
 }

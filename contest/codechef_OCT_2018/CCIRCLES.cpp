@@ -13,7 +13,6 @@ typedef pair<double,double> pdd;
 #define ALL(_a) _a.begin(),_a.end()
 #define mp make_pair
 #define pb push_back
-#define eb emplace_back
 #define X first
 #define Y second
 #ifdef tmd
@@ -53,13 +52,62 @@ template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=1e5+5;
+const ll MAXN=1e3+5;
 const ll MAXLG=__lg(MAXN)+2;
+const ll MAXR=2e6+7;
 
-/********** Good Luck :) **********/
+ll n,q;
+ll x[MAXN],y[MAXN],R[MAXN];
+ll k;
+ll seg[MAXR*2];
+
+pair<ll,ll> dis(ll i,ll j){
+  ll disq = (x[i]-x[j])*(x[i]-x[j])+(y[i]-y[j])*(y[i]-y[j]);
+  ll l = 0,r = 1e9;
+  while(l<r-1){
+    ll mid = (l+r)/2;
+    if(mid*mid<=disq)l = mid;
+    else r = mid;
+  }
+  if(l*l == disq)return make_pair(l,l);
+  else return make_pair(l,r);
+}
+
+void add(ll l,ll r){
+  debug(l,r);
+  for(l+=MAXR,r+=MAXR;l<r;l>>=1,r>>=1){
+    if(l&1)seg[l++]++;
+    if(r&1)seg[--r]++;
+  }
+}
+
+ll query(ll pos){
+  ll ret = 0;
+  for(pos+=MAXR;pos>=1;pos>>=1){
+    ret += seg[pos];
+  }
+  return ret;
+}
+/********** Main()  function **********/
 int main()
 {
-    IOS();
-
-    return 0;
+  IOS();
+  cin>>n>>q;
+  REP(i,n)cin>>x[i]>>y[i]>>R[i];
+  REP(i,n){
+    REP(j,i){
+      pair<ll,ll> ret = dis(i,j);
+      debug(ret);
+      if((x[i]-x[j])*(x[i]-x[j])+(y[i]-y[j])*(y[i]-y[j])>=abs(R[i]-R[j])*abs(R[i]-R[j])){
+        add(max(0LL,ret.Y-R[i]-R[j]),min(1000000LL,ret.X+R[i]+R[j])+1);
+      } else {
+        add(abs(R[i]-R[j])-ret.X,min(1000000LL,ret.X+R[i]+R[j])+1);
+      }
+    }
+  }
+  while(q--){
+    cin>>k;
+    cout<<query(k)<<endl;
+  }
+  return 0;
 }

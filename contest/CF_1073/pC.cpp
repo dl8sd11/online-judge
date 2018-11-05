@@ -13,7 +13,6 @@ typedef pair<double,double> pdd;
 #define ALL(_a) _a.begin(),_a.end()
 #define mp make_pair
 #define pb push_back
-#define eb emplace_back
 #define X first
 #define Y second
 #ifdef tmd
@@ -53,13 +52,59 @@ template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=1e5+5;
+const ll MAXN=2e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-/********** Good Luck :) **********/
+ll n,x,y,tmp;
+char inst[MAXN];
+ll cl[MAXN],cr[MAXN],cu[MAXN],cd[MAXN];
+ll clo,cro,cuo,cdo;
+ll cnt;
+
+bool solve(ll idx,ll len){
+  if(len == -1)return false;
+  clo = (idx?cl[idx-1]:0) + cl[n-1] - (idx+len-1 >=0 ?cl[idx+len-1]:0);
+  cro = (idx?cr[idx-1]:0) + cr[n-1] - (idx+len-1 >=0 ?cr[idx+len-1]:0);
+  cuo = (idx?cu[idx-1]:0) + cu[n-1] - (idx+len-1 >=0 ?cu[idx+len-1]:0);
+  cdo = (idx?cd[idx-1]:0) + cd[n-1] - (idx+len-1 >=0 ?cd[idx+len-1]:0);
+  cnt = abs(x - (cro - clo)) + abs(y - (cuo - cdo));
+  if(cnt <= len && (len - cnt)%2 == 0) return true;
+  return false;
+}
+
+/********** Main()  function **********/
 int main()
 {
-    IOS();
+  IOS();
+  cin>>n;
+  REP(i,n)cin>>inst[i];
+  cin>>x>>y;
 
-    return 0;
+  REP(i,n){
+    if(inst[i]=='R')cr[i]++;
+    else if(inst[i]=='L')cl[i]++;
+    else if(inst[i]=='U')cu[i]++;
+    else if(inst[i]=='D')cd[i]++;
+
+    if(i!=0){
+      cr[i] += cr[i-1];
+      cl[i] += cl[i-1];
+      cu[i] += cu[i-1];
+      cd[i] += cd[i-1];
+    }
+  }
+
+  ll L = -1, R = n+1;
+  while(L < R-1){
+    bool ret = 0;
+    ll mid = (L+R)/2;
+    for(ll i=0;i+mid <= n;i++){
+      ret |= solve(i,mid);
+    }
+    if(ret)R = mid;
+    else L = mid;
+  }
+  if(R == n+1) cout<<-1<<endl;
+  else cout<<R<<endl;
+  return 0;
 }

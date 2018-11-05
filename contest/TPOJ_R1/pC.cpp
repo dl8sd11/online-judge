@@ -53,13 +53,62 @@ template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=1e5+5;
+const ll MAXN=1e3+5;
 const ll MAXLG=__lg(MAXN)+2;
 
+ll n;
+char c;
+bool s[MAXN][MAXN];
+vector<ll> ans1;
+vector<ll> ans2;
+void flipc(ll c){
+    REP(i,n)s[i][c] = !s[i][c];
+    ans1.eb(c);
+}
+
+void flipr(ll c){
+    REP(j,n)s[c][j] = !s[c][j];
+    ans2.eb(c);
+}
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
+    cin>>n;
+    REP(i,n) REP(j,n) cin>>c,s[i][j]=(c=='1');
 
+    ll cnt1 = 0;
+    REP(j,n){
+        cnt1 += s[0][j];
+    }
+    ll tgt = cnt1 < n-cnt1;
+    REP(j,n){
+        if(s[0][j] == tgt) flipc(j);
+    }
+
+    cnt1 = 0;
+    REP(i,n){
+        cnt1 += s[i][0];
+    }
+    tgt = cnt1 < n-cnt1;
+
+    REP(i,n){
+        if(s[i][0] == tgt) flipr(i);
+    }
+
+    REP(i,n)REP(j,n){
+        if(s[i][j] != s[0][0]) {
+            cout<<-1<<endl;
+            return 0;
+        }
+    }
+
+    cout<<ans1.size() + ans2.size()<<endl;
+    for(auto e:ans1) {
+        cout<<"C "<<e+1<<endl;
+    }
+    for(auto e:ans2){
+        cout<<"R "<<e+1<<endl;
+    }
     return 0;
 }

@@ -13,7 +13,6 @@ typedef pair<double,double> pdd;
 #define ALL(_a) _a.begin(),_a.end()
 #define mp make_pair
 #define pb push_back
-#define eb emplace_back
 #define X first
 #define Y second
 #ifdef tmd
@@ -56,10 +55,45 @@ const ll INF=0x3f3f3f3f3f3f3f3f;
 const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-/********** Good Luck :) **********/
+ll t;
+ll n,d;
+ll bst[10];
+pair<ll,ll> ans;
+ll digisum(ll x){
+  ll ret = 0;
+  while(x>0){
+    ret += x%10;
+    x/=10;
+  }
+  return ret;
+}
+
+void DFS(ll num,ll idx){
+  if(idx==20){
+    return;
+  }
+  if(num<ans.X){
+    ans.X = num;
+    ans.Y = idx;
+  } else if(num==ans.X){
+    ans.Y = min(ans.Y,idx);
+  }
+  DFS(num+d,idx+1);
+  DFS(digisum(num),idx+1);
+}
+
+
+/********** Main()  function **********/
 int main()
 {
-    IOS();
-
-    return 0;
+  IOS();
+  cin>>t;
+  while(t--){
+    cin>>n>>d;
+    ans.X = INF;
+    ans.Y = INF;
+    DFS(n,0);
+    cout<<ans.X<<" "<<ans.Y<<endl;
+  }
+  return 0;
 }

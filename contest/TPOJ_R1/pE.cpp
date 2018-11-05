@@ -53,13 +53,42 @@ template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=1e5+5;
+const ll MAXN=1e6+5;
 const ll MAXLG=__lg(MAXN)+2;
 
+
+ll n,total,dp[MAXN][3];
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
+    cin>>n;
 
+    dp[0][0] = 3;
+    dp[0][1] = 3;
+    dp[0][2] = 3;
+
+    REP1 (i,n-1) {
+        
+        REP(r,3){
+            dp[i][r] = (dp[i-1][0] * 3 + dp[i-1][1] * 3 + dp[i-1][2] * 3)%MOD;
+            dp[i][r] = (dp[i][r]+dp[i-1][r])%MOD;
+            debug(factor);
+            for(ll f=1;f*f<=i;f++){
+                if(f!=i+1){
+                    REP(j,3){
+                        if(j*(i/f)%3 == r) {
+                            dp[i][r] -= dp[f-1][j];
+                            if(dp[i][r] < 0)dp[i][r] += MOD;
+                        }
+                    }
+                }
+            }
+
+        }
+
+    }
+
+    cout<<dp[n-1][0]<<endl;
     return 0;
 }

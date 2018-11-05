@@ -56,10 +56,27 @@ const ll INF=0x3f3f3f3f3f3f3f3f;
 const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
+ll n,a;
+map<ll,ll> vt;
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
+    cin>>n;
+    ll lim = (n+1)/2;
+    if(lim*2 != n+1)lim++;
+    REP(i,n) {
+        cin>>a;
+        if(vt.find(a) == vt.end())vt[a] = 1;
+        else vt[a] ++;
+    }
+    for(auto v:vt){
+        if(v.Y >= lim) {
+            cout<<v.X<<endl;
+            return 0;
+        }
+    }
 
+    cout<<-1<<endl;
     return 0;
 }

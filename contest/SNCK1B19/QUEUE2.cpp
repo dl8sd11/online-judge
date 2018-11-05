@@ -13,7 +13,6 @@ typedef pair<double,double> pdd;
 #define ALL(_a) _a.begin(),_a.end()
 #define mp make_pair
 #define pb push_back
-#define eb emplace_back
 #define X first
 #define Y second
 #ifdef tmd
@@ -56,10 +55,30 @@ const ll INF=0x3f3f3f3f3f3f3f3f;
 const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-/********** Good Luck :) **********/
+ll t,n,m,k,l,a[MAXN],ans;
+/********** Main()  function **********/
 int main()
 {
-    IOS();
+  IOS();
+  cin>>t;
+  while(t--){
+    cin>>n>>m>>k>>l;
+    REP(i,n)cin>>a[i];
+    sort(a,a+n);
 
-    return 0;
+    ans = INF;
+    REP(i,n){
+      if(i==0||a[i]!=a[i-1]){
+        ans = min(ans,(m+i+1)*l - a[i]);
+      }
+    }
+
+    if(k > a[n-1]) {
+      ans = min(ans,(m+n+1)*l - k);
+    }
+
+    cout<<max(ans,0LL)<<endl;
+
+  }
+  return 0;
 }

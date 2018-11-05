@@ -13,7 +13,6 @@ typedef pair<double,double> pdd;
 #define ALL(_a) _a.begin(),_a.end()
 #define mp make_pair
 #define pb push_back
-#define eb emplace_back
 #define X first
 #define Y second
 #ifdef tmd
@@ -56,10 +55,34 @@ const ll INF=0x3f3f3f3f3f3f3f3f;
 const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-/********** Good Luck :) **********/
+ll lft[200003],rgt[200003];
+ll q,id,size;
+vector<ll> addl,addr;
+ll seq[200003];
+char c;
+/********** Main()  function **********/
 int main()
 {
-    IOS();
-
-    return 0;
+  IOS();
+  cin>>q;
+  REP(i,q){
+    cin>>c>>id;
+    if(c=='?'){
+      cout<< min(addl.end() - upper_bound(ALL(addl),seq[id]) + lft[id],\
+      addr.end() - upper_bound(ALL(addr),seq[id]) + rgt[id])<<endl;
+    } else {
+      seq[id] = i;
+      if(c=='L'){
+        lft[id] = 0;
+        rgt[id] = size;
+        addl.push_back(i);
+      } else {
+        lft[id] = size;
+        rgt[id] = 0;
+        addr.push_back(i);
+      }
+      size++;
+    }
+  }
+  return 0;
 }

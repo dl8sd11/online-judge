@@ -56,10 +56,44 @@ const ll INF=0x3f3f3f3f3f3f3f3f;
 const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
+ll h,w,k;
+ll dp[200][10];
+ll two[20][2];
+
+ll mul(ll a,ll b) {
+    return a*b%MOD;
+}
+
+ll add(ll a,ll b) {
+    return (a+b)%MOD;
+}
+
+ll t(ll d){
+    if(d<0)return 1;
+    else return add(two[d][0],two[d][1]);
+}
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-
+    two[0][0] = 1;
+    two[0][1] = 0;
+    for(ll i=1;i<15;i++){
+        two[i][0] = add(two[i-1][0],two[i-1][1]);
+        two[i][1] = two[i-1][0];
+    }
+    cin>>h>>w>>k;
+    dp[0][1] = 1;
+    for(ll i=1;i<=h;i++){
+        for (ll j=1;j<=w;j++) {
+            dp[i][j] = mul(dp[i-1][j],mul(t(j-2),t(w-j-1)));
+            
+            debug(i,j,dp[i][j]);
+            if(j>1) dp[i][j] = add(dp[i][j],mul(dp[i-1][j-1],mul(t(j-3),t(w-j-1))));
+            if(j<w) dp[i][j] = add(dp[i][j],mul(dp[i-1][j+1],mul(t(j-2),t(w-j-2))));
+            debug(i,j,dp[i][j]);
+        }
+    }
+    cout<<dp[h][k]<<endl;
     return 0;
 }

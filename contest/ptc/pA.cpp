@@ -13,7 +13,6 @@ typedef pair<double,double> pdd;
 #define ALL(_a) _a.begin(),_a.end()
 #define mp make_pair
 #define pb push_back
-#define eb emplace_back
 #define X first
 #define Y second
 #ifdef tmd
@@ -55,11 +54,50 @@ const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
 const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
+ll n,ans,mn;
+ll sz[MAXN];
+ll fat[MAXN];
+vector<ll> edge[MAXN];
 
-/********** Good Luck :) **********/
+ll DFS(ll nd){
+  ll ret = 0;
+  sz[nd] = 1;
+  for(auto v:edge[nd]){
+    ret += DFS(v);
+    ret += sz[v];
+    sz[nd] += sz[v];
+  }
+  return ret;
+}
+
+void DFS2(ll nd,ll total){
+  if(total < mn) {
+    ans = nd,mn = total;
+  } else if(total == nd) {
+    ans = min(ans,nd);
+  }
+  for (auto v:edge[nd]) {
+    DFS2(v,total - sz[v] + (n-sz[v]));
+  }
+}
+/********** Main()  function **********/
 int main()
 {
-    IOS();
+  IOS();
+  while(cin>>n){
+    MEM(sz,0);
+    MEM(fat,0);
+    REP(i,n)edge[i].clear();
+    REP1(i,n-1) {
+      cin>>fat[i];
+      edge[fat[i]].pb(i);
+    }
+    ans = -1;
+    mn = INF;
+    ll total = DFS(0);
 
-    return 0;
+    DFS2(0,total);
+    cout<<ans<<endl;
+  }
+  return 0;
 }

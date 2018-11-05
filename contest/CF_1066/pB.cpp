@@ -13,7 +13,6 @@ typedef pair<double,double> pdd;
 #define ALL(_a) _a.begin(),_a.end()
 #define mp make_pair
 #define pb push_back
-#define eb emplace_back
 #define X first
 #define Y second
 #ifdef tmd
@@ -56,10 +55,34 @@ const ll INF=0x3f3f3f3f3f3f3f3f;
 const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-/********** Good Luck :) **********/
+ll n,r,ans;
+bool a[MAXN];
+bool flag;
+ll covered = -1;
+vector<ll> pos;
+/********** Main()  function **********/
 int main()
 {
-    IOS();
-
-    return 0;
+  IOS();
+  cin>>n>>r;
+  REP(i,n){
+    cin>>a[i];
+    if(a[i])pos.pb(i);
+  }
+  REP(i,SZ(pos)){
+    if(covered >= n-1)break;
+    if(i==SZ(pos)-1 || pos[i+1] - r + 1 > covered + 1){
+      if(pos[i]-r+1>covered + 1){
+        flag = 1;
+        debug(i);
+        break;
+      }
+      covered = pos[i] + r - 1;
+      ans++;
+    }
+  }
+  debug(flag,covered,ans);
+  if(flag || covered < n-1) cout<<-1<<endl;
+  else cout<<ans<<endl;
+  return 0;
 }

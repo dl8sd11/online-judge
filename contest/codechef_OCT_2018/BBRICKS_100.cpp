@@ -13,7 +13,6 @@ typedef pair<double,double> pdd;
 #define ALL(_a) _a.begin(),_a.end()
 #define mp make_pair
 #define pb push_back
-#define eb emplace_back
 #define X first
 #define Y second
 #ifdef tmd
@@ -55,11 +54,63 @@ const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
 const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
+/*
+for i = 1 to k
+  //group colored col to i groups
+  ans += C(n-k+1,i)*2^i*dp[i][k]
+*/
+ll add(ll _a,ll _b){
+  return (_a + _b) % MOD;
+}
 
-/********** Good Luck :) **********/
+ll mul(ll _a,ll _b){
+  return (_a * _b) % MOD;
+}
+
+ll mypow(ll base,ll e){
+  ll ret = 1;
+  while(e!=0){
+    if(e&1)ret = mul(ret,base);
+    base = mul(base,base);
+    e>>=1;
+  }
+  return ret;
+}
+
+ll inv(ll _a){
+  return mypow(_a,MOD-2);
+}
+
+ll C(ll _n,ll _r){
+  ll ret = 1;
+  for(ll i=1;i<=_r;i++){
+    ret = mul(ret,_n-i+1);
+    ret = mul(ret,inv(i));
+  }
+  return ret;
+}
+
+ll t,n,k,ans;
+/********** Main()  function **********/
 int main()
 {
-    IOS();
-
-    return 0;
+  IOS();
+  cin>>t;
+  while(t--){
+    cin>>n>>k;
+    if(k>n) {
+      cout<<0<<endl;
+      continue;
+    }
+    ans = 0;
+    for(ll i=1;i<=k;i++){
+      ll pdc = 1;
+      pdc = mul(pdc,C(n-k+1,i));
+      pdc = mul(pdc,mypow(2,i));
+      pdc = mul(pdc,C(k-1,i-1));
+      ans = add(ans,pdc);
+    }
+    cout<<ans<<endl;
+  }
+  return 0;
 }

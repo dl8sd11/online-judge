@@ -13,7 +13,6 @@ typedef pair<double,double> pdd;
 #define ALL(_a) _a.begin(),_a.end()
 #define mp make_pair
 #define pb push_back
-#define eb emplace_back
 #define X first
 #define Y second
 #ifdef tmd
@@ -53,13 +52,71 @@ template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=1e5+5;
+const ll MAXN=4e6+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-/********** Good Luck :) **********/
+ll dis[MAXN];
+bool vis[MAXN];
+bool grid[2003][2003];
+ll n,m,r,c,x,y;
+char C;
+vector<pair<ll,ll> > edge[MAXN];
+
+ll coordToId(ll cx,ll cy) {
+  return cx * m + cy;
+}
+/********** Main()  function **********/
 int main()
 {
-    IOS();
+  IOS();
+  cin>>n>>m>>r>>c>>x>>y;
+  REP(i,n)REP(j,m)cin>>C,grid[i][j]= (C=='*');
+  c--,r--;
 
-    return 0;
+  REP(i,n){
+    REP(j,m){
+      if(grid[i][j])continue;
+      if(j<m-1 && !grid[i][j+1])edge[coordToId(i,j)].emplace_back(coordToId(i,j+1),1);
+      if(j>0 && !grid[i][j-1])edge[coordToId(i,j)].emplace_back(coordToId(i,j-1),1);
+      if(i>0 && !grid[i-1][j])edge[coordToId(i,j)].emplace_back(coordToId(i-1,j),0);
+      if(i<n-1 && !grid[i+1][j])edge[coordToId(i,j)].emplace_back(coordToId(i+1,j),0);
+    }
+  }
+
+
+  MEM(dis,INF);
+
+  priority_queue<pii,vector<pii>,greater<pii> > pq;
+  pq.emplace(0,coordToId(r,c));
+  dis[coordToId(r,c)] = 0;
+
+  REP(i,n*m){
+    ll found = -1;
+    while(pq.size() && vis[found = pq.top().Y])pq.pop();
+    if(found == -1)break;
+    vis[found] = 1;
+
+    for(auto e:edge[found]){
+      if(!vis[e.X] && e.Y + dis[found] < dis[e.X]){
+        dis[e.X] = dis[found] + e.Y;
+        pq.emplace(dis[e.X],e.X);
+      }
+    }
+  }
+
+  ll ans = 0;
+  // x+y = dis
+  // x - y = c-j
+  REP(i,n){
+    REP(j,m){
+      if(dis[coordToId(i,j)] >= INF) continue;
+      if((dis[coordToId(i,j)]-j+c)/2 <= x &&  (dis[coordToId(i,j)]+j-c)/2 <= y) {
+        ans++;
+      }
+    }
+  }
+
+
+  cout<<ans<<endl;
+  return 0;
 }

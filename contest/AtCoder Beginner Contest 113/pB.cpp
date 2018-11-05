@@ -55,11 +55,19 @@ const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
 const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
-
+ll n,t,a,h[MAXN],bst;
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
+    cin>>n;
+    cin>>t>>a;
+    REP(i,n) {
+        cin>>h[i];
+        if(bst==-1) bst = i;
+        if(abs(1000*t-6*h[i]-a*1000) < abs(1000*t-6*h[bst]-a*1000))bst = i;
+    }
 
+    cout<<bst+1<<endl;
     return 0;
 }

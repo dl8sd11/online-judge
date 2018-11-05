@@ -13,7 +13,6 @@ typedef pair<double,double> pdd;
 #define ALL(_a) _a.begin(),_a.end()
 #define mp make_pair
 #define pb push_back
-#define eb emplace_back
 #define X first
 #define Y second
 #ifdef tmd
@@ -56,10 +55,49 @@ const ll INF=0x3f3f3f3f3f3f3f3f;
 const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-/********** Good Luck :) **********/
+bool swp;
+ll a,b;
+bool pck[MAXN];
+bool solve(ll cnt) {
+  MEM(pck,0);
+  ll ta = a,tb = 0;
+  for(ll i=cnt;i>=1;i--){
+    if(ta >= i){
+      pck[i] = 1;
+      ta -= i;
+    }
+  }
+  for(ll i=1;i<=cnt;i++){
+    if(!pck[i])tb += i;
+  }
+  if(tb <= b)return true;
+  return false;
+}
+/********** Main()  function **********/
 int main()
 {
-    IOS();
+  IOS();
+  cin>>a>>b;
+  // if(a>b)swap(a,b),swp = 1;
+  ll L = 0,R = 100000;
+  while(L<R-1){
+    ll mid = (L+R)/2;
+    if(solve(mid))L=mid;
+    else R = mid;
+  }
 
-    return 0;
+  solve(L);
+  vector<ll> aa,ba;
+  REP1(i,L){
+    if(pck[i])aa.emplace_back(i);
+    else ba.emplace_back(i);
+  }
+  // if(swp)swap(aa,ba);
+  debug(aa);
+  debug(ba);
+  cout<<SZ(aa)<<endl;
+  REP(i,SZ(aa))cout<<aa[i]<<" \n"[i==SZ(aa)-1];
+  cout<<SZ(ba)<<endl;
+  REP(i,SZ(ba))cout<<ba[i]<<" \n"[i==SZ(ba)-1];
+  return 0;
 }
