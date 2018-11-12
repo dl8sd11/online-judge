@@ -13,6 +13,7 @@ typedef pair<double,double> pdd;
 #define ALL(_a) _a.begin(),_a.end()
 #define mp make_pair
 #define pb push_back
+#define eb emplace_back
 #define X first
 #define Y second
 #ifdef tmd
@@ -54,29 +55,41 @@ const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
 const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
-ll seg[MAXN*2];
-void build() {
-        for (ll i=n-1;i>0;i--) {
-                seg[i] = min(seg[i<<1],seg[i<<1|1]);
-        }
-}
-void modi(ll pos,ll val) {
-        for (seg[pos+=n]=val;pos>1;pos>>=1) {
-                seg[pos>>1] = min(seg[pos],seg[pos^1]);
-        }
-}
-ll query(ll l,ll r) {
-        ll ret = INF;
-        for (l+=n,r+=n;l<r;l>>=1,r>>=1) {
-                if (l&1) ret = min(ret,seg[l++]);
-                if (r&1) ret = min(ret,seg[--r]);
-        }
-        return ret;
-}
-/********** Test File **********/
+
+ll n,m;
+vector<ll> x,d,r;
+bool t;
+ll ans[MAXN];
+/********** Good Luck :) **********/
 int main()
 {
-  IOS();
+    IOS();
+    cin>>n>>m;
+    ll tmp;
+    REP(i,n+m) {
+        cin>>tmp;
+        x.eb(tmp);
+    }
+    REP (i,n+m) {
+        cin>>t;
+        if (t) {
+            d.eb(x[i]);
+        } else {
+            r.eb(x[i]);
+        }
+    }
 
-  return 0;
+    ll dptr = 0;
+    debug(dptr,m);
+    REP (i,n) {
+        debug(abs(r[i]-d[dptr]),abs(r[i]-d[dptr+1]));
+        while (dptr!=m-1 && abs(r[i]-d[dptr]) > abs(r[i]-d[dptr+1]))dptr++;
+        debug(dptr);
+        ans[dptr]++;
+    }
+
+    REP(i,m) {
+        cout<<ans[i]<<" \n"[i==m-1];
+    }
+    return 0;
 }

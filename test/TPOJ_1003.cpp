@@ -13,6 +13,7 @@ typedef pair<double,double> pdd;
 #define ALL(_a) _a.begin(),_a.end()
 #define mp make_pair
 #define pb push_back
+#define eb emplace_back
 #define X first
 #define Y second
 #ifdef tmd
@@ -52,31 +53,37 @@ template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=1e5+5;
+const ll MAXN=1e6+5;
 const ll MAXLG=__lg(MAXN)+2;
-ll seg[MAXN*2];
-void build() {
-        for (ll i=n-1;i>0;i--) {
-                seg[i] = min(seg[i<<1],seg[i<<1|1]);
-        }
+ll n,q,c,ia,ib;
+
+ll bit[MAXN];
+void add (ll pos,ll val) {
+    for(;pos<=n;pos+=-pos&pos) {
+        bit[pos] += val;
+    }
 }
-void modi(ll pos,ll val) {
-        for (seg[pos+=n]=val;pos>1;pos>>=1) {
-                seg[pos>>1] = min(seg[pos],seg[pos^1]);
-        }
+
+ll query(ll pos) {
+    ll ret = 0;
+    for (;pos>=1;pos-=pos&-pos) {
+        ret += bit[pos];
+    }
+    return ret;
 }
-ll query(ll l,ll r) {
-        ll ret = INF;
-        for (l+=n,r+=n;l<r;l>>=1,r>>=1) {
-                if (l&1) ret = min(ret,seg[l++]);
-                if (r&1) ret = min(ret,seg[--r]);
-        }
-        return ret;
-}
-/********** Test File **********/
+/********** Good Luck :) **********/
 int main()
 {
-  IOS();
-
-  return 0;
+    IOS();
+    cin>>n>>q;
+    REP1(i,n) cin>>ia,add(i,ia);
+    while (q--) {
+        cin>>c>>ia>>ib;
+        if(c) {
+            cout<< query(ib) - query(ia - 1)<<endl;
+        } else {
+            add(ia,ib);
+        }
+    }
+    return 0;
 }

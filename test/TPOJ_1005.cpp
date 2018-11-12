@@ -13,6 +13,7 @@ typedef pair<double,double> pdd;
 #define ALL(_a) _a.begin(),_a.end()
 #define mp make_pair
 #define pb push_back
+#define eb emplace_back
 #define X first
 #define Y second
 #ifdef tmd
@@ -52,31 +53,45 @@ template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=1e5+5;
+const ll MAXN=1e6+5;
 const ll MAXLG=__lg(MAXN)+2;
-ll seg[MAXN*2];
-void build() {
-        for (ll i=n-1;i>0;i--) {
-                seg[i] = min(seg[i<<1],seg[i<<1|1]);
-        }
-}
-void modi(ll pos,ll val) {
-        for (seg[pos+=n]=val;pos>1;pos>>=1) {
-                seg[pos>>1] = min(seg[pos],seg[pos^1]);
-        }
-}
-ll query(ll l,ll r) {
-        ll ret = INF;
-        for (l+=n,r+=n;l<r;l>>=1,r>>=1) {
-                if (l&1) ret = min(ret,seg[l++]);
-                if (r&1) ret = min(ret,seg[--r]);
-        }
-        return ret;
-}
-/********** Test File **********/
+
+ll n,m,s,t,dis[MAXN];
+bool vis[MAXN];
+vector<pii> edge[MAXN];
+/********** Good Luck :) **********/
 int main()
 {
-  IOS();
+    IOS();
+    cin>>n>>m>>s>>t;
+    REP (i,m) {
+        ll u,v,cost;
+        cin>>u>>v>>cost;
+        edge[u].eb(v,cost);
+    }
 
-  return 0;
+    MEM(dis,INF);
+
+    priority_queue<pii,vector<pii>,greater<pii> > pq;
+    pq.emplace(0,s);
+    dis[s] = 0;
+
+    REP (_x,n) {
+        ll found = -1;
+        while(pq.size()&&vis[found=pq.top().Y])pq.pop();
+        if(found==-1)break;
+        vis[found] = 1;
+
+        for (pii e:edge[found]) {
+            if(dis[found] + e.Y < dis[e.X]) {
+                dis[e.X] = dis[found] + e.Y;
+                pq.emplace(dis[e.X],e.X);
+            }
+        }
+    }
+
+    if(dis[t] == INF)cout<<-1<<endl;
+    else cout<<dis[t]<<endl;
+
+    return 0;
 }

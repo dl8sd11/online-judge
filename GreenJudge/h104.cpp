@@ -13,6 +13,7 @@ typedef pair<double,double> pdd;
 #define ALL(_a) _a.begin(),_a.end()
 #define mp make_pair
 #define pb push_back
+#define eb emplace_back
 #define X first
 #define Y second
 #ifdef tmd
@@ -50,33 +51,47 @@ template<class T> inline bool cmin(T &a, const T &b) { return b < a ? a = b, tru
 template<class T> using MaxHeap = priority_queue<T>;
 template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
+
+
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
 const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
-ll seg[MAXN*2];
-void build() {
-        for (ll i=n-1;i>0;i--) {
-                seg[i] = min(seg[i<<1],seg[i<<1|1]);
+
+// an = (an-1 + an-2 + .. + an-m)*(1/m)
+
+struct matrix{
+    double a[50][50];
+    matrix () {
+        MEM(a,0);
+    }
+    matrix operator * (const matrix &cp) {
+        matrix ret;
+        for (ll i=0;i<50;i++) {
+            for (ll j=0;j<50;j++) {
+                for (ll k=0;k<50;k++) {
+                    ret.a[i][j] += a[i][k]*cp.a[k][j];
+                }
+            }
         }
-}
-void modi(ll pos,ll val) {
-        for (seg[pos+=n]=val;pos>1;pos>>=1) {
-                seg[pos>>1] = min(seg[pos],seg[pos^1]);
-        }
-}
-ll query(ll l,ll r) {
-        ll ret = INF;
-        for (l+=n,r+=n;l<r;l>>=1,r>>=1) {
-                if (l&1) ret = min(ret,seg[l++]);
-                if (r&1) ret = min(ret,seg[--r]);
-        }
+
         return ret;
-}
-/********** Test File **********/
+    }   
+};
+ll t,n,m,s;
+ll init[64];
+/********** Good Luck :) **********/
 int main()
 {
-  IOS();
+    IOS();
+    cin>>t;
+    while(t--){
+        cin>>n>>m>>s;
+        matrix trans;
+        for (ll i=1;i<=m;i++) {
 
-  return 0;
+        }
+    }
+    return 0;
 }
+

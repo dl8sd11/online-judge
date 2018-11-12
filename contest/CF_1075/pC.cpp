@@ -13,6 +13,7 @@ typedef pair<double,double> pdd;
 #define ALL(_a) _a.begin(),_a.end()
 #define mp make_pair
 #define pb push_back
+#define eb emplace_back
 #define X first
 #define Y second
 #ifdef tmd
@@ -54,29 +55,40 @@ const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
 const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
-ll seg[MAXN*2];
-void build() {
-        for (ll i=n-1;i>0;i--) {
-                seg[i] = min(seg[i<<1],seg[i<<1|1]);
-        }
-}
-void modi(ll pos,ll val) {
-        for (seg[pos+=n]=val;pos>1;pos>>=1) {
-                seg[pos>>1] = min(seg[pos],seg[pos^1]);
-        }
-}
-ll query(ll l,ll r) {
-        ll ret = INF;
-        for (l+=n,r+=n;l<r;l>>=1,r>>=1) {
-                if (l&1) ret = min(ret,seg[l++]);
-                if (r&1) ret = min(ret,seg[--r]);
-        }
-        return ret;
-}
-/********** Test File **********/
+
+ll n,m;
+vector<ll> v;
+vector<ll> h;
+ll ans = INF;
+/********** Good Luck :) **********/
 int main()
 {
-  IOS();
+    IOS();
+    cin>>n>>m;
+    ll x;
+    REP (i,n) {
+        cin>>x;
+        v.eb(x);
+    }
 
-  return 0;
+    REP (i,m) {
+        pii tmp;
+        cin>>tmp.X>>tmp.Y;
+        cin>>x;
+        if(tmp.X==1) h.pb(tmp.Y);
+    }
+
+    sort(ALL(v));
+    sort(ALL(h));
+
+    v.eb(1000000000);
+    debug(v);
+    debug(h);
+    for (ll i=0;i<=n;i++) {
+        ans = min(ans,i+ll(h.end()-lower_bound(ALL(h),v[i])));
+        // debug(ll(h.end()lower_bound(ALL(h),v[i]))+i);
+    }
+
+    cout<<ans<<endl;
+    return 0;
 }

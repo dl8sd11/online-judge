@@ -1,6 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
-typedef long long ll;
+typedef int ll;
 typedef pair<ll, ll> pii;
 typedef pair<double,double> pdd;
 #define MEM(a, b) memset(a, (b), sizeof(a))
@@ -13,6 +13,7 @@ typedef pair<double,double> pdd;
 #define ALL(_a) _a.begin(),_a.end()
 #define mp make_pair
 #define pb push_back
+#define eb emplace_back
 #define X first
 #define Y second
 #ifdef tmd
@@ -52,31 +53,51 @@ template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=1e5+5;
+const ll MAXN=1e6+5;
 const ll MAXLG=__lg(MAXN)+2;
-ll seg[MAXN*2];
-void build() {
-        for (ll i=n-1;i>0;i--) {
-                seg[i] = min(seg[i<<1],seg[i<<1|1]);
-        }
+
+vector<ll> w;
+vector<ll> v;
+ll cap;
+
+struct pair_hash {
+    template <class T1, class T2>
+    std::size_t operator () (const std::pair<T1,T2> &p) const {
+        auto h1 = std::hash<T1>{}(p.first);
+        auto h2 = std::hash<T2>{}(p.second);
+        return h1 ^ h2;  
+    }
+};
+
+unordered_map<pair<ll,ll>,ll,pair_hash> dp;
+ll solve(ll idx,ll c) {
+    if(idx==-1)return 0;
+    auto it = dp.find({idx,c});
+    if(it!=dp.end())return (*it).Y;
+    ll ret = 0;
+    ret = max(ret,solve(idx-1,c));
+    if(c>=w[idx])ret = max(ret,solve(idx-1,c-w[idx])+v[idx]);
+    dp[{idx,c}] = ret;
+    return ret;
 }
-void modi(ll pos,ll val) {
-        for (seg[pos+=n]=val;pos>1;pos>>=1) {
-                seg[pos>>1] = min(seg[pos],seg[pos^1]);
-        }
-}
-ll query(ll l,ll r) {
-        ll ret = INF;
-        for (l+=n,r+=n;l<r;l>>=1,r>>=1) {
-                if (l&1) ret = min(ret,seg[l++]);
-                if (r&1) ret = min(ret,seg[--r]);
-        }
-        return ret;
-}
-/********** Test File **********/
+/********** Good Luck :) **********/
 int main()
 {
-  IOS();
+    IOS();
+    string str;
+    ll num;
+    stringstream ss;
+    getline(cin,str);
+    ss<<str;
+    while (ss>>num) w.eb(num);
+    getline(cin,str);
+    ss.clear();
+    ss.str(str);
+    while (ss>>num) v.eb(num);
+    cin>>cap;
 
-  return 0;
+
+    cout<<solve(SZ(w)-1,cap)<<endl;
+
+    return 0;
 }

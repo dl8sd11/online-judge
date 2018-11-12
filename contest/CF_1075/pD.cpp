@@ -13,6 +13,7 @@ typedef pair<double,double> pdd;
 #define ALL(_a) _a.begin(),_a.end()
 #define mp make_pair
 #define pb push_back
+#define eb emplace_back
 #define X first
 #define Y second
 #ifdef tmd
@@ -52,31 +53,72 @@ template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=1e5+5;
+const ll MAXN=1e3+5;
 const ll MAXLG=__lg(MAXN)+2;
-ll seg[MAXN*2];
-void build() {
-        for (ll i=n-1;i>0;i--) {
-                seg[i] = min(seg[i<<1],seg[i<<1|1]);
-        }
+ll t,n,k1,k2;
+vector<ll> edge[MAXN];
+vector<ll> mt;
+vector<ll> ht;
+bool bmt[MAXN],bht[MAXN];
+ll DFS(ll nd,ll par) {
+    if(bmt[nd])return nd;
+    for (auto v:edge[nd]) {
+        if(v==par)continue;
+        ll tt = DFS(v,nd);
+        if(tt!=-1)return tt;
+    }
+    return -1;
 }
-void modi(ll pos,ll val) {
-        for (seg[pos+=n]=val;pos>1;pos>>=1) {
-                seg[pos>>1] = min(seg[pos],seg[pos^1]);
-        }
-}
-ll query(ll l,ll r) {
-        ll ret = INF;
-        for (l+=n,r+=n;l<r;l>>=1,r>>=1) {
-                if (l&1) ret = min(ret,seg[l++]);
-                if (r&1) ret = min(ret,seg[--r]);
-        }
-        return ret;
-}
-/********** Test File **********/
+/********** Good Luck :) **********/
 int main()
 {
-  IOS();
+    IOS();
+    cin>>t;
+    while(t--){
+        REP(i,MAXN)edge[i].clear();
+        mt.clear();
+        ht.clear();
+        cin>>n;
+        REP (i,n-1) {
+            ll u,v;
+            cin>>u>>v;
+            edge[u].eb(v);
+            edge[v].eb(u);
+        }
 
-  return 0;
+        MEM(bmt,0);
+        MEM(bht,0);
+        ll tmp;
+        cin>>k1;
+        REP(i,k1){
+            cin>>tmp;
+            mt.eb(tmp);
+            bmt[tmp] = 1;
+        }
+
+        cin>>k2;
+        REP(i,k2){
+            cin>>tmp;
+            ht.eb(tmp);
+            bht[tmp] = 1;
+        }
+
+        ll root;
+        cout<<"B "<<ht[0]<<endl;
+        cout.flush();
+        cin>>root;
+        ll np = DFS(root,root);
+        cout<<"A "<<np<<endl;
+        cout.flush();
+        ll hnp;
+        cin>>hnp;
+        if (bht[hnp]) {
+            cout<<"C "<<np<<endl;
+        } else {
+            cout<<"C -1"<<endl;
+        }
+        cout.flush();
+
+    }
+    return 0;
 }

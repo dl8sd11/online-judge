@@ -13,6 +13,7 @@ typedef pair<double,double> pdd;
 #define ALL(_a) _a.begin(),_a.end()
 #define mp make_pair
 #define pb push_back
+#define eb emplace_back
 #define X first
 #define Y second
 #ifdef tmd
@@ -52,31 +53,34 @@ template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=1e5+5;
+const ll MAXN=2e5+5;
 const ll MAXLG=__lg(MAXN)+2;
-ll seg[MAXN*2];
-void build() {
-        for (ll i=n-1;i>0;i--) {
-                seg[i] = min(seg[i<<1],seg[i<<1|1]);
-        }
-}
-void modi(ll pos,ll val) {
-        for (seg[pos+=n]=val;pos>1;pos>>=1) {
-                seg[pos>>1] = min(seg[pos],seg[pos^1]);
-        }
-}
-ll query(ll l,ll r) {
-        ll ret = INF;
-        for (l+=n,r+=n;l<r;l>>=1,r>>=1) {
-                if (l&1) ret = min(ret,seg[l++]);
-                if (r&1) ret = min(ret,seg[--r]);
-        }
-        return ret;
-}
-/********** Test File **********/
+
+ll z[MAXN],bst;
+string a,b;
+/********** Good Luck :) **********/
 int main()
 {
-  IOS();
+    IOS();
+    cin>>a>>b;
+    debug(SZ(a));
+    debug(SZ(b));
+    b = a + char(255) + b;
+    for (ll i=1;i<SZ(b);i++) {
+        if(z[bst] + bst >= i)z[i] = min(bst+z[bst],z[i-bst]);
+        else z[i] = 0;
+        while(i+z[i]<SZ(b)&&b[i+z[i]]==b[z[i]])z[i]++;
+        if(i+z[i] >= bst+z[bst])bst = i;
+    }
 
-  return 0;
+    ll ans = 0;
+    for (ll i=a.size()+1;i<b.size();i++) {
+        if(z[i]==a.size())ans++;
+    }
+
+    debug(b);
+    pary(z,z+SZ(b));
+
+    cout<<ans<<endl;
+    return 0;
 }

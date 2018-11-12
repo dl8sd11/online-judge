@@ -13,6 +13,7 @@ typedef pair<double,double> pdd;
 #define ALL(_a) _a.begin(),_a.end()
 #define mp make_pair
 #define pb push_back
+#define eb emplace_back
 #define X first
 #define Y second
 #ifdef tmd
@@ -52,31 +53,44 @@ template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=1e5+5;
+const ll MAXN=1e3+5;
 const ll MAXLG=__lg(MAXN)+2;
-ll seg[MAXN*2];
-void build() {
-        for (ll i=n-1;i>0;i--) {
-                seg[i] = min(seg[i<<1],seg[i<<1|1]);
-        }
-}
-void modi(ll pos,ll val) {
-        for (seg[pos+=n]=val;pos>1;pos>>=1) {
-                seg[pos>>1] = min(seg[pos],seg[pos^1]);
-        }
-}
-ll query(ll l,ll r) {
-        ll ret = INF;
-        for (l+=n,r+=n;l<r;l>>=1,r>>=1) {
-                if (l&1) ret = min(ret,seg[l++]);
-                if (r&1) ret = min(ret,seg[--r]);
-        }
-        return ret;
-}
-/********** Test File **********/
+
+
+string a,b;
+ll dp[MAXN][MAXN],n;
+/********** Good Luck :) **********/
 int main()
 {
-  IOS();
+    IOS();
+    cin>>a>>b>>n;
+    MEM(dp,-1);
+    
+    REP (l,SZ(b)) {
+        dp[l][l] = (a[0] == b[l])-1;
+        for(ll r = l+1;r<SZ(b);r++){
+            if(dp[l][r-1] == SZ(a)-1)dp[l][r] = dp[l][r-1];
+            else if(dp[l][r-1] >= 0)dp[l][r] = dp[l][r-1]+(a[dp[l][r-1]+1]==b[r]);
+        }
+    }
+    vector<ll> ans;
+    REP (r,SZ(b)) {
+        REP (l,r+1) {
+            if(b[r]==a[SZ(a)-1] && dp[l][r] == a.size()-1) {
+                ans.eb(r-l+1);
+                debug(l,r);
+            }
+        }
+    }
 
-  return 0;
+    sort(ALL(ans));
+    debug(ans);
+    ll ret = 0;
+    REP1 (i,min(SZ(ans),n)) {
+        ret += ans[SZ(ans)-i];
+    }
+
+
+    cout<<ret<<endl;
+    return 0;
 }

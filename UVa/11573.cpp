@@ -13,6 +13,7 @@ typedef pair<double,double> pdd;
 #define ALL(_a) _a.begin(),_a.end()
 #define mp make_pair
 #define pb push_back
+#define eb emplace_back
 #define X first
 #define Y second
 #ifdef tmd
@@ -52,31 +53,91 @@ template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=1e5+5;
+const ll MAXN=1024;
 const ll MAXLG=__lg(MAXN)+2;
-ll seg[MAXN*2];
-void build() {
-        for (ll i=n-1;i>0;i--) {
-                seg[i] = min(seg[i<<1],seg[i<<1|1]);
-        }
+
+struct E {
+    ll x,y,cost; 
+};
+char c;
+ll n,m,q,tmp,xs,ys,xd,yd;
+ll dis[MAXN][MAXN];
+vector<E> G[MAXN][MAXN];
+ll dx[8] = {-1,-1,0,1,1,1,0,-1};
+ll dy[8] = {0,1,1,1,0,-1,-1,-1};
+bool valid (ll px,ll py) {
+    return px>=0&&px<n&&py>=0&&py<m;
 }
-void modi(ll pos,ll val) {
-        for (seg[pos+=n]=val;pos>1;pos>>=1) {
-                seg[pos>>1] = min(seg[pos],seg[pos^1]);
-        }
-}
-ll query(ll l,ll r) {
-        ll ret = INF;
-        for (l+=n,r+=n;l<r;l>>=1,r>>=1) {
-                if (l&1) ret = min(ret,seg[l++]);
-                if (r&1) ret = min(ret,seg[--r]);
-        }
-        return ret;
-}
-/********** Test File **********/
+/********** Good Luck :) **********/
 int main()
 {
-  IOS();
+    IOS();
+    cin>>n>>m;
+    REP (i,n) {
+        REP(j,m) {
+            cin>>c;
+            tmp = c - '0';
+            REP (k,8) {
+                if (valid(i+dx[k],j+dy[k])) {
+                    if (k==tmp) G[i][j].pb({i+dx[k],j+dy[k],0});
+                    else G[i][j].pb({i+dx[k],j+dy[k],1});
+                }
+            }
+        }
+    }
 
-  return 0;
+    cin>>q;
+    while (q--) {
+        cin>>xs>>ys>>xd>>yd;
+        xs--,ys--,xd--,yd--;
+        deque<pii> bfs;
+        MEM(dis,INF);
+        dis[xs][ys] = 0;
+        bfs.emplace_back(xs,ys);
+        while (bfs.size()) {
+            pii cur = bfs.front();bfs.pop_front();
+            if(cur.X == xd && cur.Y == yd) break;
+            debug(cur.X,cur.Y,G[cur.X][cur.Y].size());
+            for (E edge:G[cur.X][cur.Y]) {
+                if (dis[cur.X][cur.Y] + edge.cost < dis[edge.x][edge.y]) {
+                    dis[edge.x][edge.y] = dis[cur.X][cur.Y] + edge.cost;
+                    if (edge.cost) {
+                        bfs.emplace_back(edge.x,edge.y);
+                    } else {
+                        bfs.emplace_front(edge.x,edge.y);
+                    }
+                }
+            }
+        }
+
+        
+        cout<<dis[xd][yd]<<endl;
+
+    }
+    return 0;
 }
+
+
+/*
+
+5 5
+04125
+03355
+64734
+72377
+02062
+3
+4 2 4 2
+4 5 1 4
+5 3 3 4
+
+
+5 5
+04125
+03355
+64734
+72377
+02062
+1
+4 5 1 4
+*/

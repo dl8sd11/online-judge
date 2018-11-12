@@ -13,6 +13,7 @@ typedef pair<double,double> pdd;
 #define ALL(_a) _a.begin(),_a.end()
 #define mp make_pair
 #define pb push_back
+#define eb emplace_back
 #define X first
 #define Y second
 #ifdef tmd
@@ -54,29 +55,67 @@ const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
 const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
-ll seg[MAXN*2];
-void build() {
-        for (ll i=n-1;i>0;i--) {
-                seg[i] = min(seg[i<<1],seg[i<<1|1]);
-        }
+
+#define SQ(i) ((i)*(i))
+ll n,t;
+pdd pos[300];
+struct E{
+    ll f,t;
+    double sqlen;
+    bool operator < (const E &cp) {
+        return sqlen < cp.sqlen;
+    }
+};
+
+ll djs[MAXN],sz[MAXN];
+void init() {
+    for(int i=0;i<MAXN;i++) {
+        djs[i] = i;
+        sz[i] = 1;
+    }
 }
-void modi(ll pos,ll val) {
-        for (seg[pos+=n]=val;pos>1;pos>>=1) {
-                seg[pos>>1] = min(seg[pos],seg[pos^1]);
-        }
+
+ll fnd(ll x) {
+    return djs[x] == x ? x : djs[x] = fnd(djs[x]);
 }
-ll query(ll l,ll r) {
-        ll ret = INF;
-        for (l+=n,r+=n;l<r;l>>=1,r>>=1) {
-                if (l&1) ret = min(ret,seg[l++]);
-                if (r&1) ret = min(ret,seg[--r]);
-        }
-        return ret;
+
+void uni(ll x,ll y) {
+    if(sz[x=fnd(x)] < sz[y=fnd(y)])swap(x,y);
+    djs[y] = x;
+    sz[x] += sz[y];
 }
-/********** Test File **********/
+
+vector<E> edge;
+/********** Good Luck :) **********/
 int main()
 {
-  IOS();
+    IOS();
+    cin>>t;
+    while(t--){
+        cin>>n;
+        edge.clear();
+        REP(i,n) cin>>pos[i].X>>pos[i].Y;
+        REP (i,n) {
+            REP (j,i) {
+                edge.pb({i,j,SQ(pos[i].X-pos[j].X)+SQ(pos[i].Y-pos[j].Y)});
+            }
+        }
 
-  return 0;
+        sort(ALL(edge));
+        init();
+
+        double ans = 0;
+        for (E e:edge) {
+            if (fnd(e.f) != fnd(e.t)) {
+                ans += sqrt(e.sqlen);
+                uni(e.f,e.t);
+            }
+        }
+
+        cout<<fixed<<setprecision(2)<<ans<<endl;
+        if(t)cout<<endl;
+
+    }
+    return 0;
 }
+
