@@ -53,60 +53,70 @@ template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=1e5+5;
+const ll MAXN=2e5+5;
 const ll MAXLG=__lg(MAXN)+2;
+ll t,n;
+string s,tmp,rs;
+ll seg[MAXN*2];
+ll L[MAXN],R[MAXN],mn[MAXN];
+void build() {
+    for (ll i=n-1;i>0;i--) {
+        seg[i] = min(seg[i<<1],seg[i<<1|1]);
+    }
+}
 
-ll n;
-char name[103][103];
-vector<ll> edge[30];
-ll in[30];
+ll query(ll l,ll r) {
+    if(l == r) return INF;
+    ll ret = INF;
+    for (l+=n,r+=n;l<r;l>>=1,r>>=1) {
+        if (l&1) ret = min(ret,seg[l++]);
+        if (r&1) ret = min(ret,seg[--r]);
+    }
+    return ret;
+}
 /********** Good Luck :) **********/
 int main()
 {
-  IOS();  
-  cin>>n;
-  REP (i,n) {
-    cin>>name[i];
-  }
-
-  REP1 (i,n-1) {
-    REP (j,103) {
-      if (name[i][j] != name[i-1][j]) {
-        if (name[i-1][j] == 0) break;
-        if (name[i][j] == 0) {
-          cout<<"Impossible"<<endl;
-          return 0;
+    IOS();
+    vector<ll> num;
+    for (ll i=0;i<=9;i++) num.eb(i);
+    for (ll i=1;i<=9999;i++) {
+        s = to_string(i);
+        rs = s;
+        reverse(ALL(rs));
+        num.pb(stoi(s + rs));
+        for (ll i=0;i<=9;i++) {
+            num.pb(stoi(s + char(i+'0') + rs));
         }
-        edge[name[i][j]-'a'].eb(name[i-1][j]-'a');
-        in[name[i-1][j]-'a']++;
-        break;
-      }
     }
-  }
 
-  queue<ll,list<ll> > BFS;
-  REP (i,26) if(!in[i]) BFS.emplace(i);
-  vector<char> ans;
+    sort(ALL(num));
 
-  while (BFS.size()) {
-    ll cur = BFS.front();BFS.pop();
-    ans.pb(char(cur+'a'));
-    for (auto v:edge[cur]) {
-      if (--in[v] == 0) BFS.emplace(v);
+    n = num.size();
+    R[n] = INF;
+    for (ll i=0;i<n-1;i++) {
+        R[i] = num[i+1] - num[i];
     }
-  }
-
-  if (ans.size() == 26) {
-    for (ll i=SZ(ans)-1;i>=0;i--) {
-      cout<<ans[i];
+    L[0] = INF;
+    for (ll i=1;i<n;i++) {
+        L[i] = num[i] - num[i-1];
     }
-    cout<<endl;
-  } else {
-    cout<<"Impossible"<<endl;
-  }
 
-
-
-
-  return 0;
+    for (ll i=0;i<n;i++) {
+        seg[i+n] = min(L[i],R[i]);
+    }
+    build();
+    cin>>t;
+    while (t--) {
+        ll l,r;
+        cin>>l>>r;
+        ll lidx = lower_bound(ALL(num),l) - num.begin();
+        ll ridx = upper_bound(ALL(num),r) - num.begin() - 1;
+        if (ridx - lidx + 1 < 2) {
+            cout<<-1<<endl;
+        } else {
+            cout<<min(query(lidx+1,ridx),min(R[lidx],L[ridx]))<<endl;
+        }
+    }
+    return 0;
 }

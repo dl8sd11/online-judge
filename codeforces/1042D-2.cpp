@@ -1,8 +1,11 @@
 #include <bits/stdc++.h>
 using namespace std;
+#include <ext/pb_ds/assoc_container.hpp>
+using namespace __gnu_pbds;
 typedef long long ll;
 typedef pair<ll, ll> pii;
 typedef pair<double,double> pdd;
+typedef tree<pii,null_type,less<pii>,rb_tree_tag,tree_order_statistics_node_update> btree;
 #define MEM(a, b) memset(a, (b), sizeof(a))
 #define SZ(i) ll(i.size())
 #define FOR(i, j, k, in) for (ll i=j ; i<k ; i+=in)
@@ -13,7 +16,6 @@ typedef pair<double,double> pdd;
 #define ALL(_a) _a.begin(),_a.end()
 #define mp make_pair
 #define pb push_back
-#define eb emplace_back
 #define X first
 #define Y second
 #ifdef tmd
@@ -53,60 +55,32 @@ template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=1e5+5;
+const ll MAXN=2e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-ll n;
-char name[103][103];
-vector<ll> edge[30];
-ll in[30];
-/********** Good Luck :) **********/
+
+ll n,t,a[MAXN],sum,ans;
+btree st;
+/********** Main()  function **********/
 int main()
 {
-  IOS();  
-  cin>>n;
-  REP (i,n) {
-    cin>>name[i];
-  }
-
-  REP1 (i,n-1) {
-    REP (j,103) {
-      if (name[i][j] != name[i-1][j]) {
-        if (name[i-1][j] == 0) break;
-        if (name[i][j] == 0) {
-          cout<<"Impossible"<<endl;
-          return 0;
-        }
-        edge[name[i][j]-'a'].eb(name[i-1][j]-'a');
-        in[name[i-1][j]-'a']++;
-        break;
-      }
+    IOS();  
+    cin>>n>>t;
+    REP (i,n) {
+        cin>>a[i];
+        sum += a[i];
+        st.insert({sum,i});
     }
-  }
 
-  queue<ll,list<ll> > BFS;
-  REP (i,26) if(!in[i]) BFS.emplace(i);
-  vector<char> ans;
-
-  while (BFS.size()) {
-    ll cur = BFS.front();BFS.pop();
-    ans.pb(char(cur+'a'));
-    for (auto v:edge[cur]) {
-      if (--in[v] == 0) BFS.emplace(v);
+    pary(a,a+n);
+    sum = 0;
+    REP (i,n) {
+        sum += a[i];
+        ans += st.order_of_key({t,0});
+        st.erase({sum,i});
+        t += a[i];
     }
-  }
-
-  if (ans.size() == 26) {
-    for (ll i=SZ(ans)-1;i>=0;i--) {
-      cout<<ans[i];
-    }
-    cout<<endl;
-  } else {
-    cout<<"Impossible"<<endl;
-  }
-
-
-
-
-  return 0;
+    cout<<ans<<endl;
+    return 0;
 }
+

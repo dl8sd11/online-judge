@@ -53,60 +53,42 @@ template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=1e5+5;
+const ll MAXN=1e6+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-ll n;
-char name[103][103];
-vector<ll> edge[30];
-ll in[30];
-/********** Good Luck :) **********/
-int main()
-{
-  IOS();  
-  cin>>n;
-  REP (i,n) {
-    cin>>name[i];
-  }
 
-  REP1 (i,n-1) {
-    REP (j,103) {
-      if (name[i][j] != name[i-1][j]) {
-        if (name[i-1][j] == 0) break;
-        if (name[i][j] == 0) {
-          cout<<"Impossible"<<endl;
-          return 0;
+ll t,l,r;
+ll s1[MAXN],s2[MAXN];
+ll segment_sieve() {
+    MEM(s2,0);
+    for (ll i=2;i*i<=r;i++) {
+        if (!s1[i]) {
+            ll st;
+            ll rem = l%i;
+            if (i >= l) st = i+i;
+            else if (rem!=0) st = l - (rem) + i;
+            else st = l;
+            for (st;st<=r;st+=i) {
+                s2[st-l] = 1;
+            }
         }
-        edge[name[i][j]-'a'].eb(name[i-1][j]-'a');
-        in[name[i-1][j]-'a']++;
-        break;
-      }
     }
-  }
-
-  queue<ll,list<ll> > BFS;
-  REP (i,26) if(!in[i]) BFS.emplace(i);
-  vector<char> ans;
-
-  while (BFS.size()) {
-    ll cur = BFS.front();BFS.pop();
-    ans.pb(char(cur+'a'));
-    for (auto v:edge[cur]) {
-      if (--in[v] == 0) BFS.emplace(v);
+    ll ret = 0;
+    for (ll i=0;i<=r-l;i++) {
+        if (!s2[i]) ret++;
     }
-  }
-
-  if (ans.size() == 26) {
-    for (ll i=SZ(ans)-1;i>=0;i--) {
-      cout<<ans[i];
+    pary(s2,s2+(r-l+1));
+    return ret;
+}
+int main () {
+    cin>>t;
+    for (ll i=2;i*i<=r;i++) {
+        for (ll j=i*2;j*j<=INT_MAX;j+=i) {
+            s1[j] = 1;
+        }
     }
-    cout<<endl;
-  } else {
-    cout<<"Impossible"<<endl;
-  }
-
-
-
-
-  return 0;
+    while (t--) {
+        cin>>l>>r;
+        cout<<segment_sieve()<<endl;
+    }
 }

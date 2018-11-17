@@ -55,58 +55,42 @@ const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
 const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
+#define N MAXN
+bool sieve[N];
+vector<int> prime;
+void linear_sieve()
+{
+    for (int i=2; i<N; i++)
+    {
+        if (!sieve[i]) prime.push_back(i);
+        for (int j=0; i*prime[j]<N; j++)
+        {
+            sieve[i*prime[j]] = true;
+            if (i % prime[j] == 0) break;
+        }
+    }
+}
 
 ll n;
-char name[103][103];
-vector<ll> edge[30];
-ll in[30];
 /********** Good Luck :) **********/
 int main()
 {
-  IOS();  
-  cin>>n;
-  REP (i,n) {
-    cin>>name[i];
-  }
-
-  REP1 (i,n-1) {
-    REP (j,103) {
-      if (name[i][j] != name[i-1][j]) {
-        if (name[i-1][j] == 0) break;
-        if (name[i][j] == 0) {
-          cout<<"Impossible"<<endl;
-          return 0;
+    IOS();
+    linear_sieve();
+    cin>>n;
+    ll found = -1;
+    REP (i,SZ(prime)) {
+        if(n%prime[i] == 0) {
+            found = i;
+            break;
         }
-        edge[name[i][j]-'a'].eb(name[i-1][j]-'a');
-        in[name[i-1][j]-'a']++;
-        break;
-      }
     }
-  }
-
-  queue<ll,list<ll> > BFS;
-  REP (i,26) if(!in[i]) BFS.emplace(i);
-  vector<char> ans;
-
-  while (BFS.size()) {
-    ll cur = BFS.front();BFS.pop();
-    ans.pb(char(cur+'a'));
-    for (auto v:edge[cur]) {
-      if (--in[v] == 0) BFS.emplace(v);
+    if(found == -1) {
+        cout<<1<<endl;
+    } else {
+        ll ans = 1;
+        n -= prime[found];
+        cout<<1 + n/2<<endl;
     }
-  }
-
-  if (ans.size() == 26) {
-    for (ll i=SZ(ans)-1;i>=0;i--) {
-      cout<<ans[i];
-    }
-    cout<<endl;
-  } else {
-    cout<<"Impossible"<<endl;
-  }
-
-
-
-
-  return 0;
+    return 0;
 }

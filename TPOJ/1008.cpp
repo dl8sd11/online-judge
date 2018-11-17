@@ -53,60 +53,95 @@ template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=1e5+5;
+const ll MAXN=1e3+5;
 const ll MAXLG=__lg(MAXN)+2;
-
-ll n;
-char name[103][103];
-vector<ll> edge[30];
-ll in[30];
+ll n,m,q;
+vector<pii> edge[MAXN];
+ll bel_dis[MAXN];
+ll dis[MAXN][MAXN];
+bool vis[MAXN];
 /********** Good Luck :) **********/
 int main()
 {
-  IOS();  
-  cin>>n;
-  REP (i,n) {
-    cin>>name[i];
-  }
+    IOS();
+    cin>>n>>m>>q;
 
-  REP1 (i,n-1) {
-    REP (j,103) {
-      if (name[i][j] != name[i-1][j]) {
-        if (name[i-1][j] == 0) break;
-        if (name[i][j] == 0) {
-          cout<<"Impossible"<<endl;
-          return 0;
+    MEM(bel_dis,INF);
+    MEM(dis,INF);
+
+    REP (i,m) {
+        ll a,b,c;
+        cin>>a>>b>>c;
+        edge[a].eb(b,c);
+    }
+
+    REP1 (i,n) {
+        edge[0].eb(i,0);
+    }
+
+    bel_dis[0] = 0;
+    REP (i,n) {
+        REP (j,n+1) {
+            for (auto e:edge[j]) {
+                bel_dis[e.X] = min(bel_dis[e.X],bel_dis[j]+e.Y);
+            }
         }
-        edge[name[i][j]-'a'].eb(name[i-1][j]-'a');
-        in[name[i-1][j]-'a']++;
-        break;
-      }
     }
-  }
 
-  queue<ll,list<ll> > BFS;
-  REP (i,26) if(!in[i]) BFS.emplace(i);
-  vector<char> ans;
-
-  while (BFS.size()) {
-    ll cur = BFS.front();BFS.pop();
-    ans.pb(char(cur+'a'));
-    for (auto v:edge[cur]) {
-      if (--in[v] == 0) BFS.emplace(v);
+    bool nc = false;
+    REP (i,n+1) {
+        for (auto e:edge[i]) {
+            if (bel_dis[e.X] > bel_dis[i] + e.Y) {
+                nc = true;
+            }
+        }
     }
-  }
 
-  if (ans.size() == 26) {
-    for (ll i=SZ(ans)-1;i>=0;i--) {
-      cout<<ans[i];
+
+    REP1 (i,n) {
+        for (auto &e:edge[i]) {
+            e.Y += bel_dis[i] - bel_dis[e.X];
+        }
     }
-    cout<<endl;
-  } else {
-    cout<<"Impossible"<<endl;
-  }
+
+    REP1 (s,n) {
+        dis[s][s] = 0;
+        priority_queue<pii,vector<pii>,greater<pii> > pq;
+        pq.emplace(0,s);
+        MEM(vis,0);
+
+        REP (i,n) {
+            ll found = -1;
+            while (pq.size() && vis[found = pq.top().Y])pq.pop();
+            if (found == -1) break;
+            vis[found] = 1;
+
+            for (auto e:edge[found]) {
+                if (dis[s][e.X] > dis[s][found] + e.Y) {
+                    dis[s][e.X] = dis[s][found] + e.Y;
+                    pq.emplace(dis[s][e.X],e.X);
+                }
+            }
+        }
+    }
+
+    if (nc) {
+        cout<<"TimeLine Exceed"<<endl;
+    }
+    REP (i,q) {
+        ll s,t;
+        cin>>s>>t;
+        if (!nc) {
+            if (dis[s][t] == INF) {
+                cout<<"Cannot arrive."<<endl;
+            } else {
+                cout<<dis[s][t] + bel_dis[t] - bel_dis[s]<<endl;
+            }
+        }
+    }
 
 
 
 
-  return 0;
+    return 0;
 }

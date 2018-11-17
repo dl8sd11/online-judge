@@ -56,57 +56,37 @@ const ll INF=0x3f3f3f3f3f3f3f3f;
 const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-ll n;
-char name[103][103];
-vector<ll> edge[30];
-ll in[30];
+vector<ll> edge[MAXN];
+ll n,m,in[MAXN],ans[MAXN];
 /********** Good Luck :) **********/
 int main()
 {
-  IOS();  
-  cin>>n;
-  REP (i,n) {
-    cin>>name[i];
-  }
+    IOS();
+    cin>>n>>m;
+    REP (_t,m) {
+        ll u,v;
+        cin>>u>>v;
+        edge[v].eb(u);
+        in[u]++;
+    }
 
-  REP1 (i,n-1) {
-    REP (j,103) {
-      if (name[i][j] != name[i-1][j]) {
-        if (name[i-1][j] == 0) break;
-        if (name[i][j] == 0) {
-          cout<<"Impossible"<<endl;
-          return 0;
+    priority_queue<ll,vector<ll>,less<ll> > pq;
+    REP1 (i,n) {
+        if (in[i] == 0) pq.emplace(i);
+    }
+
+    REP1 (i,n) {
+        ll cur = pq.top();pq.pop();
+        for (auto v:edge[cur]) {
+            if (--in[v] == 0) {
+                pq.emplace(v);
+            }
         }
-        edge[name[i][j]-'a'].eb(name[i-1][j]-'a');
-        in[name[i-1][j]-'a']++;
-        break;
-      }
+        ans[cur] = (n-i+1);
     }
-  }
 
-  queue<ll,list<ll> > BFS;
-  REP (i,26) if(!in[i]) BFS.emplace(i);
-  vector<char> ans;
-
-  while (BFS.size()) {
-    ll cur = BFS.front();BFS.pop();
-    ans.pb(char(cur+'a'));
-    for (auto v:edge[cur]) {
-      if (--in[v] == 0) BFS.emplace(v);
+    REP1 (i,n) {
+        cout<<ans[i]<<" \n"[i==n];
     }
-  }
-
-  if (ans.size() == 26) {
-    for (ll i=SZ(ans)-1;i>=0;i--) {
-      cout<<ans[i];
-    }
-    cout<<endl;
-  } else {
-    cout<<"Impossible"<<endl;
-  }
-
-
-
-
-  return 0;
+    return 0;
 }

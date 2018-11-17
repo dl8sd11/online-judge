@@ -53,60 +53,32 @@ template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=1e5+5;
+const ll MAXN=3e5+5;
 const ll MAXLG=__lg(MAXN)+2;
-
-ll n;
-char name[103][103];
-vector<ll> edge[30];
-ll in[30];
+ll n,k,c[MAXN];
+priority_queue<pii> pq;
 /********** Good Luck :) **********/
 int main()
 {
-  IOS();  
-  cin>>n;
-  REP (i,n) {
-    cin>>name[i];
-  }
-
-  REP1 (i,n-1) {
-    REP (j,103) {
-      if (name[i][j] != name[i-1][j]) {
-        if (name[i-1][j] == 0) break;
-        if (name[i][j] == 0) {
-          cout<<"Impossible"<<endl;
-          return 0;
-        }
-        edge[name[i][j]-'a'].eb(name[i-1][j]-'a');
-        in[name[i-1][j]-'a']++;
-        break;
-      }
+    IOS();
+    cin>>n>>k;
+    REP1 (i,n)cin>>c[i];
+    for (ll i=1;i<=n;i++) {
+        if (i<=k)pq.emplace(c[i],i);
     }
-  }
-
-  queue<ll,list<ll> > BFS;
-  REP (i,26) if(!in[i]) BFS.emplace(i);
-  vector<char> ans;
-
-  while (BFS.size()) {
-    ll cur = BFS.front();BFS.pop();
-    ans.pb(char(cur+'a'));
-    for (auto v:edge[cur]) {
-      if (--in[v] == 0) BFS.emplace(v);
+    vector<ll> ord(n+1);
+    ll ans = 0;
+    for (ll i=1;i<=n;i++) {
+        if (i+k <= n) pq.emplace(c[i+k],i+k);
+        pii cur = pq.top();pq.pop();
+        ans += cur.X * (i+k-cur.Y);
+        ord[cur.Y] = i+k;
+        debug(cur);
     }
-  }
 
-  if (ans.size() == 26) {
-    for (ll i=SZ(ans)-1;i>=0;i--) {
-      cout<<ans[i];
+    cout<<ans<<endl;
+    REP1 (i,n) {
+        cout<<ord[i]<<" \n"[i==SZ(ord)-1];
     }
-    cout<<endl;
-  } else {
-    cout<<"Impossible"<<endl;
-  }
-
-
-
-
-  return 0;
+    return 0;
 }

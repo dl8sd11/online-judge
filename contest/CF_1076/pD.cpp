@@ -53,60 +53,63 @@ template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=1e5+5;
+const ll MAXN=3e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-ll n;
-char name[103][103];
-vector<ll> edge[30];
-ll in[30];
+struct E{
+    ll d,w,id;
+};
+vector<E> edge[MAXN];
+ll n,m,k;
+ll dis[MAXN],vis[MAXN];
+ll trans[MAXN];
 /********** Good Luck :) **********/
 int main()
 {
-  IOS();  
-  cin>>n;
-  REP (i,n) {
-    cin>>name[i];
-  }
+    IOS();
+    cin>>n>>m>>k;
+    REP (i,m) {
+        ll u,v,cost;
+        cin>>u>>v>>cost;
+        edge[u].pb({v,cost,i+1});
+        edge[v].pb({u,cost,i+1});
+    }
 
-  REP1 (i,n-1) {
-    REP (j,103) {
-      if (name[i][j] != name[i-1][j]) {
-        if (name[i-1][j] == 0) break;
-        if (name[i][j] == 0) {
-          cout<<"Impossible"<<endl;
-          return 0;
+    MEM(dis,INF);
+    MEM(trans,-1);
+    MEM(vis,0);
+    priority_queue<pii,vector<pii>,greater<pii> > pq;
+    dis[1] = 0;
+    pq.emplace(0,1);
+    vector<ll> ans;
+    REP (i,min(k+1,n)) {
+        
+        ll found = -1;
+        while(pq.size() && vis[found = pq.top().Y]) {
+            debug(found);
+            pq.pop();
         }
-        edge[name[i][j]-'a'].eb(name[i-1][j]-'a');
-        in[name[i-1][j]-'a']++;
-        break;
-      }
+        assert(found != -1);
+        debug(found);
+        
+        vis[found] = 1;
+        for (auto e:edge[found]) {
+            if (dis[e.d] > dis[found] + e.w) {
+                trans[e.d] = e.id;
+                dis[e.d] = dis[found] + e.w;
+                debug(e.d,e.w,dis[e.d]);
+                pq.emplace(dis[e.d],e.d);
+            }
+        }
     }
-  }
-
-  queue<ll,list<ll> > BFS;
-  REP (i,26) if(!in[i]) BFS.emplace(i);
-  vector<char> ans;
-
-  while (BFS.size()) {
-    ll cur = BFS.front();BFS.pop();
-    ans.pb(char(cur+'a'));
-    for (auto v:edge[cur]) {
-      if (--in[v] == 0) BFS.emplace(v);
+    for (ll i=1;i<=n;i++) {
+        if (vis[i] && trans[i] != -1) ans.eb(trans[i]);
     }
-  }
 
-  if (ans.size() == 26) {
-    for (ll i=SZ(ans)-1;i>=0;i--) {
-      cout<<ans[i];
+    cout<<ans.size()<<endl;
+    for (ll i:ans) {
+        cout<<i<<" ";
     }
     cout<<endl;
-  } else {
-    cout<<"Impossible"<<endl;
-  }
-
-
-
-
-  return 0;
+    return 0;
 }

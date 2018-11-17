@@ -53,60 +53,114 @@ template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=1e5+5;
+const ll MAXN=600;
 const ll MAXLG=__lg(MAXN)+2;
 
-ll n;
-char name[103][103];
-vector<ll> edge[30];
-ll in[30];
+ll n,m,in[MAXN],nxt[MAXN],stk[MAXN],tin[MAXN];
+bool vis1[MAXN],vis2[MAXN];
+vector<ll> edge[MAXN];
+bool acyclic (ll f,ll t) {
+    ll ptr = 0;
+    REP1 (i,n) {
+        in[i] = tin[i];
+    }
+    in[t]--;
+
+    REP1 (i,n) {
+        if (in[i] == 0) stk[ptr++] = i; 
+    }
+
+    while (ptr > 0) {
+        ll cur = stk[--ptr];
+        for (auto v:edge[cur]) {
+            if (cur!=f || v!=t) {
+                if (--in[v] == 0) {
+                    stk[ptr++] = v;
+                }
+            }
+        }
+    }
+
+    REP1 (i,n) {
+        if (in[i]) return false;
+    }
+
+    return true;
+}
+
+ll stp;
+ll dfs(ll nd) {
+    vis1[nd] = 1;
+    vis2[nd] = 1;
+    for (auto v:edge[nd]) {
+        if (vis2[v]) {
+            nxt[nd] = v;
+            return v;
+        }
+        if (vis1[v]) continue;
+        if (dfs(v) != -1) {
+            nxt[nd] = v;
+            return v;
+        }
+    }
+    vis2[nd] = 0;
+    return -1;
+}
 /********** Good Luck :) **********/
 int main()
 {
-  IOS();  
-  cin>>n;
-  REP (i,n) {
-    cin>>name[i];
-  }
+    IOS();
+    cin>>n>>m;
+    REP (i,m) {
+        ll u,v;
+        cin>>u>>v;
+        edge[u].eb(v);
+        tin[v]++;
+    }
 
-  REP1 (i,n-1) {
-    REP (j,103) {
-      if (name[i][j] != name[i-1][j]) {
-        if (name[i-1][j] == 0) break;
-        if (name[i][j] == 0) {
-          cout<<"Impossible"<<endl;
-          return 0;
+    ll ret;
+    REP1 (i,n) {
+        if(vis1[i] == 0) {
+            ret = dfs(i);
+            if (ret != -1) {
+                break;
+            } 
         }
-        edge[name[i][j]-'a'].eb(name[i-1][j]-'a');
-        in[name[i-1][j]-'a']++;
-        break;
-      }
     }
-  }
-
-  queue<ll,list<ll> > BFS;
-  REP (i,26) if(!in[i]) BFS.emplace(i);
-  vector<char> ans;
-
-  while (BFS.size()) {
-    ll cur = BFS.front();BFS.pop();
-    ans.pb(char(cur+'a'));
-    for (auto v:edge[cur]) {
-      if (--in[v] == 0) BFS.emplace(v);
+    
+    bool ans = 0;
+    if (ret == -1) {
+        ans = 1;
+    } else {
+        ll cur = ret;
+        MEM(vis1,0);
+        while(1) {
+            vis1[cur] = 1;
+            ans |= acyclic(cur,nxt[cur]);
+            if(vis1[nxt[cur]]) break;
+            cur = nxt[cur];
+        } 
     }
-  }
 
-  if (ans.size() == 26) {
-    for (ll i=SZ(ans)-1;i>=0;i--) {
-      cout<<ans[i];
+    if (ans) {
+        cout<<"YES"<<endl;
+    } else {
+        cout<<"NO"<<endl;
     }
-    cout<<endl;
-  } else {
-    cout<<"Impossible"<<endl;
-  }
 
+    
+    return 0;
 
-
-
-  return 0;
 }
+
+
+/*
+5 7
+1 2
+2 3
+3 4
+4 5
+5 3
+3 2
+2 1
+*/

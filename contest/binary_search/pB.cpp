@@ -1,19 +1,22 @@
-//{
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
-typedef double lf;
-typedef pair<ll,ll> ii;
-#define REP(i,n) for(ll i=0;i<n;i++)
-#define REP1(i,n) for(ll i=1;i<=n;i++)
-#define FILL(i,n) memset(i,n,sizeof i)
+typedef pair<ll, ll> pii;
+typedef pair<double,double> pdd;
+#define MEM(a, b) memset(a, (b), sizeof(a))
+#define SZ(i) ll(i.size())
+#define FOR(i, j, k, in) for (ll i=j ; i<k ; i+=in)
+#define RFOR(i, j, k, in) for (ll i=j ; i>=k ; i-=in)
+#define REP(i, j) FOR(i, 0, j, 1)
+#define REP1(i,j) FOR(i, 1, j+1, 1)
+#define RREP(i, j) RFOR(i, j, 0, 1)
+#define ALL(_a) _a.begin(),_a.end()
+#define mp make_pair
+#define pb push_back
+#define eb emplace_back
 #define X first
 #define Y second
-#define SZ(_a) (int)_a.size()
-#define ALL(_a) _a.begin(),_a.end()
-#define pb push_back
-#define mp make_pair
-#ifdef brian
+#ifdef tmd
 #define debug(...) do{\
     fprintf(stderr,"%s - %d (%s) = ",__PRETTY_FUNCTION__,__LINE__,#__VA_ARGS__);\
     _do(__VA_ARGS__);\
@@ -40,42 +43,32 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define debug(...)
 #define pary(...)
 #define endl '\n'
-#define IOS() ios_base::sync_with_stdio(0);cin.tie(0);
-#endif // brian
-//}
+#define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
+#endif
 
+template<class T> inline bool cmax(T &a, const T &b) { return b > a ? a = b, true : false; }
+template<class T> inline bool cmin(T &a, const T &b) { return b < a ? a = b, true : false; }
+template<class T> using MaxHeap = priority_queue<T>;
+template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
-const ll MAXn=5e5+5,MAXlg=__lg(MAXn)+2;
 const ll MOD=1000000007;
-const ll INF=ll(1e15);
+const ll INF=0x3f3f3f3f3f3f3f3f;
+const ll MAXN=1e5+5;
+const ll MAXLG=__lg(MAXN)+2;
 
+ll n,m,q,a[MAXN];
+/********** Good Luck :) **********/
+int main()
+{
+    IOS();
+    cin>>n;
+    REP (i,n) cin>>a[i];
+    sort(a,a+n);
 
-
-int main(){
-  IOS();
-  string a;
-  cin>>a;
-	
-    ll idx = INF;
-  for (ll i=0;i<SZ(a);i++) {
-      if(a[i] == '1') {
-          idx = i;
-          break;
-      }
-  }
-  if(SZ(a) - idx < 7) {
-      cout<<"no"<<endl;
-      return 0;
-  }
-
-  ll cnt = 0;
-  for (ll i=idx;i<SZ(a);i++) {
-      if(a[i]== '0') cnt++;
-  }
-
-  if (cnt >= 6) {
-      cout<<"yes"<<endl;
-  } else {
-      cout<<"no"<<endl;
-  }
+    cin>>m;
+    REP (i,m) {
+        cin>>q;
+        cout<<upper_bound(a,a+n,q)-a<<endl;
+    }
+    return 0;
 }

@@ -53,60 +53,52 @@ template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=1e5+5;
+const ll MAXN=3e5+5;
 const ll MAXLG=__lg(MAXN)+2;
-
-ll n;
-char name[103][103];
-vector<ll> edge[30];
-ll in[30];
+ll n,k;
+ll x[MAXN],y[MAXN];
 /********** Good Luck :) **********/
 int main()
 {
-  IOS();  
-  cin>>n;
-  REP (i,n) {
-    cin>>name[i];
-  }
+    IOS();
+    cin>>n>>k;
+    REP (i,n) cin>>x[i];
+    REP (i,n) cin>>y[i];
 
-  REP1 (i,n-1) {
-    REP (j,103) {
-      if (name[i][j] != name[i-1][j]) {
-        if (name[i-1][j] == 0) break;
-        if (name[i][j] == 0) {
-          cout<<"Impossible"<<endl;
-          return 0;
+    bool flag = 0;
+    ll r = 0;
+    REP (i,n) {
+        if((x[i] + r) / k > y[i]) {
+            if((x[i] + r) / k == y[i]+1 && (x[i] + r) % k == 0) {
+                r = k;
+            } else {
+                flag = 1;
+                break;
+            }
+        } else if ((x[i] + r) / k == y[i]) {
+            r = (x[i] + r) % k;
+        } else {
+            r = 0;
         }
-        edge[name[i][j]-'a'].eb(name[i-1][j]-'a');
-        in[name[i-1][j]-'a']++;
-        break;
-      }
     }
-  }
 
-  queue<ll,list<ll> > BFS;
-  REP (i,26) if(!in[i]) BFS.emplace(i);
-  vector<char> ans;
-
-  while (BFS.size()) {
-    ll cur = BFS.front();BFS.pop();
-    ans.pb(char(cur+'a'));
-    for (auto v:edge[cur]) {
-      if (--in[v] == 0) BFS.emplace(v);
+    r = 0;
+    REP (i,n) {
+       if((y[i] + r) / k > x[i]) {
+            if((y[i] + r) / k == x[i]+1 && (y[i] + r) % k == 0) {
+                r = k;
+            } else {
+                flag = 1;
+                break;
+            }
+        } else if ((y[i] + r) / k == x[i]) {
+            r = (y[i] + r) % k;
+        } else {
+            r = 0;
+        }
     }
-  }
 
-  if (ans.size() == 26) {
-    for (ll i=SZ(ans)-1;i>=0;i--) {
-      cout<<ans[i];
-    }
-    cout<<endl;
-  } else {
-    cout<<"Impossible"<<endl;
-  }
-
-
-
-
-  return 0;
+    if(flag) cout<<"NO"<<endl;
+    else cout<<"YES"<<endl;
+    return 0;
 }

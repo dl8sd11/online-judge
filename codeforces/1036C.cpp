@@ -55,42 +55,52 @@ const ll INF=0x3f3f3f3f3f3f3f3f;
 const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 ll t,l,r;
-ll ten[19];
-
-ll digicnt(ll num){
+ll dp[20][4][2];
+ll solve(ll val) {
+  if(!val)return 1;
+  MEM(dp,0);
+  string x = to_string(val);
+  // REP(i,SZ(x)) {
+  //   REP(j,4) {
+  //     debug(i,j,dp[i][0][j],dp[i][1][j]);
+  //   }
+  // }
+  // debug("------------");
+  dp[0][1][0] = 1;
+  dp[0][1][1] = x[0] - '0' - 1;
+  dp[0][0][1] = 1;
+  REP1 (i,SZ(x)-1) {
+    if(x[i]=='0') {
+      REP(j,4) dp[i][j][0] = dp[i-1][j][0];
+    } else {
+      REP1(j,3) dp[i][j][0] = dp[i-1][j-1][0];
+    }
+    REP (j,4) {
+      dp[i][j][1] += dp[i-1][j][1];
+      if (j != 0) {
+        dp[i][j][1] += dp[i-1][j-1][0] * max(0LL,x[i]-'0' - 1LL);
+        dp[i][j][1] += dp[i-1][j-1][1] * 9;
+      }
+      if(x[i]!='0')dp[i][j][1] += dp[i-1][j][0];
+    }
+  }
+  REP(i,SZ(x)) {
+    REP(j,4) {
+      debug(i,j,dp[i][j][0],dp[i][j][1]);
+    }
+  }
   ll ret = 0;
-  while(num > 0){
-    num /= 10;
-    ret++;
-  }
-  return ret;
-}
-ll getdigi(ll num,ll idx){
-  return num/ten[idx-1]%10;
-}
-ll solve(ll num,ll idx,ll z,bool lock){
-  if(idx==0){
-    if(digicnt(num) - z <= 3)return 1;
-    else return 0;
-  }
-
-  ll ret = solve(num,idx-1,z,lock)*(z==0?getdigi(num,idx)-0:9)+solve(num,idx-1,z+1);
-  debug(num,idx,z,ret);
+  REP(i,4) ret += dp[SZ(x)-1][i][0] + dp[SZ(x)-1][i][1];
   return ret;
 }
 /********** Main()  function **********/
 int main()
 {
   IOS();
-  ten[0] = 1;
-  REP1(i,18)ten[i] = ten[i-1]*10;
-  debug(solve(1000,digicnt(1000),0));
   cin>>t;
-  while(t--){
+  while (t--) {
     cin>>l>>r;
-    debug(solve(r,digicnt(r),0));
-    debug(solve(l,digicnt(l),0));
-    cout<<solve(r,digicnt(r),0)-solve(l,digicnt(l),0)<<endl;
+    cout<<solve(r) - solve(l-1)<<endl;
   }
 	return 0;
 }

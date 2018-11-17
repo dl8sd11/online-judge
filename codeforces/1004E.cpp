@@ -12,7 +12,7 @@ typedef pair<double,double> pdd;
 #define RREP(i, j) RFOR(i, j, 0, 1)
 #define ALL(_a) _a.begin(),_a.end()
 #define mp make_pair
-#define pb push_back
+#define pb push_back    
 #define eb emplace_back
 #define X first
 #define Y second
@@ -56,57 +56,41 @@ const ll INF=0x3f3f3f3f3f3f3f3f;
 const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-ll n;
-char name[103][103];
-vector<ll> edge[30];
-ll in[30];
-/********** Good Luck :) **********/
+ll n,k,sm[MAXN],dis[MAXN],ans;
+set<pii> edge[MAXN];
+/********** Main()  function **********/
 int main()
 {
-  IOS();  
-  cin>>n;
-  REP (i,n) {
-    cin>>name[i];
-  }
+    IOS();
+    cin>>n>>k;
+    REP (i,n-1) {
+        ll u,v,cost;
+        cin>>u>>v>>cost;
+        edge[u].insert({v,cost});
+        edge[v].insert({u,cost});
+    }
 
-  REP1 (i,n-1) {
-    REP (j,103) {
-      if (name[i][j] != name[i-1][j]) {
-        if (name[i-1][j] == 0) break;
-        if (name[i][j] == 0) {
-          cout<<"Impossible"<<endl;
-          return 0;
+    priority_queue<pii,vector<pii>,greater<pii> > pq;
+    REP1 (i,n) {
+        if (edge[i].size() == 1) {
+            pq.emplace((*edge[i].begin()).Y,i);
         }
-        edge[name[i][j]-'a'].eb(name[i-1][j]-'a');
-        in[name[i-1][j]-'a']++;
-        break;
-      }
     }
-  }
 
-  queue<ll,list<ll> > BFS;
-  REP (i,26) if(!in[i]) BFS.emplace(i);
-  vector<char> ans;
-
-  while (BFS.size()) {
-    ll cur = BFS.front();BFS.pop();
-    ans.pb(char(cur+'a'));
-    for (auto v:edge[cur]) {
-      if (--in[v] == 0) BFS.emplace(v);
+    REP (i,n-k) {
+        pii cur = pq.top();pq.pop();
+        debug(cur);
+        ans = max(ans,cur.X);
+        ll to = (*edge[cur.Y].begin()).X;
+        dis[to] = max(dis[to],cur.X);
+        edge[to].erase({cur.Y,(*edge[cur.Y].begin()).Y});
+        if (edge[to].size() == 1) {
+            pq.emplace(dis[to]+(*edge[to].begin()).Y,to);
+        }
+        pary(dis+1,dis+n+1);
     }
-  }
 
-  if (ans.size() == 26) {
-    for (ll i=SZ(ans)-1;i>=0;i--) {
-      cout<<ans[i];
-    }
-    cout<<endl;
-  } else {
-    cout<<"Impossible"<<endl;
-  }
-
-
-
-
-  return 0;
+    pary(dis+1,dis+n+1);
+    cout<<ans<<endl;
+	return 0;
 }

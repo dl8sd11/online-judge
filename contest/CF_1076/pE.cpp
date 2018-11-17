@@ -53,60 +53,79 @@ template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=1e5+5;
+const ll MAXN=3e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-ll n;
-char name[103][103];
-vector<ll> edge[30];
-ll in[30];
+ll n,m,ans[MAXN];
+vector<ll> edge[MAXN];
+vector<pii> q[MAXN];
+ll BIT[MAXN];
+ll dept[MAXN];
+
+ll low (ll n) {return n&(-n);}
+
+void add (ll n,ll d) {
+  for (ll i=n;i<MAXN;i+=low(i)) {
+    BIT[i] += d;
+  }
+}
+ll query (ll n) {
+  ll ret = 0;
+  for (ll i=n;i>0;i-=low(i)) {
+    ret +=BIT[i];
+  }
+  return ret;
+}
+
+void DFS(ll nd,ll par) {
+    dept[nd] = dept[par] + 1;
+
+    for (auto p:q[nd]) {
+        add(min(MAXN-1,dept[nd]+p.X),p.Y);
+    }
+
+    ans[nd] = query(MAXN-1) - query(dept[nd]-1);
+
+    for (auto e:edge[nd]) {
+        if(e!=par) {
+            DFS(e,nd);
+        }
+    }
+
+    for (auto p:q[nd]) {
+        add(min(MAXN-1,dept[nd]+p.X),-p.Y);
+    }
+}
 /********** Good Luck :) **********/
 int main()
 {
-  IOS();  
-  cin>>n;
-  REP (i,n) {
-    cin>>name[i];
-  }
-
-  REP1 (i,n-1) {
-    REP (j,103) {
-      if (name[i][j] != name[i-1][j]) {
-        if (name[i-1][j] == 0) break;
-        if (name[i][j] == 0) {
-          cout<<"Impossible"<<endl;
-          return 0;
-        }
-        edge[name[i][j]-'a'].eb(name[i-1][j]-'a');
-        in[name[i-1][j]-'a']++;
-        break;
-      }
+    IOS();
+    cin>>n;
+    REP (i,n-1) {
+        ll u,v;
+        cin>>u>>v;
+        edge[u].eb(v);
+        edge[v].eb(u);
     }
-  }
-
-  queue<ll,list<ll> > BFS;
-  REP (i,26) if(!in[i]) BFS.emplace(i);
-  vector<char> ans;
-
-  while (BFS.size()) {
-    ll cur = BFS.front();BFS.pop();
-    ans.pb(char(cur+'a'));
-    for (auto v:edge[cur]) {
-      if (--in[v] == 0) BFS.emplace(v);
+    ll qs;
+    cin>>qs;
+    REP (i,qs) {
+        ll v,d,x;
+        cin>>v>>d>>x;
+        q[v].eb(d,x);
     }
-  }
-
-  if (ans.size() == 26) {
-    for (ll i=SZ(ans)-1;i>=0;i--) {
-      cout<<ans[i];
+    DFS(1,1);
+    REP1 (i,n) {
+        cout<<ans[i]<<" \n"[i==n];
     }
-    cout<<endl;
-  } else {
-    cout<<"Impossible"<<endl;
-  }
-
-
-
-
-  return 0;
+    
+    return 0;
 }
+
+/*
+
+3 3 0
+1 2 1
+3 2 1
+1 3 3
+*/

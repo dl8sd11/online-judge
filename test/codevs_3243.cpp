@@ -56,57 +56,81 @@ const ll INF=0x3f3f3f3f3f3f3f3f;
 const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-ll n;
-char name[103][103];
-vector<ll> edge[30];
-ll in[30];
+
+ll n,m,a[MAXN],l,r;
+
+struct node {
+    node *l, *r;
+    ll data,size,pri;
+    bool tag;
+    node (ll datai) {
+        l = 0, r = 0;
+        data = datai;
+        pri = rand();
+        tag = 0;
+        size = 1;
+    }
+
+    void push() {
+        if (tag) {
+            swap(l,r);
+            l->tag ^= 1,r->tag ^= 1;
+            tag = 0;
+        }
+    }
+
+    void pull() {
+        size = 1;
+        if (l) size += l->size;
+        if (r) size += r->size;
+    }
+};
+
+ll SIZ(node *a){return a?a->size:0};
+node* merge(node *a,node *b) {
+    if (!a || !b) return a?a:b;
+    a->push();
+    b->push();
+    if (a->pri > b->pri) {
+        a->r = merge(a->r,b);
+        a->pull();
+        return a;
+    } else {
+        b->l = merge(a,b->l);
+        b->pull();
+        return b;
+    }
+}
+
+void split_by_sz(node *o,node *&a,node *&b,ll goal) {
+    if (!o) {
+        a = 0;
+        b = 0;
+        return;
+    }
+    o->push();
+    if (SIZ(o->l)+1 <= goal) {
+        a = o;
+        split_by_sz(o->l,a->r,b,goal-SIZ(o->l)-1);
+        a->pull();
+    } else {
+        b = o;
+        split_by_sz(o->r,a,b->l,goal);
+        b->pull();
+    }
+}
+
+void insert(ll data)
 /********** Good Luck :) **********/
 int main()
 {
-  IOS();  
-  cin>>n;
-  REP (i,n) {
-    cin>>name[i];
-  }
-
-  REP1 (i,n-1) {
-    REP (j,103) {
-      if (name[i][j] != name[i-1][j]) {
-        if (name[i-1][j] == 0) break;
-        if (name[i][j] == 0) {
-          cout<<"Impossible"<<endl;
-          return 0;
-        }
-        edge[name[i][j]-'a'].eb(name[i-1][j]-'a');
-        in[name[i-1][j]-'a']++;
-        break;
-      }
+    IOS();
+    cin>>n;
+    REP (i,n) cin>>a[i];
+    cin>>m;
+    REP (i,m) {
+        cin>>l>>r;
+        modi(l,r,root);
     }
-  }
-
-  queue<ll,list<ll> > BFS;
-  REP (i,26) if(!in[i]) BFS.emplace(i);
-  vector<char> ans;
-
-  while (BFS.size()) {
-    ll cur = BFS.front();BFS.pop();
-    ans.pb(char(cur+'a'));
-    for (auto v:edge[cur]) {
-      if (--in[v] == 0) BFS.emplace(v);
-    }
-  }
-
-  if (ans.size() == 26) {
-    for (ll i=SZ(ans)-1;i>=0;i--) {
-      cout<<ans[i];
-    }
-    cout<<endl;
-  } else {
-    cout<<"Impossible"<<endl;
-  }
-
-
-
-
-  return 0;
+    return 0;
 }
