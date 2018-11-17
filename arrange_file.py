@@ -26,5 +26,4 @@ for root, dirs, files in os.walk(".", topdown=False):
         for template in ['template.cpp','templatenbits.cpp','templateold.cpp']:
           if filecmp.cmp(template,path) and root != '.':
             del_file(path)
-          
-      
+            break
