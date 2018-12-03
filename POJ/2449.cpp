@@ -12,7 +12,7 @@
 #include<queue>
 #include<stack>
 using namespace std;
-typedef long long ll;
+typedef int ll;
 typedef pair<ll,ll> pii;
 #define REP(i,n) for(ll i=0;i<n;i++)
 #define REP1(i,n) for(ll i=1;i<=n;i++)
@@ -55,99 +55,96 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll MAXN=1e5+5,MAXlg=__lg(MAXN)+2;
 const ll MOD=1000000007;
-const ll INF=ll(1e18+7);
+const ll INF=0x3f3f3f3f;
+
+struct Edge {
+    ll t,w,next;
+} edge[200003];
 
 ll n,m;
-ll a[MAXN],ans[MAXN];
-vector<pair<ll,ll> > spos;
-ll bit[MAXN];
-struct QUERY {
-    ll l,r,k;
-    QUERY(){}
-    QUERY(ll l,ll r,ll k):l(l),r(r),k(k){}
-}q[MAXN];
-
-void add(ll pos,ll val) {
-    for (pos++;pos<MAXN;pos+=-pos&pos) {
-        bit[pos] += val;
-    }
+ll head[2][1024],ioi;
+void add_edge(ll f,ll t,ll w,ll r) {
+    edge[ioi].t = t;
+    edge[ioi].w = w;
+    edge[ioi].next = head[r][f];
+    head[r][f] = ioi++;
 }
 
-ll query(ll pos) {
-    ll ret = 0;
-    for (pos++;pos >= 1;pos-=-pos&pos) {
-        ret += bit[pos];
-    }
-    return ret;
-}
+bool vis[MAXN];
+ll dis[MAXN];
+void Dijkstra(ll s) {
+    priority_queue<pii,vector<pii>,greater<pii> > pq;
+    MEM(dis,INF);
+    pq.push({0,s});
+    dis[s] = 0;
 
-ll cnt(ll idx) {
-    return query(q[idx].r) - query(q[idx].l-1);
-}
-
-ll cur_pos = -1;
-void update(ll goal) {
-    while (spos[cur_pos+1].X <= goal && cur_pos<n) {
-        add(spos[++cur_pos].Y,1);
-    }
-
-    while (spos[cur_pos].X > goal && cur_pos >=0) {
-        add(spos[cur_pos--].Y,-1);
-    }
-}
-void solve(vector<ll> V,ll L,ll R) {
-    debug(V,L,R);
-    if (L == R - 1) {
-        REP (i,SZ(V)) {
-            ans[V[i]] = L;
+    REP (un,n) {
+        ll found = -1;
+        while (pq.size() && vis[found = pq.top().Y]) pq.pop();
+        if (found == -1) {
+            break;
         }
-        return;
-    }
-    ll mid = L+R>>1;
-    update(mid-1);
-    debug(mid-1);
-    vector<ll> lV,rV;
-    REP (i,SZ(V)) {
-        debug(cnt(V[i]),V[i]);
-        if (cnt(V[i]) < q[V[i]].k) {
-            rV.push_back(V[i]);
-        } else {
-            lV.push_back(V[i]);
+        vis[found] = true;
+        for (ll i=head[1][found];i!=-1;i=edge[i].next) {
+            ll cur = edge[i].t;
+            if (dis[cur] > dis[found] + edge[i].w) {
+                dis[cur] = dis[found] + edge[i].w;
+                pq.push({dis[cur],cur});
+            }
         }
     }
-    debug(lV,rV);
-    solve(lV,L,mid);
-    solve(rV,mid,R);
+}
+
+
+struct cp {
+    ll g,h,v;
+    bool operator < (const cp cp2) const{
+        return g + h > cp2.g + cp2.h;
+    }
+};
+ll AStar(ll s,ll t,ll k) {
+    // return the kth path length
+    if (s==t) k++;
+    
+    priority_queue<cp> pq;
+    pq.push({0,dis[s],s});
+    ll cnt = 0;
+    while (pq.size()) {
+        cp cur = pq.top();pq.pop();
+        debug(cur.v);
+        if (cur.v == t) {
+            if (++cnt == k) {
+                return cur.g + cur.h;
+            }
+            debug(cnt,cur.g + cur.h);
+        }
+
+        for (ll i=head[0][cur.v];i!=-1;i=edge[i].next) {
+            pq.push({cur.g + edge[i].w,dis[edge[i].t],edge[i].t});
+        }
+    }
+
+    return -1;
 }
 int main()
 {
-    ll min_num = INF;
-    ll max_num = -INF;
-    scanf("%lld%lld",&n,&m);
-    REP (i,n) {
-        scanf("%lld",a+i);
-        max_num = max(max_num,a[i]);
-        min_num = min(min_num,a[i]);
-        spos.push_back(make_pair(a[i],i));
-    }
-    sort(ALL(spos));
+    IOS();
+    scanf("%d%d",&n,&m);
 
+    MEM(head,-1);
     REP (i,m) {
-        ll l,r,k;
-        scanf("%lld%lld%lld",&l,&r,&k);
-        debug(l,r,k);
-        l--,r--;
-        q[i] = QUERY(l,r,k);
+        ll f,t,w;
+        scanf("%d%d%d",&f,&t,&w);
+        add_edge(f,t,w,0);
+        add_edge(t,f,w,1);
     }
 
-    vector<ll> V;
-    REP (i,m) {
-        V.push_back(i);
-    }
-    debug(V);
-    solve(V,min_num,max_num+1);
+    ll s,t,k;
+    scanf("%d%d%d",&s,&t,&k);
 
-    REP (i,m) {
-        printf("%d\n",ans[i]);
-    }
+    Dijkstra(t);
+    pary(dis+1,dis+n+1);
+
+    cout << AStar(s,t,k) << endl;
+    return 0;
 }
