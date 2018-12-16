@@ -1,6 +1,4 @@
 #include <bits/stdc++.h>
-#pragma GCC optimize("unroll-loops")
-#pragma GCC target("sse,sse2,sse3,ssse3,sse4,popcnt,abm,mmx,avx,tune=native")
 using namespace std;
 typedef long long ll;
 typedef pair<ll, ll> pii;
@@ -55,77 +53,83 @@ template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=700+5;
+const ll MAXN=205;
 const ll MAXLG=__lg(MAXN)+2;
 
-ll n,m,k,a,b;
-vector<pii> edge[MAXN];
-vector<pii> nedge;
 
-bool vis[MAXN];
-ll dis[MAXN][MAXN],ddis[MAXN];
-void DFS(ll nd,ll par,ll lev,ll anc) {
-    dis[nd][anc] = min(lev,dis[nd][anc]);
-    if (lev == 2) {
-        return;
-    }
-    for (auto p:edge[nd]) if (par != p.X) {
-        DFS(p.X,nd,lev+1,anc);
-    }
+int t,n,m;
+int ma[MAXN][MAXN],dis[MAXN][MAXN];
+char ch;
+pair<int,int> a,b;
+
+
+int dx[] = {-1,1,2,2,1,-1,-2,-2};
+int dy[] = {-2,-2,-1,1,2,2,1,-1};
+bool valid(int x,int y) {
+  return x >= 0 && x < n && y >= 0 && y < m;
 }
+void occ(int x,int y) {
+  if (valid(x,y)) {
+    ma[x][y] = 1;
+  }
+
+  REP (i,8) {
+    int tx = x + dx[i];
+    int ty = y + dy[i];
+    if (valid(tx,ty)) {
+      ma[tx][ty] = 1;
+    }
+  }
+}
+
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> n >> m >> k >> a >> b;
-    REP (i,m) {
-        ll u,v;
-        cin >> u >> v;
-        edge[u].eb(v,a);
-        edge[v].eb(u,a);
+    cin >> t;
+    while (t--) {
+      cin >> n >> m;
+      MEM(ma,0);
+      REP (i,n) {
+	REP (j,m) {
+	  cin >> ch;
+	  if (ch == 'Z') {
+	    occ(i,j);
+	  } else if (ch == 'A') {
+	    a = {i,j};
+	  } else if (ch == 'B') {
+	    b = {i,j};
+	  }
+	}
+      }
+
+      MEM(dis,-1);
+      queue<pair<int,int> > q;
+      q.push(a);
+      dis[a.X][a.Y] = 0;
+
+      int ddx[] = {-1,0,1,-1,1,-1,0,1};
+      int ddy[] = {-1,-1,-1,0,0,1,1,1};
+      while (q.size()) {
+	pair<int,int> cur = q.front();q.pop();
+	for (int i=0;i<8;i++) {
+	  pair<int,int> tmp = cur;
+	  tmp.X += ddx[i];
+	  tmp.Y += ddy[i];
+	  if (valid(tmp.X,tmp.Y) && dis[tmp.X][tmp.Y] == -1 && (ma[tmp.X][tmp.Y] == 0 || tmp == b)) {
+	    dis[tmp.X][tmp.Y] = dis[cur.X][cur.Y] + 1;
+	    q.push(tmp);
+	  }
+	}
+      }
+
+      if (dis[b.X][b.Y] == -1) {
+	cout << "King Peter, you can't go now!" << endl;
+      } else {
+	cout << "Minimal possible length of a trip is " << dis[b.X][b.Y] << endl;
+      }
+
     }
-
-    MEM(dis,INF);
-
-    REP1 (i,n) {
-        DFS(i,i,0,i);
-    }
-
-    REP1 (i,n) {
-        REP1 (j,i) {
-            debug(dis[i][j]);
-            if (dis[i][j] == 2) {
-                edge[i].eb(j,b);
-                edge[j].eb(i,b);
-            }
-        }
-    }
-
-    pary(edge+1,edge+n+1);
-
-    MEM(ddis,INF);
-    MEM(vis,0);
-
-    priority_queue<pii,vector<pii>,greater<pii> > pq;
-    pq.emplace(0,k);
-    ddis[k] = 0;
-
-    REP (i,n) {
-        ll found = -1;
-        while (pq.size() && vis[found=pq.top().Y]) pq.pop();
-        if (found == -1) break;
-
-        vis[found] = true;
-        for (auto p:edge[found]) {
-            if (ddis[p.X] > ddis[found] + p.Y) {
-                ddis[p.X] = ddis[found] + p.Y;
-                pq.emplace(ddis[p.X],p.X);
-            }
-        }
-    }
-
-    REP1 (i,n) {
-        cout << ddis[i] << endl;
-    }
+    
     return 0;
 }

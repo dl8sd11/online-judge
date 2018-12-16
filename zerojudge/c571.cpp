@@ -1,6 +1,4 @@
 #include <bits/stdc++.h>
-#pragma GCC optimize("unroll-loops")
-#pragma GCC target("sse,sse2,sse3,ssse3,sse4,popcnt,abm,mmx,avx,tune=native")
 using namespace std;
 typedef long long ll;
 typedef pair<ll, ll> pii;
@@ -55,77 +53,103 @@ template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=700+5;
+const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-ll n,m,k,a,b;
-vector<pii> edge[MAXN];
-vector<pii> nedge;
+ll n,ans[MAXN];
+struct POINT {
+  ll x,y,z,pid;
+}pt[MAXN];
 
-bool vis[MAXN];
-ll dis[MAXN][MAXN],ddis[MAXN];
-void DFS(ll nd,ll par,ll lev,ll anc) {
-    dis[nd][anc] = min(lev,dis[nd][anc]);
-    if (lev == 2) {
-        return;
+bool cmpX (const POINT &a,const POINT &b) {
+  return a.x > b.x;
+}
+
+ll bit[MAXN];
+void add(ll pos,ll val) {
+  for (;pos<MAXN;pos+=-pos&pos) {
+    bit[pos] += val;
+  }
+}
+
+ll sum(ll pos) {
+  ll ret = 0;
+  for (;pos>=1;pos-=-pos&pos) {
+    ret += bit[pos];
+  }
+  return ret;
+}
+
+ll bit2[MAXN];
+void add2(ll pos,ll val) {
+  for (;pos<MAXN;pos+=-pos&pos) {
+    bit2[pos] += val;
+  }
+}
+
+ll sum2(ll pos) {
+  ll ret = 0;
+  for (;pos>=1;pos-=-pos&pos) {
+    ret += bit2[pos];
+  }
+  return ret;
+}
+
+
+void solve(ll L,ll R) {
+  if (L == R - 1) {
+    return;
+  }
+  ll mid = L+R>>1;
+  solve(L,mid);
+  solve(mid,R);
+
+  vector<pii> sq;
+  for (ll i=L;i<mid;i++) sq.eb(i,0);
+  for (ll i=mid;i<R;i++) sq.eb(i,1);
+  sort(ALL(sq),[](const pii &a,const pii &b){return pii(pt[a.X].y,a.Y) > pii(pt[b.X].y,b.Y);});
+  ll ov = -INF;
+  if (pt[mid-1].x == pt[mid].x) ov = pt[mid-1].x;
+
+  for (auto p:sq) {
+    if (p.Y == 1) {
+      ans[pt[p.X].pid] += sum(MAXN-1) - sum(pt[p.X].z);
+      if (pt[p.X].x == ov) {
+        ans[pt[p.X].pid] -= (sum2(MAXN-1) - sum2(pt[p.X].z));
+      }
+    } else {
+      add(pt[p.X].z,1);
+      if (pt[p.X].x == ov) add2(pt[p.X].z,1);
     }
-    for (auto p:edge[nd]) if (par != p.X) {
-        DFS(p.X,nd,lev+1,anc);
-    }
+  }
+
+  for (ll i=L;i<mid;i++) {
+    add(pt[i].z,-1);
+    if (pt[i].x == ov) add2(pt[i].z,-1);
+  }
 }
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> n >> m >> k >> a >> b;
-    REP (i,m) {
-        ll u,v;
-        cin >> u >> v;
-        edge[u].eb(v,a);
-        edge[v].eb(u,a);
+    cin >> n;
+    REP (i,n) {
+      ll x,y,z;
+      cin >> x >> y >> z;
+      pt[i] = (POINT){x,y,z,i};
     }
 
-    MEM(dis,INF);
-
-    REP1 (i,n) {
-        DFS(i,i,0,i);
-    }
-
-    REP1 (i,n) {
-        REP1 (j,i) {
-            debug(dis[i][j]);
-            if (dis[i][j] == 2) {
-                edge[i].eb(j,b);
-                edge[j].eb(i,b);
-            }
-        }
-    }
-
-    pary(edge+1,edge+n+1);
-
-    MEM(ddis,INF);
-    MEM(vis,0);
-
-    priority_queue<pii,vector<pii>,greater<pii> > pq;
-    pq.emplace(0,k);
-    ddis[k] = 0;
+    sort(pt,pt+n,cmpX);
 
     REP (i,n) {
-        ll found = -1;
-        while (pq.size() && vis[found=pq.top().Y]) pq.pop();
-        if (found == -1) break;
+      debug(pt[i].pid);
+    }
+  
+    solve(0,n);
 
-        vis[found] = true;
-        for (auto p:edge[found]) {
-            if (ddis[p.X] > ddis[found] + p.Y) {
-                ddis[p.X] = ddis[found] + p.Y;
-                pq.emplace(ddis[p.X],p.X);
-            }
-        }
+    REP (i,n) {
+      cout << ans[i] << endl;
     }
 
-    REP1 (i,n) {
-        cout << ddis[i] << endl;
-    }
     return 0;
 }

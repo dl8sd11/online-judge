@@ -1,8 +1,6 @@
 #include <bits/stdc++.h>
-#pragma GCC optimize("unroll-loops")
-#pragma GCC target("sse,sse2,sse3,ssse3,sse4,popcnt,abm,mmx,avx,tune=native")
 using namespace std;
-typedef long long ll;
+typedef int ll;
 typedef pair<ll, ll> pii;
 typedef pair<double,double> pdd;
 #define MEM(a, b) memset(a, (b), sizeof(a))
@@ -55,77 +53,78 @@ template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=700+5;
+const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-ll n,m,k,a,b;
-vector<pii> edge[MAXN];
-vector<pii> nedge;
 
-bool vis[MAXN];
-ll dis[MAXN][MAXN],ddis[MAXN];
-void DFS(ll nd,ll par,ll lev,ll anc) {
-    dis[nd][anc] = min(lev,dis[nd][anc]);
-    if (lev == 2) {
-        return;
-    }
-    for (auto p:edge[nd]) if (par != p.X) {
-        DFS(p.X,nd,lev+1,anc);
-    }
+struct pos {
+  int x,y,z;
+}s,t;
+int l,r,c;
+char ch;
+int m[40][40][40];
+int dis[40][40][40];
+
+int dx[] = {0,-1,0,1,0,0};
+int dy[] = {0,0,-1,0,1,0};
+int dz[] = {-1,0,0,0,0,1};
+
+bool valid(pos cur) {
+  if (cur.x < 0 || cur.x >= l) return false;
+  if (cur.y < 0 || cur.y >= r) return false;
+  if (cur.z < 0 || cur.x >= c) return false;
+  return true;
 }
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> n >> m >> k >> a >> b;
-    REP (i,m) {
-        ll u,v;
-        cin >> u >> v;
-        edge[u].eb(v,a);
-        edge[v].eb(u,a);
-    }
+    while (cin >> l >> r >> c) {
+      if (l == 0 && r == 0 && c == 0 ) {
+	break;
+      }
+      MEM(m,0);
+      REP (i,l) {
+	REP (j,r) {
+	  REP (k,c) {
+	    cin >> ch;
+	    if (ch == 'S') {
+	      s = (pos){i,j,k};
+	    } else if (ch == 'E') {
+	      t = (pos){i,j,k};
+	    } else if (ch == '#') {
+	      m[i][j][k] = 1;
+	    }
+	  }
+	}
+      }
 
-    MEM(dis,INF);
+      MEM(dis,-1);
+      queue<pos> q;
+      q.push(s);
 
-    REP1 (i,n) {
-        DFS(i,i,0,i);
-    }
+      dis[s.x][s.y][s.z] = 0;
+      while (q.size()){
+	pos cur = q.front();q.pop();
+	REP (i,6) {
+	  pos tmp = cur;
+	  tmp.x += dx[i];
+	  tmp.y += dy[i];
+	  tmp.z += dz[i];
+	  if (valid(tmp) && m[tmp.x][tmp.y][tmp.z] != 1 && dis[tmp.x][tmp.y][tmp.z] == -1) {
+	    dis[tmp.x][tmp.y][tmp.z] = dis[cur.x][cur.y][cur.z] + 1;
+	    q.push(tmp);
+	  }
+	}
+      }
 
-    REP1 (i,n) {
-        REP1 (j,i) {
-            debug(dis[i][j]);
-            if (dis[i][j] == 2) {
-                edge[i].eb(j,b);
-                edge[j].eb(i,b);
-            }
-        }
-    }
+      if (dis[t.x][t.y][t.z] == -1) {
+	cout << "Trapped!" << endl;
+      } else {
+	cout << "Escaped in " << dis[t.x][t.y][t.z] << " minute(s)." << endl;
+      }
 
-    pary(edge+1,edge+n+1);
-
-    MEM(ddis,INF);
-    MEM(vis,0);
-
-    priority_queue<pii,vector<pii>,greater<pii> > pq;
-    pq.emplace(0,k);
-    ddis[k] = 0;
-
-    REP (i,n) {
-        ll found = -1;
-        while (pq.size() && vis[found=pq.top().Y]) pq.pop();
-        if (found == -1) break;
-
-        vis[found] = true;
-        for (auto p:edge[found]) {
-            if (ddis[p.X] > ddis[found] + p.Y) {
-                ddis[p.X] = ddis[found] + p.Y;
-                pq.emplace(ddis[p.X],p.X);
-            }
-        }
-    }
-
-    REP1 (i,n) {
-        cout << ddis[i] << endl;
+      
     }
     return 0;
 }

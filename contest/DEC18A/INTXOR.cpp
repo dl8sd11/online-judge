@@ -1,6 +1,4 @@
 #include <bits/stdc++.h>
-#pragma GCC optimize("unroll-loops")
-#pragma GCC target("sse,sse2,sse3,ssse3,sse4,popcnt,abm,mmx,avx,tune=native")
 using namespace std;
 typedef long long ll;
 typedef pair<ll, ll> pii;
@@ -44,7 +42,6 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #else
 #define debug(...)
 #define pary(...)
-#define endl '\n'
 #define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
 #endif
 
@@ -55,77 +52,87 @@ template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=700+5;
+const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-ll n,m,k,a,b;
-vector<pii> edge[MAXN];
-vector<pii> nedge;
+ll t,n;
+ll a[MAXN];
+bool b;
 
-bool vis[MAXN];
-ll dis[MAXN][MAXN],ddis[MAXN];
-void DFS(ll nd,ll par,ll lev,ll anc) {
-    dis[nd][anc] = min(lev,dis[nd][anc]);
-    if (lev == 2) {
-        return;
+ll pre[MAXN];
+
+ll md(ll idx,ll sz) {
+    if (idx > sz) {
+        idx -= sz;
     }
-    for (auto p:edge[nd]) if (par != p.X) {
-        DFS(p.X,nd,lev+1,anc);
+    return idx;
+}
+
+ll query(ll idx,ll l,ll sz) {
+    ll ret = 0;
+    cout << 1 << " " << idx+l-1 << " " << md(idx+1,sz)+l-1 << " " << md(idx+2,sz)+l-1 << endl;
+    cin >> ret;
+    return ret;
+}
+
+void solve(ll l,ll r,bool one) {
+    debug(l,r,one);
+    for (ll i=1;i<=r-l;i++) {
+        pre[i] = query(i,l,r-l);
+    }
+    if (one) {
+        ll tmp = 0;
+        for (ll i=1;i+3<=r-l;i+=3) {
+            tmp ^= pre[i]^pre[i+1];
+        }
+        a[l+1]  = pre[r-l]^tmp;
+        tmp = 0;
+        for (ll i=2;i+3<=r-l+1;i+=3) {
+            tmp ^= pre[i]^pre[i+1];
+        }
+        a[l+2] = pre[1]^tmp;
+        a[l] = pre[1]^a[l+1]^a[l+2];
+        for (ll i=3;i<=r-l;i++) {
+            a[l+i-1] = pre[i-2]^a[l+i-3]^a[l+i-2];
+        }
+    } else {
+        ll tmp = 0;
+        for (ll i=2;i+3<=r-l;i+=3) {
+            tmp ^= pre[i]^pre[i+1];
+        }
+        a[l]  = pre[r-l]^tmp;
+        tmp = 0;
+        for (ll i=3;i+3<=r-l+1;i+=3) {
+            tmp ^= pre[i]^pre[i+1];
+        }
+        a[l+1] = pre[1]^tmp;
+        
+        for (ll i=3;i<=r-l;i++) {
+            a[l+i-1] = pre[i-2]^a[l+i-3]^a[l+i-2];
+        }
     }
 }
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> n >> m >> k >> a >> b;
-    REP (i,m) {
-        ll u,v;
-        cin >> u >> v;
-        edge[u].eb(v,a);
-        edge[v].eb(u,a);
-    }
-
-    MEM(dis,INF);
-
-    REP1 (i,n) {
-        DFS(i,i,0,i);
-    }
-
-    REP1 (i,n) {
-        REP1 (j,i) {
-            debug(dis[i][j]);
-            if (dis[i][j] == 2) {
-                edge[i].eb(j,b);
-                edge[j].eb(i,b);
-            }
+    cin >> t;
+    while (t--) {
+        cin >> n;
+        MEM(a,-1);
+        if (n % 3 == 0) {
+            solve(1,n-3,0);
+            solve(n-3,n+1,1);
+        } else {
+            solve(1,n+1,n % 3 == 1);
         }
-    }
 
-    pary(edge+1,edge+n+1);
-
-    MEM(ddis,INF);
-    MEM(vis,0);
-
-    priority_queue<pii,vector<pii>,greater<pii> > pq;
-    pq.emplace(0,k);
-    ddis[k] = 0;
-
-    REP (i,n) {
-        ll found = -1;
-        while (pq.size() && vis[found=pq.top().Y]) pq.pop();
-        if (found == -1) break;
-
-        vis[found] = true;
-        for (auto p:edge[found]) {
-            if (ddis[p.X] > ddis[found] + p.Y) {
-                ddis[p.X] = ddis[found] + p.Y;
-                pq.emplace(ddis[p.X],p.X);
-            }
+        cout << 2;
+        REP1 (i,n) {
+            cout << " " << a[i];
         }
-    }
-
-    REP1 (i,n) {
-        cout << ddis[i] << endl;
+        cout << endl;
+        cin >> b;
     }
     return 0;
 }

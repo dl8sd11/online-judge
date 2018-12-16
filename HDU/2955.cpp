@@ -1,6 +1,4 @@
 #include <bits/stdc++.h>
-#pragma GCC optimize("unroll-loops")
-#pragma GCC target("sse,sse2,sse3,ssse3,sse4,popcnt,abm,mmx,avx,tune=native")
 using namespace std;
 typedef long long ll;
 typedef pair<ll, ll> pii;
@@ -55,77 +53,47 @@ template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=700+5;
+const ll MAXN=1e2+3;
 const ll MAXLG=__lg(MAXN)+2;
+const double EPS = 1e-7;
 
-ll n,m,k,a,b;
-vector<pii> edge[MAXN];
-vector<pii> nedge;
-
-bool vis[MAXN];
-ll dis[MAXN][MAXN],ddis[MAXN];
-void DFS(ll nd,ll par,ll lev,ll anc) {
-    dis[nd][anc] = min(lev,dis[nd][anc]);
-    if (lev == 2) {
-        return;
-    }
-    for (auto p:edge[nd]) if (par != p.X) {
-        DFS(p.X,nd,lev+1,anc);
-    }
-}
+ll t;
+double p,pe[MAXN];
+ll n,m[MAXN];
+double dp[10003];
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> n >> m >> k >> a >> b;
-    REP (i,m) {
-        ll u,v;
-        cin >> u >> v;
-        edge[u].eb(v,a);
-        edge[v].eb(u,a);
-    }
+    cin >> t;
+    while (t--) {
+      cin >> p >> n;
+      p = 1 - p;
+      REP (i,n) {
+	cin >>  m[i] >> pe[i];
+	pe[i] = 1 - pe[i];
+      }
 
-    MEM(dis,INF);
+      REP (i,10003) {
+	dp[i] = 0;
+      }
 
-    REP1 (i,n) {
-        DFS(i,i,0,i);
-    }
+      dp[0] = 1;
+      ll ans = 0;
 
-    REP1 (i,n) {
-        REP1 (j,i) {
-            debug(dis[i][j]);
-            if (dis[i][j] == 2) {
-                edge[i].eb(j,b);
-                edge[j].eb(i,b);
-            }
-        }
-    }
+      for (ll j=0;j<n;j++) {
+	for (ll i=10002;i>=0;i--) {
+	  if (i >= m[j]) {
+	    dp[i] = max(dp[i],dp[i-m[j]]*pe[j]);
+	  }
+	  
+	  if (dp[i] >= p) {
+	    ans = max(ans,i);
+	  }
+	}
+      }
 
-    pary(edge+1,edge+n+1);
-
-    MEM(ddis,INF);
-    MEM(vis,0);
-
-    priority_queue<pii,vector<pii>,greater<pii> > pq;
-    pq.emplace(0,k);
-    ddis[k] = 0;
-
-    REP (i,n) {
-        ll found = -1;
-        while (pq.size() && vis[found=pq.top().Y]) pq.pop();
-        if (found == -1) break;
-
-        vis[found] = true;
-        for (auto p:edge[found]) {
-            if (ddis[p.X] > ddis[found] + p.Y) {
-                ddis[p.X] = ddis[found] + p.Y;
-                pq.emplace(ddis[p.X],p.X);
-            }
-        }
-    }
-
-    REP1 (i,n) {
-        cout << ddis[i] << endl;
+      cout << ans << endl;
     }
     return 0;
 }

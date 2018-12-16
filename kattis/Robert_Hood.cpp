@@ -1,6 +1,4 @@
 #include <bits/stdc++.h>
-#pragma GCC optimize("unroll-loops")
-#pragma GCC target("sse,sse2,sse3,ssse3,sse4,popcnt,abm,mmx,avx,tune=native")
 using namespace std;
 typedef long long ll;
 typedef pair<ll, ll> pii;
@@ -55,77 +53,76 @@ template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=700+5;
+const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-ll n,m,k,a,b;
-vector<pii> edge[MAXN];
-vector<pii> nedge;
 
-bool vis[MAXN];
-ll dis[MAXN][MAXN],ddis[MAXN];
-void DFS(ll nd,ll par,ll lev,ll anc) {
-    dis[nd][anc] = min(lev,dis[nd][anc]);
-    if (lev == 2) {
-        return;
+ll n;
+pii p[MAXN];
+vector<pii> hull;
+pii sub(pii a,pii b) {
+    return {a.X-b.X,a.Y-b.Y};  
+}
+ll cross(pii a,pii b) {
+    return a.X*b.Y - a.Y*b.X;
+}
+void convex_hull() {
+    sort(p,p+n);
+    ll cnt = 0;
+    REP (i,n) {
+        while (SZ(hull) > 1 && cross(sub(hull[cnt-1],hull[cnt-2]),sub(p[i],hull[cnt-1])) >= 0) {
+            hull.pop_back();
+            cnt--;
+        }
+        hull.push_back(p[i]);
+        cnt++;
     }
-    for (auto p:edge[nd]) if (par != p.X) {
-        DFS(p.X,nd,lev+1,anc);
+
+    ll lh = cnt;
+    for (ll i=n-2;i>=0;i--) {
+        while (SZ(hull) > lh && cross(sub(hull[cnt-1],hull[cnt-2]),sub(p[i],hull[cnt-1])) >= 0) {
+            hull.pop_back();
+            cnt--;
+        }
+        hull.push_back(p[i]);
+        cnt++;
     }
+
+}
+
+double dis(pii a,pii b) {
+    return sqrt((a.X-b.X)*(a.X-b.X)+(a.Y-b.Y)*(a.Y-b.Y));
+}
+double longest_distance() {
+    ll anti = 1;
+    double ans = 0.0;
+    ll m = SZ(hull)-1;
+
+    REP (i,m) {
+        pii cur = sub(hull[i+1],hull[i]);
+        while (cross(cur,sub(hull[anti],hull[i])) > cross(cur,sub(hull[anti+1],hull[i]))) {
+            anti++;
+            if (anti >= m) {
+                anti -= m;
+            }
+        }
+        debug(i,anti);
+        ans = max(ans,max(dis(hull[anti],hull[i]),dis(hull[anti],hull[i+1])));
+    }
+    return ans;
 }
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> n >> m >> k >> a >> b;
-    REP (i,m) {
-        ll u,v;
-        cin >> u >> v;
-        edge[u].eb(v,a);
-        edge[v].eb(u,a);
-    }
-
-    MEM(dis,INF);
-
-    REP1 (i,n) {
-        DFS(i,i,0,i);
-    }
-
-    REP1 (i,n) {
-        REP1 (j,i) {
-            debug(dis[i][j]);
-            if (dis[i][j] == 2) {
-                edge[i].eb(j,b);
-                edge[j].eb(i,b);
-            }
-        }
-    }
-
-    pary(edge+1,edge+n+1);
-
-    MEM(ddis,INF);
-    MEM(vis,0);
-
-    priority_queue<pii,vector<pii>,greater<pii> > pq;
-    pq.emplace(0,k);
-    ddis[k] = 0;
-
+    cin >> n;
     REP (i,n) {
-        ll found = -1;
-        while (pq.size() && vis[found=pq.top().Y]) pq.pop();
-        if (found == -1) break;
-
-        vis[found] = true;
-        for (auto p:edge[found]) {
-            if (ddis[p.X] > ddis[found] + p.Y) {
-                ddis[p.X] = ddis[found] + p.Y;
-                pq.emplace(ddis[p.X],p.X);
-            }
-        }
+        cin >> p[i].X >> p[i].Y;
     }
 
-    REP1 (i,n) {
-        cout << ddis[i] << endl;
-    }
+    convex_hull();
+    debug(hull);
+    cout << fixed << setprecision(10) << longest_distance() << endl;
+
     return 0;
 }

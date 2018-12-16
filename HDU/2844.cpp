@@ -1,8 +1,6 @@
 #include <bits/stdc++.h>
-#pragma GCC optimize("unroll-loops")
-#pragma GCC target("sse,sse2,sse3,ssse3,sse4,popcnt,abm,mmx,avx,tune=native")
 using namespace std;
-typedef long long ll;
+typedef int ll;
 typedef pair<ll, ll> pii;
 typedef pair<double,double> pdd;
 #define MEM(a, b) memset(a, (b), sizeof(a))
@@ -55,77 +53,70 @@ template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=700+5;
+const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-ll n,m,k,a,b;
-vector<pii> edge[MAXN];
-vector<pii> nedge;
 
-bool vis[MAXN];
-ll dis[MAXN][MAXN],ddis[MAXN];
-void DFS(ll nd,ll par,ll lev,ll anc) {
-    dis[nd][anc] = min(lev,dis[nd][anc]);
-    if (lev == 2) {
-        return;
-    }
-    for (auto p:edge[nd]) if (par != p.X) {
-        DFS(p.X,nd,lev+1,anc);
-    }
-}
+ll n,m;
+ll v[103],c[103];
+deque<ll> deq[MAXN];
+bool dp[2][MAXN];
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> n >> m >> k >> a >> b;
-    REP (i,m) {
-        ll u,v;
-        cin >> u >> v;
-        edge[u].eb(v,a);
-        edge[v].eb(u,a);
-    }
+    while (cin >> n >> m) {
+      if (!n && !m) {
+	break;
+      }
+      REP (i,n) {
+	cin >> v[i];
+      }
 
-    MEM(dis,INF);
+      REP (i,n) {
+	cin >> c[i];
+      }
 
-    REP1 (i,n) {
-        DFS(i,i,0,i);
-    }
+      bool *pre = dp[0];
+      bool *cur = dp[1];
+      
+      MEM(dp,0);
+      REP (i,MAXN) {
+	if (i%v[0] == 0 && i/v[0] <= c[0]) {
+	  cur[i] = true;
+	}
+      }
 
-    REP1 (i,n) {
-        REP1 (j,i) {
-            debug(dis[i][j]);
-            if (dis[i][j] == 2) {
-                edge[i].eb(j,b);
-                edge[j].eb(i,b);
-            }
-        }
-    }
+  
+      REP1 (i,n-1) {
+	swap(pre,cur);
+	
+	for (ll j=0;j<=m;j++) {
+	  ll ddx = j % v[i];
+	  if (pre[j]) {
+	    deq[ddx].push_back(j);
+	    debug(j);
+	  }
+	  while (deq[ddx].size() && deq[ddx].front() + v[i]*c[i] < j) {
+	    deq[ddx].pop_front();
+	  }
+	  
+	  if (deq[ddx].size()) {
+	    debug(i,j);
+	    cur[j] = true;
+	  }
+	}
+	REP (j,v[i]) {
+	  deq[j].clear();
+	}
+      }
 
-    pary(edge+1,edge+n+1);
+      ll ans = 0;
+      for (ll i=1;i<=m;i++) {
+	ans += cur[i];
+      }
 
-    MEM(ddis,INF);
-    MEM(vis,0);
-
-    priority_queue<pii,vector<pii>,greater<pii> > pq;
-    pq.emplace(0,k);
-    ddis[k] = 0;
-
-    REP (i,n) {
-        ll found = -1;
-        while (pq.size() && vis[found=pq.top().Y]) pq.pop();
-        if (found == -1) break;
-
-        vis[found] = true;
-        for (auto p:edge[found]) {
-            if (ddis[p.X] > ddis[found] + p.Y) {
-                ddis[p.X] = ddis[found] + p.Y;
-                pq.emplace(ddis[p.X],p.X);
-            }
-        }
-    }
-
-    REP1 (i,n) {
-        cout << ddis[i] << endl;
+      cout << ans << endl;
     }
     return 0;
 }

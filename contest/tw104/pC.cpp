@@ -1,6 +1,4 @@
 #include <bits/stdc++.h>
-#pragma GCC optimize("unroll-loops")
-#pragma GCC target("sse,sse2,sse3,ssse3,sse4,popcnt,abm,mmx,avx,tune=native")
 using namespace std;
 typedef long long ll;
 typedef pair<ll, ll> pii;
@@ -55,77 +53,66 @@ template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=700+5;
+const ll MAXN=5003;
 const ll MAXLG=__lg(MAXN)+2;
 
-ll n,m,k,a,b;
-vector<pii> edge[MAXN];
-vector<pii> nedge;
+ll mx[MAXN][MAXLG];
+ll t,n;
+ll a[MAXN];
+ll idx[MAXN];
+ll mn[MAXN][MAXLG];
 
-bool vis[MAXN];
-ll dis[MAXN][MAXN],ddis[MAXN];
-void DFS(ll nd,ll par,ll lev,ll anc) {
-    dis[nd][anc] = min(lev,dis[nd][anc]);
-    if (lev == 2) {
-        return;
+void build() {
+    REP (i,n) {
+        mx[i][0] = idx[i];
+        mn[i][0] = idx[i];
     }
-    for (auto p:edge[nd]) if (par != p.X) {
-        DFS(p.X,nd,lev+1,anc);
+    for (ll i=1;i<MAXLG;i++) {
+        for (ll l=0;l+(1<<i)<=n;l++) {
+            mx[l][i] = max(mx[l][i-1],mx[l+(1<<i-1)][i-1]);
+            mn[l][i] = min(mn[l][i-1],mn[l+(1<<i-1)][i-1]);
+        }
     }
 }
+
+ll query(ll l,ll r,bool big) {
+    ll e = __lg(r-l+1);
+    if (big) {
+        return max(mx[l][e],mx[r-(1<<e)+1][e]);
+    } else {
+        return min(mn[l][e],mn[r-(1<<e)+1][e]);
+    }
+}
+
+
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> n >> m >> k >> a >> b;
-    REP (i,m) {
-        ll u,v;
-        cin >> u >> v;
-        edge[u].eb(v,a);
-        edge[v].eb(u,a);
-    }
-
-    MEM(dis,INF);
-
-    REP1 (i,n) {
-        DFS(i,i,0,i);
-    }
-
-    REP1 (i,n) {
-        REP1 (j,i) {
-            debug(dis[i][j]);
-            if (dis[i][j] == 2) {
-                edge[i].eb(j,b);
-                edge[j].eb(i,b);
-            }
+    cin >> t;
+    while (t--) {
+        cin >> n;
+        REP (i,n) {
+            cin >> a[i];
+            idx[--a[i]] = i;
         }
-    }
 
-    pary(edge+1,edge+n+1);
+        build();
+        
+        ll ans = 0;
+        REP (r,n) {
+            REP (l,r) {
+                ll L = min(a[l],a[r]);
+                ll R = max(a[l],a[r]);
 
-    MEM(ddis,INF);
-    MEM(vis,0);
-
-    priority_queue<pii,vector<pii>,greater<pii> > pq;
-    pq.emplace(0,k);
-    ddis[k] = 0;
-
-    REP (i,n) {
-        ll found = -1;
-        while (pq.size() && vis[found=pq.top().Y]) pq.pop();
-        if (found == -1) break;
-
-        vis[found] = true;
-        for (auto p:edge[found]) {
-            if (ddis[p.X] > ddis[found] + p.Y) {
-                ddis[p.X] = ddis[found] + p.Y;
-                pq.emplace(ddis[p.X],p.X);
+                if (r==query(L,R,1) && l==query(L,R,0) && R-L == r-l) {
+                    ans++;
+                    debug(l,r);
+                }
             }
-        }
-    }
+        } 
 
-    REP1 (i,n) {
-        cout << ddis[i] << endl;
+        cout << ans << endl;
     }
     return 0;
 }

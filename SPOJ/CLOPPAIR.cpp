@@ -1,6 +1,4 @@
 #include <bits/stdc++.h>
-#pragma GCC optimize("unroll-loops")
-#pragma GCC target("sse,sse2,sse3,ssse3,sse4,popcnt,abm,mmx,avx,tune=native")
 using namespace std;
 typedef long long ll;
 typedef pair<ll, ll> pii;
@@ -18,6 +16,7 @@ typedef pair<double,double> pdd;
 #define eb emplace_back
 #define X first
 #define Y second
+#define SQ(i) (i)*(i)
 #ifdef tmd
 #define debug(...) do{\
     fprintf(stderr,"%s - %d (%s) = ",__PRETTY_FUNCTION__,__LINE__,#__VA_ARGS__);\
@@ -55,77 +54,75 @@ template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=700+5;
+const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-ll n,m,k,a,b;
-vector<pii> edge[MAXN];
-vector<pii> nedge;
+struct point{
+    ll X,Y,id;
+};
+point p[MAXN],t[MAXN];
+ll n;
+struct ans {
+    ll dis,i,j;
+};
 
-bool vis[MAXN];
-ll dis[MAXN][MAXN],ddis[MAXN];
-void DFS(ll nd,ll par,ll lev,ll anc) {
-    dis[nd][anc] = min(lev,dis[nd][anc]);
-    if (lev == 2) {
-        return;
+ans solve(ll L,ll R) {
+    if (L >= R - 1) {
+        return {INF,-1,-1};
     }
-    for (auto p:edge[nd]) if (par != p.X) {
-        DFS(p.X,nd,lev+1,anc);
+    ll mid = L+R>>1;
+
+    ans ret = {INF,-1,-1};
+
+    ans la = solve(L,mid),ra = solve(mid,R);
+    if (la.dis < ret.dis) {
+        ret = la;
     }
+    if (ra.dis < ret.dis) {
+        ret = ra;
+    }
+
+    ll cnt = 0;
+    for (ll i=mid-1;i>=L&&p[mid].X-p[i].X<ret.dis;i--) {
+        t[cnt++] = p[i];
+    }
+
+    for (ll i=mid;i<R&&p[i].X-p[mid].X<ret.dis;i++) {
+        t[cnt++] = p[i];
+    }
+
+    sort(t,t+cnt,[](const point &a,const point &b){return a.Y < b.Y;});
+
+    debug(cnt);
+    REP (i,cnt) {
+        REP1 (j,3) {
+            if (i + j >= cnt) {
+                break;
+            }
+            ll sqd = SQ(t[i].X-t[i+j].X)+SQ(t[i].Y-t[i+j].Y);
+            if (sqd < ret.dis) {
+                ret = {sqd,t[i].id,t[i+j].id};
+            }
+        }
+    }
+    
+    return ret;
 }
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> n >> m >> k >> a >> b;
-    REP (i,m) {
-        ll u,v;
-        cin >> u >> v;
-        edge[u].eb(v,a);
-        edge[v].eb(u,a);
-    }
-
-    MEM(dis,INF);
-
-    REP1 (i,n) {
-        DFS(i,i,0,i);
-    }
-
-    REP1 (i,n) {
-        REP1 (j,i) {
-            debug(dis[i][j]);
-            if (dis[i][j] == 2) {
-                edge[i].eb(j,b);
-                edge[j].eb(i,b);
-            }
-        }
-    }
-
-    pary(edge+1,edge+n+1);
-
-    MEM(ddis,INF);
-    MEM(vis,0);
-
-    priority_queue<pii,vector<pii>,greater<pii> > pq;
-    pq.emplace(0,k);
-    ddis[k] = 0;
-
+    cin >> n;
     REP (i,n) {
-        ll found = -1;
-        while (pq.size() && vis[found=pq.top().Y]) pq.pop();
-        if (found == -1) break;
-
-        vis[found] = true;
-        for (auto p:edge[found]) {
-            if (ddis[p.X] > ddis[found] + p.Y) {
-                ddis[p.X] = ddis[found] + p.Y;
-                pq.emplace(ddis[p.X],p.X);
-            }
-        }
+        p[i].id = i;
+        cin >> p[i].X >> p[i].Y;
     }
 
-    REP1 (i,n) {
-        cout << ddis[i] << endl;
-    }
+    sort(p,p+n,[](const point &a,const point &b){return a.X < b.X;});
+
+    ans ret = solve(0,n);
+    
+    cout << min(ret.i,ret.j) << " " << max(ret.i,ret.j) << " " << fixed << setprecision(6) << sqrt(ret.dis) << endl;
+
     return 0;
 }

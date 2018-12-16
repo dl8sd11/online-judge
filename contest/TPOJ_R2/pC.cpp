@@ -1,6 +1,4 @@
 #include <bits/stdc++.h>
-#pragma GCC optimize("unroll-loops")
-#pragma GCC target("sse,sse2,sse3,ssse3,sse4,popcnt,abm,mmx,avx,tune=native")
 using namespace std;
 typedef long long ll;
 typedef pair<ll, ll> pii;
@@ -55,77 +53,78 @@ template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=700+5;
+const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-ll n,m,k,a,b;
-vector<pii> edge[MAXN];
-vector<pii> nedge;
 
-bool vis[MAXN];
-ll dis[MAXN][MAXN],ddis[MAXN];
-void DFS(ll nd,ll par,ll lev,ll anc) {
-    dis[nd][anc] = min(lev,dis[nd][anc]);
-    if (lev == 2) {
-        return;
-    }
-    for (auto p:edge[nd]) if (par != p.X) {
-        DFS(p.X,nd,lev+1,anc);
-    }
-}
+ll t,a,b;
+vector<int> cur[10][100];
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> n >> m >> k >> a >> b;
-    REP (i,m) {
-        ll u,v;
-        cin >> u >> v;
-        edge[u].eb(v,a);
-        edge[v].eb(u,a);
-    }
 
-    MEM(dis,INF);
-
-    REP1 (i,n) {
-        DFS(i,i,0,i);
-    }
-
-    REP1 (i,n) {
-        REP1 (j,i) {
-            debug(dis[i][j]);
-            if (dis[i][j] == 2) {
-                edge[i].eb(j,b);
-                edge[j].eb(i,b);
+    REP (ba,10) {
+        if (ba!=1 && (ba&1))continue;
+        cur[ba][0].eb(ba);
+        REP1 (i,100) {
+            REP (j,SZ(cur[ba][i-1])) {
+                int tmp = cur[ba][i-1][j] * 2;
+                while (tmp) {
+                    cur[ba][i].eb(tmp%10);
+                    tmp/=10;
+                }
+            }
+            if(SZ(cur[ba][i]) > 1500000) {
+                debug(ba,i);
+                break;
             }
         }
     }
 
-    pary(edge+1,edge+n+1);
-
-    MEM(ddis,INF);
-    MEM(vis,0);
-
-    priority_queue<pii,vector<pii>,greater<pii> > pq;
-    pq.emplace(0,k);
-    ddis[k] = 0;
-
-    REP (i,n) {
-        ll found = -1;
-        while (pq.size() && vis[found=pq.top().Y]) pq.pop();
-        if (found == -1) break;
-
-        vis[found] = true;
-        for (auto p:edge[found]) {
-            if (ddis[p.X] > ddis[found] + p.Y) {
-                ddis[p.X] = ddis[found] + p.Y;
-                pq.emplace(ddis[p.X],p.X);
+    // ll sum = 0;
+    // for (ll i=0;i<SZ(cur[1][58]);i++) {
+    //     sum += SZ(cur[cur[1][58][i]][52]);
+    // }
+    // debug(sum);
+    
+    const ll ub = 58;
+    cin >> t;
+    while (t--) {
+        cin >> a >> b;
+        if (a <= ub) {
+            if (SZ(cur[1][a]) >= b) {
+                cout << cur[1][a][SZ(cur[1][a])-b] << endl;
+            } else {
+                cout << -1 << endl;
             }
+        } else if (a <= 113) {
+            bool flag = true;
+            for (ll i=SZ(cur[1][ub])-1;i>=0;i--) {
+                if (SZ(cur[cur[1][ub][i]][a-ub]) >= b) {
+                    cout << cur[cur[1][ub][i]][a-ub][SZ(cur[cur[1][ub][i]][a-ub])-b] << endl;
+                    flag = false;
+                    break;
+                }
+                b -= SZ(cur[cur[1][ub][i]][a-ub]);
+            }
+            if (flag) {
+                cout << -1 << endl;
+            }
+        } else {
+            a = 110 + (b%4);
+            debug(b);
+            bool flag = true;
+            for (ll i=SZ(cur[1][ub])-1;i>=0;i--) {
+                if (SZ(cur[cur[1][ub][i]][a-ub]) >= b) {
+                    cout << cur[cur[1][ub][i]][a-ub][SZ(cur[cur[1][ub][i]][a-ub])-b] << endl;
+                    flag = false;
+                    break;
+                }
+                b -= SZ(cur[cur[1][ub][i]][a-ub]);
+            }
+            assert(!flag);
         }
-    }
-
-    REP1 (i,n) {
-        cout << ddis[i] << endl;
     }
     return 0;
 }
