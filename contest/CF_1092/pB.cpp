@@ -53,37 +53,26 @@ template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=1e6+5;
+const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
-ll n,q,c,ia,ib;
 
-ll bit[MAXN];
-void add (ll pos,ll val) {
-    for(;pos<=n;pos+=-pos&pos) {
-        bit[pos] += val;
-    }
-}
-
-ll query(ll pos) {
-    ll ret = 0;
-    for (;pos>=1;pos-=pos&-pos) {
-        ret += bit[pos];
-    }
-    return ret;
-}
+ll n;
+ll a[MAXN];
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin>>n>>q;
-    REP1(i,n) cin>>ia,add(i,ia);
-    while (q--) {
-        cin>>c>>ia>>ib;
-        if(c) {
-            cout<< query(ib) - query(ia - 1)<<endl;
-        } else {
-            add(ia,ib);
-        }
+    cin >> n;
+    REP (i,n) {
+        cin >> a[i];
     }
+
+    sort(a,a+n);
+    ll ans = 0;
+    REP (i,n/2) {
+        ans += a[(i<<1)+1] - a[i<<1];
+    }
+
+    cout << ans << endl;
     return 0;
 }

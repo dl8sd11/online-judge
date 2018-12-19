@@ -53,46 +53,84 @@ template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=3e5+5;
+const ll MAXN=2e5+5;
 const ll MAXLG=__lg(MAXN)+2;
-ll n,m,il,ir;
-char cmd;
 
-ll seg[MAXN*2];
-void build() {
-    for (ll i=n-1;i>0;i--) {
-        seg[i] = min(seg[i<<1],seg[i<<1|1]);
+
+ll n;
+ll a;
+ll h[MAXN];
+bool vis[MAXN];
+
+ll djs[MAXN],sz[MAXN];
+void init() {
+    for(int i=0;i<MAXN;i++) {
+        djs[i] = i;
+        sz[i] = 1;
     }
 }
 
-void modi(ll pos,ll val) {
-    for (seg[pos+=n]=val;pos>1;pos>>=1) {
-        seg[pos>>1] = min(seg[pos],seg[pos^1]);
-    }
+ll fnd(ll x) {
+    return djs[x] == x ? x : djs[x] = fnd(djs[x]);
 }
 
-ll query(ll l,ll r) {
-    ll ret = INF;
-    for (l+=n,r+=n;l<r;l>>=1,r>>=1) {
-        if (l&1) ret = min(ret,seg[l++]);
-        if (r&1) ret = min(ret,seg[--r]);
-    }
-    return ret;
+void uni(ll x,ll y) {
+    if(sz[x=fnd(x)] < sz[y=fnd(y)])swap(x,y);
+    djs[y] = x;
+    sz[x] += sz[y];
 }
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin>>n>>m;
-    REP(i,n)cin>>seg[i+n];
-    build();
-    REP (i,m) {
-        cin>>cmd>>il>>ir;
-        if (cmd == 'M') {
-            modi(il,ir);
-        } else {
-            cout<<query(il,ir)<<endl;
+    cin >> n;
+    priority_queue<pii,vector<pii>,greater<pii> > pq;
+    vector<ll> hei;
+    REP (i,n) {
+        cin >> h[i];
+        pq.emplace(h[i],i);
+        hei.emplace_back(h[i]);
+    }
+
+    sort(ALL(hei));
+    hei.resize(unique(ALL(hei))-hei.begin());
+
+    init();
+
+    REP (i,SZ(hei)-1) {
+        vector<ll> us;
+        while (pq.top().X == hei[i]) {
+            us.emplace_back(pq.top().Y);
+            pq.pop();
+        }
+        
+        for (auto v:us) {
+            vis[v] = true;
+        }
+
+        for (auto v:us) {
+            if (v > 0 && vis[v-1]) {
+                if (fnd(v-1) != fnd(v)) {
+                    uni(v,v-1);
+                }
+            }
+            if (v < n-1 && vis[v+1]) {
+                if (fnd(v) != fnd(v+1)) {
+                    uni(v,v+1);
+                }
+            }
+        }
+
+        for (auto v:us) {
+            if (sz[fnd(v)] & 1) {
+                debug(us);
+                cout << "NO" << endl;
+                return 0;
+            }
         }
     }
+
+    cout << "YES" << endl;
+
     return 0;
 }

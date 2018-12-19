@@ -51,54 +51,28 @@ template<class T> inline bool cmin(T &a, const T &b) { return b < a ? a = b, tru
 template<class T> using MaxHeap = priority_queue<T>;
 template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
-const ll MOD=1000000007;
+const ll MOD=1000000009;
 const ll INF=0x3f3f3f3f3f3f3f3f;
 const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-ll randd() {
-    return rand() * (1<<15) + rand();
-}
-struct node {
-    node *lc,*rc;
-    ll data,pri,size;
-    bool tag;
-    node (node *lc,node *rc,ll data):lc(lc),rc(rc),data(data) {
-        pri = randd();
-        return;
-    }
 
-    void push() {
-        if (tag) {
-            if (lc) {
-                lc->tag ^= 1;
-            }
-            if (rc) {
-                rc->tag ^= 1;
-            }
-            swap(lc,rc);
-            tag = 0;
-        }
-    }
-
-    void pull() {
-        size = 1;
-        if (lc) {
-            size += lc->size;
-        }
-        if (rc) {
-            size += rc->size;
-        }
-    }
-};
-
-ll SIZ(node *a) {
-    return a?a->size:0;
-}
+ll t,n,dp[MAXN][2];
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
+    cin >> t;
 
+    dp[0][0] = 1;
+    dp[0][1] = 1;
+    REP1 (i,100) {
+        dp[i][0] = (dp[i-1][1] * 2 + dp[i-1][0]) % MOD;
+        dp[i][1] = (dp[i-1][1] * 3 + dp[i-1][0]) % MOD;
+    }
+    while (t--) {
+        cin >> n;
+        cout << dp[n-1][1] <<endl;
+    }
     return 0;
 }

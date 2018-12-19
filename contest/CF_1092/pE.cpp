@@ -56,66 +56,113 @@ const ll INF=0x3f3f3f3f3f3f3f3f;
 const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-#define SQ(i) ((i)*(i))
-ll n,t;
-pdd pos[300];
-struct E{
-    ll f,t;
-    double sqlen;
-    bool operator < (const E &cp) {
-        return sqlen < cp.sqlen;
+ll t,n,m;
+bool vis[MAXN];
+vector<ll> edge[MAXN];
+vector<pii> r;
+
+ll h[MAXN],f[MAXN],s[MAXN];
+ll R,RR;
+ll cen;
+
+void DFS1(ll nd,ll par) {
+    vis[nd] = true;
+    f[nd] = -1;
+    s[nd] = -1;
+    h[nd] = 0;
+    for (auto v:edge[nd]) if (v != par) {
+        DFS1(v,nd);
+        h[nd] = max(h[nd],h[v]+1);
+        if (h[v]+1 > f[nd]) {
+            s[nd] = f[nd];
+            f[nd] = h[v]+1;
+        } else if (h[v]+1 > s[nd]) {
+            s[nd] = h[v]+1;
+        }
     }
-};
+}
 
-ll djs[MAXN],sz[MAXN];
-void init() {
-    for(int i=0;i<MAXN;i++) {
-        djs[i] = i;
-        sz[i] = 1;
+void DFS2(ll nd,ll par,ll d) {
+    debug(nd,f[nd],s[nd],h[nd]);
+    for (auto v:edge[nd]) if (v != par) {
+        ll sc = (h[v]+1==f[nd]?s[nd]:f[nd]);
+        DFS2(v,nd,max(sc,d)+1);
     }
-}
 
-ll fnd(ll x) {
-    return djs[x] == x ? x : djs[x] = fnd(djs[x]);
-}
+    ll R2 = f[nd] + max(s[nd],d);
+    R2 = max(R2,0LL);
+    debug(nd,d,R2);
+    if (R2 == RR) {
+        if (max(d,f[nd]) < R) {
+            R = max(d,f[nd]);
+            cen = nd;
+        }
+    } else if (R2 > RR){
+        RR = R2;
+        cen = nd;
+        R = max(d,f[nd]);
+    }
+    
 
-void uni(ll x,ll y) {
-    if(sz[x=fnd(x)] < sz[y=fnd(y)])swap(x,y);
-    djs[y] = x;
-    sz[x] += sz[y];
 }
-
-vector<E> edge;
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin>>t;
-    while(t--){
-        cin>>n;
-        edge.clear();
-        REP(i,n) cin>>pos[i].X>>pos[i].Y;
-        REP (i,n) {
-            REP (j,i) {
-                edge.pb({i,j,SQ(pos[i].X-pos[j].X)+SQ(pos[i].Y-pos[j].Y)});
-            }
+
+    cin >> n >> m;
+    REP (i,m) {
+        ll u,v;
+        cin >> u >> v;
+        edge[u].eb(v);
+        edge[v].eb(u);
+    }
+    REP1 (i,n) {
+        if (!vis[i]) {
+            R = -1;
+            RR = -1;
+            cen = -1;
+            DFS1(i,i);
+            DFS2(i,i,0);
+            debug(RR);
+            r.eb(R,cen);
         }
+    }
 
-        sort(ALL(edge));
-        init();
+    debug(r);
 
-        double ans = 0;
-        for (E e:edge) {
-            if (fnd(e.f) != fnd(e.t)) {
-                ans += sqrt(e.sqlen);
-                uni(e.f,e.t);
-            }
-        }
+    sort(ALL(r));
+    vector<pii> G;
 
-        cout<<fixed<<setprecision(2)<<ans<<endl;
-        if(t)cout<<endl;
+    REP (i,SZ(r)-1) {
+        edge[r[i].Y].eb(r.back().Y);
+        edge[r.back().Y].eb(r[i].Y);
+        G.eb(r[i].Y,r.back().Y);
+    }
 
+    RR = -1;
+    R = -1;
+    cen = -1;
+    DFS1(1,1);
+    DFS2(1,1,0);
+
+    cout << RR << endl;
+    for (auto p:G) {
+        cout << p.X << " " << p.Y << endl;
     }
     return 0;
 }
 
+/*
+11 9
+1 2
+1 5
+2 3
+2 4
+5 6
+5 7
+7 8
+9 10
+10 11
+
+*/

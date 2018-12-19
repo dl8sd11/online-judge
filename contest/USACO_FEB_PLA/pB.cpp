@@ -1,6 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
-typedef long long ll;
+typedef int ll;
 typedef pair<ll, ll> pii;
 typedef pair<double,double> pdd;
 #define MEM(a, b) memset(a, (b), sizeof(a))
@@ -56,26 +56,112 @@ const ll INF=0x3f3f3f3f3f3f3f3f;
 const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-ll n;
-vector<ll> prime;
-bool sieve[MAXN];
-/********** Good Luck :) **********/
-int main()
-{
-    IOS();
-    cin>>n;
-    for (ll i=2;i<n;i++) {
-        if(!sieve[i])prime.pb(i);
-        for (ll j=0;j<SZ(prime)&&i*prime[j]<n;j++) {
-            sieve[i*prime[j]] = true;
-            if (i%prime[j]==0) {
-                break;
+
+ll Q,cnt;
+vector<ll> edge[MAXN];
+ll anc[MAXN][MAXLG];
+ll root[MAXN];
+ll dep[MAXN];
+pair<ll,ll> far[MAXN];
+ll LCA(ll u,ll v) {
+    if (u == v) {
+        return 0;
+    }
+    if (dep[u] > dep[v]) {
+        swap(u,v);
+    }
+
+    ll ret = 0;
+    if (dep[u] != dep[v]) {
+        for (ll i=MAXLG-1;i>=0;i--) {
+            if (dep[anc[v][i]] > dep[u]) {
+                v = anc[v][i];
+                ret += 1<<i;
             }
+        }
+        ret++;
+        v = anc[v][0];
+    }
+    if (u == v) {
+        return ret;    
+    }
+
+    for (ll i=MAXLG-1;i>=0;i--) {
+        if (anc[v][i] != anc[u][i]) {
+            v = anc[v][i];
+            u = anc[u][i];
+            ret += 1<<i+1;
         }
     }
 
-    for (ll i=0;i<SZ(prime);i++) {
-        cout<<prime[i]<<" \n"[i==SZ(prime)-1];
+    return ret+2;
+}
+
+ll solve(ll nd) {
+    ll r = root[nd];
+    debug(far[r]);
+    return max(LCA(nd,far[r].X),LCA(nd,far[r].Y));
+}
+
+ll ins(ll nd,ll par) {
+    root[nd] = root[par];
+    anc[nd][0] = par;
+    dep[nd] = dep[par] + 1;
+    for (ll i=1;i<MAXLG;i++) {
+        anc[nd][i] = anc[anc[nd][i-1]][i-1];
     }
+
+    ll D = LCA(far[root[nd]].X,far[root[nd]].Y);
+    // debug(far[root[nd]]);
+    // debug(D);
+    // debug(,LCA(nd,far[root[nd]].X),LCA(nd,far[root[nd]].Y))
+    if (LCA(nd,far[root[nd]].X) > D) {
+        far[root[nd]].Y = nd;
+    } else if (LCA(nd,far[root[nd]].Y) > D) {
+        far[root[nd]].X = nd;
+    }
+
+}
+/********** Good Luck :) **********/
+int main()
+{
+    freopen("newbarn.in","r",stdin);
+    freopen("newbarn.out","w",stdout);
+    cin >> Q;
+    REP (i,Q) {
+        char cmd;
+        ll nd;
+        cin >> cmd >> nd;
+        if (cmd == 'Q') {
+            cout << solve(nd) << endl;
+        } else if (cmd == 'B') {
+            cnt++;
+            if (nd == -1) {
+                nd = cnt;
+                root[cnt] = cnt;
+                far[cnt].X = cnt;
+                far[cnt].Y = cnt;
+            }
+            ins(cnt,nd);
+        }
+    }
+
+    
     return 0;
 }
+
+/*
+
+100
+B -1
+B 1
+B 2
+B 1
+B 4
+B 4
+B 5
+B 6
+B 7
+B 8
+
+*/

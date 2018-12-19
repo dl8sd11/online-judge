@@ -56,31 +56,31 @@ const ll INF=0x3f3f3f3f3f3f3f3f;
 const ll MAXN=2e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-ll z[MAXN],bst;
-string a,b;
+ll n;
+ll a;
+bool b[MAXN];
+bool o[2];
+vector<ll> st;
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin>>a>>b;
-    debug(SZ(a));
-    debug(SZ(b));
-    b = a + char(255) + b;
-    for (ll i=1;i<SZ(b);i++) {
-        if(z[bst] + bst >= i)z[i] = min(bst+z[bst],z[i-bst]);
-        else z[i] = 0;
-        while(i+z[i]<SZ(b)&&b[i+z[i]]==b[z[i]])z[i]++;
-        if(i+z[i] >= bst+z[bst])bst = i;
+    cin >> n;
+    REP (i,n) {
+        cin >> a;
+        if (st.empty()) {
+            st.eb(a);
+        } else if (a - st.back() & 1) {
+            st.eb(a);
+        } else {
+            st.pop_back();
+        }
     }
-
-    ll ans = 0;
-    for (ll i=a.size()+1;i<b.size();i++) {
-        if(z[i]==a.size())ans++;
+    
+    if (st.size() <= 1) {
+        cout << "YES" << endl;
+    } else {
+        cout << "NO" << endl;
     }
-
-    debug(b);
-    pary(z,z+SZ(b));
-
-    cout<<ans<<endl;
     return 0;
 }

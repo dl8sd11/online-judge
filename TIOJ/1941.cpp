@@ -55,59 +55,24 @@ const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
 const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
-ll n,q;
 
-vector<ll> edge[MAXN];
-ll anc[MAXLG][MAXN],dep[MAXN];
-void dfs (ll nd,ll par) {
-    anc[0][nd] = par;
-    dep[nd] = dep[par] + 1;
-    for(auto v:edge[nd]) if(v!=par) {
-        dfs(v,nd);
-    }
-}
-
-void build_lca () {
-    for (ll i=1;i<MAXLG;i++) {
-        for (ll j=0;j<MAXN;j++) {
-            anc[i][j] = anc[i-1][anc[i-1][j]];
-        }
-    }
-}
-
-ll lca (ll u,ll v) {
-    if (u==v) return u;
-    if(dep[u] < dep[v]) swap(u,v);
-    for (ll i=MAXLG-1;i>=0;i--) {
-        if (dep[anc[i][u]] >= dep[v]) u = anc[i][u];
-    }
-    if (u==v) return u;
-    for (ll i=MAXLG-1;i>=0;i--) {
-        if(anc[i][u] != anc[i][v]) {
-            u = anc[i][u];
-            v = anc[i][v];
-        }
-    }
-    return anc[0][v];
-}
+ll n;
+multiset<ll> ms;
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin>>n>>q;
-    REP (i,n-1) {
-        ll u,v;
-        cin>>u>>v;
-        edge[u].eb(v);
-        edge[v].eb(u);
+    cin >> n;
+    REP (i,n) {
+        ll s,t;
+        cin >> s >> t;
+        ms.insert(s);
+        auto it = ms.upper_bound(t);
+        if (it != ms.end()) {
+            ms.erase(it);
+        }
     }
 
-    dfs(0,0);
-    build_lca();
-    while (q--) {
-        ll u,v;
-        cin>>u>>v;
-        cout<<lca(u,v)<<endl;
-    }
+    cout << ms.size() << endl;
     return 0;
 }

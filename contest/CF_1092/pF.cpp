@@ -53,47 +53,51 @@ template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=1e5+5;
+const ll MAXN=2e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-ll n,m,yp[MAXN];
-bool vis[MAXN];
+ll n,a[MAXN];
 vector<ll> edge[MAXN];
-
-bool dfs(ll x) {
-    for (ll p:edge[x]) {
-        if(vis[x]) return false;
-        vis[x] = 1;
-        if(yp[p]==-1||dfs(yp[p])) {
-            yp[p] = x;
-            return true;
-        }
+ll sz[MAXN],sm[MAXN];
+void dfs1(ll nd,ll par) {
+    sm[nd] += a[nd];
+    for (auto v:edge[nd]) if (v!=par) {
+        dfs1(v,nd);
+        sm[nd] += sm[v];
+        sz[nd] += sz[v] + sm[v];
     }
-    return false;
 }
 
+ll ans = 0;
+void dfs2(ll nd,ll par,ll gz,ll gm) {
+    debug(nd,par,gz,gm);
+    ans = max(ans,gz+sz[nd]);
+    for (auto v:edge[nd]) if (v!=par) {
+        dfs2(v,nd,gz+gm+sz[nd]-sz[v]-sm[v]+sm[nd]-sm[v],gm+sm[nd]-sm[v]);
+    }
+}
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin>>n>>m;
-
-    ll e,u,v;
-    cin>>e;
-    REP (i,e) {
-        cin>>u>>v;
-        edge[u].eb(v);
-    }
-
-    ll cnt = 0;
-    MEM(yp,-1);
+    cin >> n;
     REP1 (i,n) {
-        MEM(vis,0);
-        if (dfs(i)) {
-            cnt++;
-        }
+        cin >> a[i];
     }
 
-    cout<<cnt<<endl;
+    REP (i,n-1) {
+        ll u,v;
+        cin >> u >> v;
+        edge[u].eb(v);
+        edge[v].eb(u);
+    }
+
+    dfs1(1,1);
+
+    pary(sm+1,sm+n+1);
+    pary(sz+1,sz+1+n);
+    dfs2(1,1,0,0);
+
+    cout << ans << endl;
     return 0;
 }

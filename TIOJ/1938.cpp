@@ -53,40 +53,30 @@ template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=5e5+5;
+const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-ll dp[MAXN],bst=0;
-string a;
+ll m,n,a,b,c,d;
+ll dp[103][203][203];
+
+inline ll calc(ll i,ll x,ll y) {
+    i--,x--,y--;
+    return (a*i + b*x + c*y) % d;
+}
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    string ipt;
-    cin>>ipt;
-    a = char(123);
-    REP (i,SZ(ipt)) {
-        a += ipt[i];
-        a += char(123);
-    }
-    dp[0] = 0;
-    REP1 (i,SZ(a)-1) {
-        if(bst + dp[bst] >= i) dp[i] = min(bst + dp[bst]-i,dp[bst*2-i]);
-        else dp[i] = 0;
-        debug(i,dp[i]);
-        while(i+dp[i]+1 < SZ(a) && i - dp[i] - 1 >= 0 && a[i+dp[i]+1] == a[i-dp[i]-1])dp[i]++;
-        if(i+dp[i] >= bst+dp[bst])bst = i;
+    cin >> m >> n >> a >> b >> c >> d;
+
+    REP1 (i,n) {
+        REP1 (x,m) {
+            REP1 (y,m) {
+                dp[i][x][y] = max(dp[i-1][x-1][y-1]+calc(i,x,y),dp[i][x-1][y-1]);
+            }
+        }
     }
 
-    debug(a);
-    pary(dp,dp+SZ(a));
-    ll ans = 0;
-    REP (i,SZ(a)) {
-        ans = max(ans,dp[i]);
-    }
-
-    cout<<ans<<endl;
-
-
+    cout << dp[n][m][m] << endl;
     return 0;
 }

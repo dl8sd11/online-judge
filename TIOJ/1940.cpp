@@ -53,45 +53,37 @@ template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=1e6+5;
+const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-ll n,m,s,t,dis[MAXN];
-bool vis[MAXN];
-vector<pii> edge[MAXN];
+
+ll k,n;
+
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin>>n>>m>>s>>t;
-    REP (i,m) {
-        ll u,v,cost;
-        cin>>u>>v>>cost;
-        edge[u].eb(v,cost);
-    }
-
-    MEM(dis,INF);
-
-    priority_queue<pii,vector<pii>,greater<pii> > pq;
-    pq.emplace(0,s);
-    dis[s] = 0;
-
-    REP (_x,n) {
-        ll found = -1;
-        while(pq.size()&&vis[found=pq.top().Y])pq.pop();
-        if(found==-1)break;
-        vis[found] = 1;
-
-        for (pii e:edge[found]) {
-            if(dis[found] + e.Y < dis[e.X]) {
-                dis[e.X] = dis[found] + e.Y;
-                pq.emplace(dis[e.X],e.X);
-            }
+    cin >> k >> n;
+    if (k == 1) {
+        cout << n << endl;
+    } else {
+        
+        while (n > 1 && n&1) {
+            n /= 2;
+        }
+        if (n == 1) {
+            cout << 1 << endl;
+        } else if (n == 2) {
+            cout << 0 << endl;
+        } else {
+            cout << n/2 << endl;
         }
     }
-
-    if(dis[t] == INF)cout<<-1<<endl;
-    else cout<<dis[t]<<endl;
-
+    
     return 0;
 }
+
+
+/*
+0,1,0,1,2,0,3,1,4,2,5,0,6,3,7,1,8,4,9,2,10,5,11,0,12,6,13,3,14,7,15,1,16,8,17,4,18,9,19,2,20,10,21,5,22,11,23,0,24,12,25,6,26,13,27,3,28,14,29,7,30
+*/

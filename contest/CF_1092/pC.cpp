@@ -51,70 +51,105 @@ template<class T> inline bool cmin(T &a, const T &b) { return b < a ? a = b, tru
 template<class T> using MaxHeap = priority_queue<T>;
 template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
-const int INF=0x3f3f3f3f;
-const int MAXN=1e5+5;
+const ll MOD=1000000007;
+const ll INF=0x3f3f3f3f3f3f3f3f;
+const ll MAXN=1e5+5;
+const ll MAXLG=__lg(MAXN)+2;
 
-struct Edge{
-  int t,flow,cap,prev;
-  Edge(int t,int flow,int cap,int prev):t(t),flow(flow),cap(cap),prev(prev){}
-}e[MAXN];
-int ioi,head[MAXN];
-void add_edge(int f,int t,int cap) {
-  e[ioi] = Edge(t,0,cap,head[f]);head[f] = ioi++;
-  e[ioi] = Edge(f,0,0,head[t]);head[t] = ioi++;
+ll n;
+string fx[MAXN];
+string rx[MAXN];
+
+bool cmp (const string &s1,const string &s2){
+    if (s1.size() != s2.size()) {
+        return s1.size() < s2.size();
+    } else {
+        return s1 < s2;
+    }
+}
+bool solve(string str) {
+    vector<string> vs;
+    string pre;
+    REP (i,SZ(str)-1) {
+        pre += str[i];
+        vs.eb(pre);
+    }
+
+    string suf;
+    for (ll i=SZ(str)-1;i>=1;i--) {
+        suf = str[i] + suf;
+        vs.eb(suf);
+    }
+
+    sort(ALL(vs),cmp);
+    debug(str,vs);
+    pary(fx,fx+SZ(vs));
+    REP (i,SZ(vs)) {
+        if (vs[i] != fx[i]) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
-int lev[MAXN];
-bool BFS(int s,int t) {
-  MEM(lev,-1);
-  queue<int> que;
-  que.push(s);
-  lev[s] = 0;
-  while (que.size()) {
-    int cur = que.front();que.pop();
-    for (int i=head[cur];i!=-1;i=e[i].prev) {
-      int u = e[i].t;
-      if (lev[u] == -1 && e[i].flow < e[i].cap) {
-        lev[u] = lev[cur] + 1;
-      }
+char ans[300];
+void print(string str) {
+    debug(str);
+    bool vis[300] = {};
+    string pre;
+    REP (i,SZ(str)-1) {
+        pre += str[i];
+        REP (j,n*2-2) {
+            if (!vis[j] && pre == rx[j]) {
+                vis[j] = true;
+                ans[j] = 'P';
+                break;
+            }
+        }
     }
-  }
-  return lev[t] != -1;
-}
 
-int DFS(int nd,int t,int lim) {
-  if (nd == t) return lim;
-  if (lim == 0) return 0;
-  for (int i=head[nd];i!=-1;i=e[i].prev) {
-    int u = e[i].t;
-    if (lev[u] == lev[nd] + 1 && e[i].cap > e[i].flow) {
-      int d = DFS(u,t,e[i].cap - e[i].flow);
-      if (d) {
-        e[i].flow += d;
-        e[i^1].flow -= d;
-        return d;
-      }
+    string suf;
+    for (ll i=SZ(str)-1;i>=1;i--) {
+        suf = str[i] + suf;
+        REP (j,n*2-2) {
+            if (!vis[j] && suf == rx[j]) {
+                vis[j] = true;
+                ans[j] = 'S';
+                break;
+            }
+        }
     }
-  }
 
-  return 0;
-}
-
-int mac_flow(int s,int t) {
-  int flow = 0;
-  while (BFS(s,t)) {
-    int d;
-    while (d = DFS(s,t,INF)) {
-      flow += d;
+    REP (i,n*2-2) {
+        cout << ans[i];
     }
-  }
-  return flow;
+    cout << endl;
 }
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    MEM(head,-1);
+    cin >> n;
+    REP (i,n*2-2) {
+        cin >> fx[i];
+        rx[i] = fx[i];
+    }
 
+
+    sort(fx,fx+n*2-2,cmp);
+    REP (i,2) {
+        REP1 (j,2) {
+            if (solve(fx[i]+fx[n*2-2-j])) {
+                print(fx[i]+fx[n*2-2-j]);
+                return 0;
+            } else if (solve(fx[n*2-2-j]+fx[i])) {
+                print(fx[n*2-2-j]+fx[i]);
+                return 0;
+            }
+        }
+    }
+
+   
     return 0;
 }
