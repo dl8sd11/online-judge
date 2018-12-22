@@ -1,9 +1,0 @@
-{
-  "python.linting.pylintEnabled": true,
-  "python.linting.flake8Enabled": false,
-  "python.linting.enabled": true,
-  "files.associations": {
-    "cmath": "cpp",
-    "complex": "cpp"
-  }
-}
