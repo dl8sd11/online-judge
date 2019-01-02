@@ -1,16 +1,4 @@
-#include <iostream>
-#include <assert.h>
-#include <algorithm>
-#include <vector>
-#include <cstring>
-#include <string>
-#include <cmath>
-#include <utility>
-#include <sstream>
-#include <stack>
-#include <queue>
-#include <set>
-#include <map>
+#include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
 typedef pair<ll, ll> pii;
@@ -57,83 +45,80 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
 #endif
 
+template<class T> inline bool cmax(T &a, const T &b) { return b > a ? a = b, true : false; }
+template<class T> inline bool cmin(T &a, const T &b) { return b < a ? a = b, true : false; }
+template<class T> using MaxHeap = priority_queue<T>;
+template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
+const ll INF=0x3f3f3f3f3f3f3f3f;
 const ll MAXN=1e5+5;
+const ll MAXLG=__lg(MAXN)+2;
 
-struct node{
-  node *lc,*rc;
-  ll l,r;
-  ll data;
-  node(node *lci,node *rci,ll li,ll ri,ll datai):lc(lci),rc(rci),l(li),r(ri),data(datai){}
-  void pull(){
-    data = 0;
-    if(lc)data += lc->data ;
-    if(rc)data += rc->data;
-  }
-};
-
-node *build(ll l,ll r){
-  if(r==l+1)return new node(0,0,l,r,0);
-  ll mid = (l+r)/2;
-  return new node(build(l,mid),build(mid,r),l,r,0);
+ll n;
+ll X,Y,c1,c2,n1,n2;
+ll ceilDiv(ll x,ll y){
+  ll ret = x/y;
+  if(ret*y < x)ret++;
+  return ret;
 }
-
-
-node *add(ll l,node *nd){
-  nd = new node(*nd);
-  if(l==nd->l&&l==nd->r-1){
-    nd->data++;
-    return nd;
+ll extGCD(ll a,ll b,ll &x,ll &y){
+  if(b==0){
+    x = 1;
+    y = 0;
+    return a;
   }
-  ll mid = (nd->l + nd->r)/2;
-  if(l>=mid) nd->rc = add(l,nd->rc);
-  else nd->lc = add(l,nd->lc);
-  nd->pull();
-  return nd;
+  ll r = extGCD(b,a%b,x,y);
+  ll t = y;
+  y = x - (a/b)*y;
+  x = t;
+  return r;
 }
-ll tmp;
-ll query(node *nd1,node *nd2,ll kt){
-  if(nd1->l==nd1->r-1)return nd1->l;
-  tmp = nd2->lc->data - nd1->lc->data;
-  if(tmp >= kt){
-    return query(nd1->lc,nd2->lc,kt);
-  } else {
-    return query(nd1->rc,nd2->rc,kt-tmp);
-  }
-
-}
-
-ll n,m,x,y,k;
-ll a[MAXN],b[MAXN],c[MAXN];
-node *root[MAXN];
+bool swped;
+pii bst;
 /********** Main()  function **********/
 int main()
 {
   IOS();
-  cin>>n>>m;
-  REP(i,n)cin>>a[i],c[i]=a[i];
+  while(cin>>n&&n){
+    swped = 0;
+    bst = {-1,-1};
+    cin>>c1>>n1>>c2>>n2;
+    ll gcd = extGCD(n1,n2,X,Y);
+    debug(gcd,X,Y);
 
-  sort(a,a+n);
-  ll nn = unique(a,a+n)-a;
-
-  REP(i,n){
-    b[i] = lower_bound(a,a+nn,c[i])-a;
+    if(n%gcd!=0)cout<<"failed"<<endl;
+    else{
+      X *= n/gcd;
+      Y *= n/gcd;
+      if(X<Y){
+        swped = 1;
+        swap(n1,n2);
+        swap(c1,c2);
+        swap(X,Y);
+      }
+      ll tms = ceilDiv(abs(Y),(n1/gcd));
+      Y += tms*(n1/gcd);
+      X -= tms*(n2/gcd);
+      if(X < 0){
+        cout<<"failed"<<endl;
+      } else {
+        bst = {X,Y};
+        tms = X / (n2/gcd);
+        X -= tms*(n2/gcd);
+        Y += tms*(n1/gcd);
+        debug(mp(X,Y));
+        debug(X*c1+Y*c2);
+        debug(bst);
+        debug(bst.X*c1+bst.Y*c2);
+        if(X*c1+Y*c2 < bst.X*c1+bst.Y*c2)bst = {X,Y};
+        if(swped){
+          cout<<bst.Y<<" "<<bst.X<<endl;
+        } else {
+          cout<<bst.X<<" "<<bst.Y<<endl;
+        }
+      }
+    }
   }
-
-  root[0] = build(0,nn);
-
-  for(ll i=0;i<n;i++){
-    root[i+1] = add(b[i],root[i]);
-  }
-
-
-  for(ll i=0;i<m;i++){
-    cin>>x>>y>>k;
-    x--;
-
-    cout<<a[query(root[x],root[y],k)]<<endl;
-  }
-
-	return 0;
+  return 0;
 }

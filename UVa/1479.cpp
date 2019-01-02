@@ -1,20 +1,20 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
+typedef pair<ll, ll> pii;
+typedef pair<double,double> pdd;
 #define MEM(a, b) memset(a, (b), sizeof(a))
+#define SZ(i) ll(i.size())
 #define FOR(i, j, k, in) for (ll i=j ; i<k ; i+=in)
 #define RFOR(i, j, k, in) for (ll i=j ; i>=k ; i-=in)
 #define REP(i, j) FOR(i, 0, j, 1)
 #define REP1(i,j) FOR(i, 1, j+1, 1)
 #define RREP(i, j) RFOR(i, j, 0, 1)
-#define SZ(i) (ll)(i.size())
 #define ALL(_a) _a.begin(),_a.end()
-#define FOREACH(it, l) for (auto it = l.begin(); it != l.end(); it++)
 #define mp make_pair
 #define pb push_back
 #define X first
 #define Y second
-typedef pair<ll, ll> pi;
 #ifdef tmd
 #define debug(...) do{\
     fprintf(stderr,"%s - %d (%s) = ",__PRETTY_FUNCTION__,__LINE__,#__VA_ARGS__);\
@@ -45,76 +45,80 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
 #endif
 
-const ll INF = (ll)1e18 + 7;
-const ll MOD = 1000000007;
-const ll MAXN = 100;
-struct Edge{ll from,to,flow,cap,rev;};
-vector<Edge> G[MAXN];
-ll s,t,n,dis[MAXN],cur[MAXN];
-void init(){
-  REP(i,MAXN)G[i].clear();
-}
-void add_edge(ll u,ll v,ll cap){
-  G[u].pb({u,v,0,cap,SZ(G[v])});
-  G[v].pb({v,u,0,0,SZ(G[u])-1});
+template<class T> inline bool cmax(T &a, const T &b) { return b > a ? a = b, true : false; }
+template<class T> inline bool cmin(T &a, const T &b) { return b < a ? a = b, true : false; }
+template<class T> using MaxHeap = priority_queue<T>;
+template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
+
+const ll MOD=1000000007;
+const ll INF=0x3f3f3f3f3f3f3f3f;
+const ll MAXN=20003;
+const ll MAXLG=__lg(MAXN)+2;
+
+struct node{
+  node *l,node *r;
+  pair<int,int> key;
+  int pri;
+  int cnt[MAXN];
+  node(node *li,node *ri,int pos,int val){
+    l = li,r = ri;
+    key = mp(val,pos);
+    pri = rand();
+    MEM(cnt,0);
+  }
+}*root;
+
+node *merge(node *a,node *b){
+  if(!a||!b)return a?a:b;
+  if(a->pri > b->pri){
+    a->r = merge(a->r,b);
+    return a;
+  } else {
+    b->l =merge(a,b->l);
+    return b;
+  }
 }
 
-ll dfs(ll u,ll cap){
-  if(u==t||!cap)return cap;
-  for(ll &i=cur[u];i<SZ(G[u]);i++){
-    Edge &e = G[u][i];
-    if(dis[e.to]==dis[u]+1 && e.cap!=e.flow){
-      ll df = dfs(e.to,min(cap,e.cap - e.flow));
-      if(df){
-        e.flow += df;
-        G[e.to][e.rev].flow -= df;
-        return df;
-      }
-    }
+void split(node *nd,node *a,node *b,pair<int,int> key){
+  if(!nd){
+    a = b = NULL;
+  } else if(nd->key < key) {
+    a = nd;
+    split(nd->r,a->r,b);
+  } else {
+    b = nd;
+    split(nd->l,a,b->l);
   }
-  dis[u] = -1;
-  return 0;
+  return;
 }
-bool bfs(){
-  MEM(dis,-1);
-  queue<ll> q;
-  q.push(s);dis[s] = 0;
-  while(!q.empty()){
-    ll u = q.front();q.pop();
-    for(auto e: G[u]){
-      if(dis[e.to]==-1 && e.cap!=e.flow){
-        q.push(e.to);
-        dis[e.to] = dis[u] + 1;
-      }
-    }
+
+void DEL(node *nd){
+  if(nd->l)DEL(nd->l);
+  if(nd->r)DEL(nd->r);
+  delete nd;
+}
+
+void insert(int idx,int val){
+  if(!root){
+    root = new node(0,0,idx,val);
+  } else {
+    
   }
-  return dis[t] != -1;
 }
-ll Dinic(){
-  ll flow = 0,df;
-  while(bfs()){
-    MEM(cur,0);
-    while(df = dfs(s,INF)){
-      flow += df;
-    }
-  }
-  return flow;
-}
+int n,m,tmp;
 /********** Main()  function **********/
 int main()
 {
   IOS();
-  ll T,m,u,v,cap;
-  cin>>T;
-  REP1(tn,T){
-    cin>>n>>m;
-    s = 0,t = n-1;
-    init();
-    REP(i,m){
-      cin>>u>>v>>cap;
-      add_edge(u-1,v-1,cap);
+  while(cin>>n>>m){
+    if(n==0&&m==0)break;
+    REP1(i,n) {
+      cin>>tmp;
+      insert(i,tmp);
     }
-    cout<<"Case "<<tn<< ": "<< Dinic()<<endl;
+
+    DEL(root);
+    root = NULL;
   }
-	return 0;
+  return 0;
 }
