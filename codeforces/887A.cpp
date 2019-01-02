@@ -56,16 +56,26 @@ int main(){
   string a;
   cin>>a;
 	
-  int alen = int(a.size());
-  int cnt = 0;
-	int idx = 0;
-  while(idx<alen-1&&a.at(idx++)=='0');
-	a= a.substr(0,idx+1);
-	debug(a);
-	for(int i=0;i<alen;i++){
-    if(a.at(i)=='0')cnt++;
+    ll idx = INF;
+  for (ll i=0;i<SZ(a);i++) {
+      if(a[i] == '1') {
+          idx = i;
+          break;
+      }
   }
-  debug(cnt);
-  if(cnt>=6)cout<<"Yes"<<endl;
-  else cout<<"No"<<endl;
+  if(SZ(a) - idx < 7) {
+      cout<<"no"<<endl;
+      return 0;
+  }
+
+  ll cnt = 0;
+  for (ll i=idx;i<SZ(a);i++) {
+      if(a[i]== '0') cnt++;
+  }
+
+  if (cnt >= 6) {
+      cout<<"yes"<<endl;
+  } else {
+      cout<<"no"<<endl;
+  }
 }

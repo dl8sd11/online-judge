@@ -1,18 +1,19 @@
-#include <iostream>
-#include <assert.h>
-#include <algorithm>
-#include <vector>
-#include <cstring>
-#include <string>
-#include <cmath>
-#include <utility>
-#include <sstream>
-#include <stack>
-#include <queue>
-#include <set>
-#include <map>
+#include<iostream>
+#include<iomanip>
+#include<cstdio>
+#include<cstring>
+#include<string>
+#include<set>
+#include<map>
+#include<vector>
+#include<algorithm>
+#include<sstream>
+#include<cmath>
+#include<queue>
+#include<stack>
 using namespace std;
 typedef long long ll;
+<<<<<<< HEAD
 typedef pair<ll, ll> pii;
 typedef pair<double,double> pdd;
 #define MEM(a, b) memset(a, (b), sizeof(a))
@@ -25,8 +26,17 @@ typedef pair<double,double> pdd;
 #define ALL(_a) _a.begin(),_a.end()
 #define mp make_pair
 #define pb push_back
+=======
+typedef pair<ll,ll> pii;
+#define REP(i,n) for(ll i=0;i<n;i++)
+#define REP1(i,n) for(ll i=1;i<=n;i++)
+#define MEM(i,n) memset(i,n,sizeof i)
+>>>>>>> d5eff68d8c4b58b37f323341fa89eb8fd802751b
 #define X first
 #define Y second
+#define SZ(_a) (int)_a.size()
+#define ALL(_a) _a.begin(),_a.end()
+#define pb push_back
 #ifdef tmd
 #define debug(...) do{\
     fprintf(stderr,"%s - %d (%s) = ",__PRETTY_FUNCTION__,__LINE__,#__VA_ARGS__);\
@@ -54,11 +64,13 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define debug(...)
 #define pary(...)
 #define endl '\n'
-#define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
+#define IOS() ios_base::sync_with_stdio(0);cin.tie(0);
 #endif
 
 
+const ll MAXN=1e5+5,MAXlg=__lg(MAXN)+2;
 const ll MOD=1000000007;
+<<<<<<< HEAD
 const ll MAXN=1e5+5;
 
 struct node{
@@ -77,21 +89,38 @@ node *build(ll l,ll r){
   if(r==l+1)return new node(0,0,l,r,0);
   ll mid = (l+r)/2;
   return new node(build(l,mid),build(mid,r),l,r,0);
+=======
+const ll INF=ll(1e18+7);
+
+ll n,m;
+ll a[MAXN],ans[MAXN];
+vector<pair<ll,ll> > spos;
+ll bit[MAXN];
+struct QUERY {
+    ll l,r,k;
+    QUERY(){}
+    QUERY(ll l,ll r,ll k):l(l),r(r),k(k){}
+}q[MAXN];
+
+void add(ll pos,ll val) {
+    for (pos++;pos<MAXN;pos+=-pos&pos) {
+        bit[pos] += val;
+    }
+>>>>>>> d5eff68d8c4b58b37f323341fa89eb8fd802751b
 }
 
-
-node *add(ll l,node *nd){
-  nd = new node(*nd);
-  if(l==nd->l&&l==nd->r-1){
-    nd->data++;
-    return nd;
-  }
-  ll mid = (nd->l + nd->r)/2;
-  if(l>=mid) nd->rc = add(l,nd->rc);
-  else nd->lc = add(l,nd->lc);
-  nd->pull();
-  return nd;
+ll query(ll pos) {
+    ll ret = 0;
+    for (pos++;pos >= 1;pos-=-pos&pos) {
+        ret += bit[pos];
+    }
+    return ret;
 }
+
+ll cnt(ll idx) {
+    return query(q[idx].r) - query(q[idx].l-1);
+}
+<<<<<<< HEAD
 ll tmp;
 ll query(node *nd1,node *nd2,ll kt){
   if(nd1->l==nd1->r-1)return nd1->l;
@@ -101,8 +130,44 @@ ll query(node *nd1,node *nd2,ll kt){
   } else {
     return query(nd1->rc,nd2->rc,kt-tmp);
   }
+=======
 
+ll cur_pos = -1;
+void update(ll goal) {
+    while (spos[cur_pos+1].X <= goal && cur_pos<n) {
+        add(spos[++cur_pos].Y,1);
+    }
+>>>>>>> d5eff68d8c4b58b37f323341fa89eb8fd802751b
+
+    while (spos[cur_pos].X > goal && cur_pos >=0) {
+        add(spos[cur_pos--].Y,-1);
+    }
 }
+void solve(vector<ll> V,ll L,ll R) {
+    debug(V,L,R);
+    if (L == R - 1) {
+        REP (i,SZ(V)) {
+            ans[V[i]] = L;
+        }
+        return;
+    }
+    ll mid = L+R>>1;
+    update(mid-1);
+    debug(mid-1);
+    vector<ll> lV,rV;
+    REP (i,SZ(V)) {
+        debug(cnt(V[i]),V[i]);
+        if (cnt(V[i]) < q[V[i]].k) {
+            rV.push_back(V[i]);
+        } else {
+            lV.push_back(V[i]);
+        }
+    }
+    debug(lV,rV);
+    solve(lV,L,mid);
+    solve(rV,mid,R);
+}
+<<<<<<< HEAD
 
 ll n,m,x,y,k;
 ll a[MAXN],b[MAXN],c[MAXN];
@@ -134,6 +199,37 @@ int main()
 
     cout<<a[query(root[x],root[y],k)]<<endl;
   }
+=======
+int main()
+{
+    ll min_num = INF;
+    ll max_num = -INF;
+    scanf("%lld%lld",&n,&m);
+    REP (i,n) {
+        scanf("%lld",a+i);
+        max_num = max(max_num,a[i]);
+        min_num = min(min_num,a[i]);
+        spos.push_back(make_pair(a[i],i));
+    }
+    sort(ALL(spos));
 
-	return 0;
+    REP (i,m) {
+        ll l,r,k;
+        scanf("%lld%lld%lld",&l,&r,&k);
+        debug(l,r,k);
+        l--,r--;
+        q[i] = QUERY(l,r,k);
+    }
+
+    vector<ll> V;
+    REP (i,m) {
+        V.push_back(i);
+    }
+    debug(V);
+    solve(V,min_num,max_num+1);
+>>>>>>> d5eff68d8c4b58b37f323341fa89eb8fd802751b
+
+    REP (i,m) {
+        printf("%d\n",ans[i]);
+    }
 }

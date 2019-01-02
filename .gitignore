@@ -1,3 +1,12 @@
 a.out
 .build-tools.cson
 a.exe
+secret
+test/a1.out
+test/a2.out
+test/e1.out
+test/e2.out
+test/standard.cpp
+test/target.cpp
+test/testcase.in
+tmp.cpp
