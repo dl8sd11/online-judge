@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 from random import randint
 
-for i in range(30):
-  n = 20000
-  k = randint(1,n*(n+1)/2)
-  print("{} {}".format(n,k))
-  for j in range(n):
-    print(randint(-10000,10000),end='')
-    if j is n-1:
-      print()
+t = randint(1,1)
+print(t)
+for i in range(t):
+  n = randint(1,100)
+  m = randint(1,10)
+  print("{} {}".format(n,m))
+  for j in range(m):
+    if (randint(1,2) == 1):
+      print("A {} {}".format(randint(1,n),randint(1,n)))
     else:
-      print(' ',end='')
-print("0 0")
+      print("D {} {}".format(randint(1,n),randint(1,n)))

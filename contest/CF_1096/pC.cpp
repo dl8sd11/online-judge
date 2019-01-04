@@ -56,10 +56,21 @@ const ll INF=0x3f3f3f3f3f3f3f3f;
 const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-/********** Main()  function **********/
+ll t,ang;
+/********** Good Luck :) **********/
 int main()
 {
-  IOS();
-
-  return 0;
+    IOS();
+    cin >> t;
+    while (t--) {
+        cin >> ang;
+        ll gcd = __gcd(180LL,ang);
+        debug(gcd);
+        if (ang/gcd >= 180/gcd-1) {
+            cout << 180/gcd*2 << endl;
+        } else {
+            cout << 180/gcd << endl;
+        }
+    }
+    return 0;
 }
