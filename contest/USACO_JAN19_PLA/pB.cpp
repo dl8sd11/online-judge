@@ -1,6 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
-typedef  int ll;
+typedef long long ll;
 typedef pair<ll, ll> pii;
 typedef pair<double,double> pdd;
 #define MEM(a, b) memset(a, (b), sizeof(a))
@@ -52,35 +52,114 @@ template<class T> using MaxHeap = priority_queue<T>;
 template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
-const ll INF=0x3f3f3f3f;
-const ll MAXN=3e5+5;
+const ll INF=0x3f3f3f3f3f3f3f3f;
+const ll MAXN=2e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-int n,k;
-int dp[MAXN],pre[MAXN];
+ll n,m;
+vector<ll> edge[MAXN];
+ll in[MAXN],out[MAXN];
+ll w[MAXN];
+vector<pii> query;
+
+
+int anc[MAXLG][MAXN];
+int dep[MAXN];
+
+void dfs(int nd,int par){
+  anc[0][nd] = par;
+  dep[nd] = dep[par] + 1;
+  for(int v:edge[nd]){
+    if(v!=par) dfs(v,nd);
+  }
+}
+void build_lca(){
+  for(int i=1;i<MAXLG;i++){
+    for(int j=1;j<=n;j++){
+      anc[i][j] = anc[i-1][anc[i-1][j]];
+    }
+  }
+}
+
+int lca(int u,int v){
+  if(dep[u] < dep[v])swap(u,v);
+  for(int i=MAXLG-1;i>=0;i--){
+    if(dep[anc[i][u]] >= dep[v]) u = anc[i][u];
+  }
+  if(u==v)return u;
+
+  for(int i=MAXLG-1;i>=0;i--){
+    if(anc[i][u] != anc[i][v]) {
+      u = anc[i][u];
+      v = anc[i][v];
+    }
+  }
+
+  return anc[0][u];
+}
+
+ll t[MAXN*4],t2[MAXN*4],N;
+void build(){
+  for(ll i=N-1;i>0;i--)t[i] = t[i<<1]+t[i<<1|1];
+}
+ll q(ll l,ll r){
+  ll res = 0;
+  for(l+=N,r+=N;l<r;l>>=1,r>>=1){
+    if(l&1)res+=t[l++];
+    if(r&1)res+=t[--r];
+  }
+  return res;
+}
+
+ll tot;
+void DFS(ll nd,ll par) {
+    in[nd] = tot++;
+    t[in[nd]+N] = w[nd];
+    for (auto v:edge[nd]) if (v != par) {
+        DFS(v,nd);
+    }
+    out[nd] = tot++;
+    t[out[nd]+N] = -w[nd];
+}
 /********** Good Luck :) **********/
 int main()
 {
     // IOS();
-// #ifndef tmd
-//     freopen("redistricting.in","r",stdin);
-//     freopen ("redistricting.out","w",stdout);
-// #endif
-    cin >> n >> k;
-
-    MEM(dp,INF);
-    REP (i,n) {
-        debug(i);
-        char inp;
-        cin >> inp;
-        pre[i] = (i?pre[i-1]:0) + (inp=='H'?1:-1);
-        REP (j,k) {
-            dp[i] = min(dp[i],(i-j>0?dp[i-j-1]:0)+(pre[i]-(i-j>0?pre[i-j-1]:0)<1));
-        }
-        
+#ifndef tmd
+    freopen("exercise.in","r",stdin);
+    freopen ("exercise.out","w",stdout);
+#endif
+    cin >> n >> m;
+    N = n*2;
+    REP (i,n-1) {
+        ll u,v;
+        cin >> u >> v;
+        edge[u].eb(v);
+        edge[v].eb(u);
     }
-    // pary(dp,dp+n);
-    // pary(pre,pre+n);
-    cout << dp[n-1] << endl;
+
+    REP (i,m-n+1) {
+        ll u,v;
+        cin >> u >> v;
+        query.eb(u,v);
+        w[u]++;
+        w[v]++;
+    }
+
+    DFS(1,1);
+    dfs(1,1);
+    build_lca();
+    build();
+
+    pary(t+N,t+N*2);
+    ll ans = 0;
+    for (auto p:query) {
+        ll ca = lca(p.X,p.Y);
+        debug(p,ca);
+        debug(in[ca],in[p.X]+1,in[p.Y]+1);
+        ans += q(in[ca],in[p.X]+1) + q(in[ca],in[p.X]+1) + w[ca] - 2;
+    }
+
+    cout << ans / 2 << endl;
     return 0;
 }

@@ -62,10 +62,10 @@ int dp[MAXN],pre[MAXN];
 int main()
 {
     // IOS();
-// #ifndef tmd
-//     freopen("redistricting.in","r",stdin);
-//     freopen ("redistricting.out","w",stdout);
-// #endif
+#ifndef tmd
+    freopen("redistricting.in","r",stdin);
+    freopen ("redistricting.out","w",stdout);
+#endif
     cin >> n >> k;
 
     MEM(dp,INF);
@@ -79,8 +79,8 @@ int main()
         }
         
     }
-    // pary(dp,dp+n);
-    // pary(pre,pre+n);
+    pary(dp,dp+n);
+    pary(pre,pre+n);
     cout << dp[n-1] << endl;
     return 0;
 }

@@ -1,6 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
-typedef  int ll;
+typedef long long ll;
 typedef pair<ll, ll> pii;
 typedef pair<double,double> pdd;
 #define MEM(a, b) memset(a, (b), sizeof(a))
@@ -52,35 +52,14 @@ template<class T> using MaxHeap = priority_queue<T>;
 template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
-const ll INF=0x3f3f3f3f;
-const ll MAXN=3e5+5;
+const ll INF=0x3f3f3f3f3f3f3f3f;
+const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-int n,k;
-int dp[MAXN],pre[MAXN];
 /********** Good Luck :) **********/
 int main()
 {
-    // IOS();
-// #ifndef tmd
-//     freopen("redistricting.in","r",stdin);
-//     freopen ("redistricting.out","w",stdout);
-// #endif
-    cin >> n >> k;
+    IOS();
 
-    MEM(dp,INF);
-    REP (i,n) {
-        debug(i);
-        char inp;
-        cin >> inp;
-        pre[i] = (i?pre[i-1]:0) + (inp=='H'?1:-1);
-        REP (j,k) {
-            dp[i] = min(dp[i],(i-j>0?dp[i-j-1]:0)+(pre[i]-(i-j>0?pre[i-j-1]:0)<1));
-        }
-        
-    }
-    // pary(dp,dp+n);
-    // pary(pre,pre+n);
-    cout << dp[n-1] << endl;
     return 0;
 }

@@ -64,18 +64,18 @@ int sa[MAXN];
 int tmp[2][MAXN];
 int c[MAXN];
 int lcpa[MAXN];
+int rk[MAXN];
 
 void lcp_array(){
   int lcp = 0;
-  int rank[MAXN];
-  REP(i,N)rank[sa[i]] = i;
+  REP(i,N)rk[sa[i]] = i;
   REP(i,N){
-    if(rank[i]==0)lcpa[0]=0;
+    if(rk[i]==0)lcpa[0]=0;
     else {
-      int j = sa[rank[i]-1];
+      int j = sa[rk[i]-1];
       if(lcp>0)lcp--;
       while(t[i+lcp]==t[j+lcp])lcp++;
-      lcpa[rank[i]] = lcp;
+      lcpa[rk[i]] = lcp;
     }
   }
 
@@ -126,13 +126,22 @@ int main()
     suffix_array();
     lcp_array();
 
+    ll pre = 0;
     REP (i,n) {
         REP (j,SZ(name[i])) {
-            ans[i] += SZ(name[i]) - j - lcpa[rank[j+]]
+            ans[i] += max(0LL,SZ(name[i]) - j - max(lcpa[rk[j+pre]],lcpa[rk[j+pre]+1]));
+            debug(SZ(name[i]),j,lcpa[rk[j+pre]],lcpa[rk[j+pre]+1]);
         }
+        pre += SZ(name[i]) + 1LL;
     }
+    debug(t);
+    pary(sa,sa+N);
+    pary(rk,rk+N);
+    pary(lcpa,lcpa+N);
 
-
+    REP (i,n) {
+        cout << ans[i] << " \n"[i==n-1];
+    }
 
     return 0;
 }
