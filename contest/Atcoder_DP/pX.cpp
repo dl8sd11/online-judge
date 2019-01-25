@@ -53,14 +53,50 @@ template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=1e5+5;
+const ll MAXN = 1003;
+const ll MAXW = 20003;
 const ll MAXLG=__lg(MAXN)+2;
-
+ll n;
+struct Block {
+    ll w,s,v,id;
+}blocks[MAXN];
+ll dp[MAXN][MAXW];
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
+    cin >> n;
+    REP (i,n) {
+        cin >> blocks[i].w >> blocks[i].s >> blocks[i].v;
+        blocks[i].id = i + 1;
+    }
 
+    sort(blocks,blocks+n,[&](const Block &b1,const Block &b2){
+        return b1.w + b1.s < b2.w + b2.s;
+    });
+
+    MEM(dp,-1);
+    
+    REP (i,n) {
+        if (i == 0) {
+            dp[i][0] = 0;
+            dp[i][blocks[i].w] = blocks[i].v;
+        } else {
+            for (ll j=0;j<MAXW;j++) {
+                if (j-blocks[i].w >= 0 && j-blocks[i].w <= blocks[i].s && dp[i-1][j-blocks[i].w] != -1) {
+                    dp[i][j] = dp[i-1][j-blocks[i].w] + blocks[i].v;
+                }
+                dp[i][j] = max(dp[i][j],dp[i-1][j]);
+            }
+        }
+    }
+
+    ll ans = 0;
+    REP (i,MAXW) {
+        ans = max(ans,dp[n-1][i]);
+    }
+
+    cout << ans << endl;
     return 0;
 }
 //DP

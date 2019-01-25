@@ -53,14 +53,41 @@ template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=1e5+5;
+const ll MAXN=2e5+5;
 const ll MAXLG=__lg(MAXN)+2;
+#define SQ(i) (i)*(i)
+ll n,c,h[MAXN],dp[MAXN];
+deque<pii> dq;
 
+ll trans(pii t,ll hei) {
+    return t.Y + c + SQ(hei) - 2 * hei * t.X;
+}
+bool solve(pii t1,pii t2,pii nw) {
+    pii i1 = {t1.Y - t2.Y,t2.X - t1.X};
+    pii i2 = {t2.Y - nw.Y,nw.X - t2.X};
+    //return i1 > i2
+    return i1.X*i2.Y > i1.Y*i2.X;
+}
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
+    cin >> n >> c;
+    REP (i,n) {
+        cin >> h[i];
+    }
 
+    dp[0] = 0;
+    dq.emplace_back(h[0],dp[0]+SQ(h[0]));
+    REP1 (i,n-1) {
+        while (dq.size()>1&&trans(dq[0],h[i])>=trans(dq[1],h[i]))dq.pop_front();
+        dp[i] = trans(dq.front(),h[i]);
+        pii cur = {h[i],dp[i]+SQ(h[i])};
+        while (dq.size()>1&&solve(dq.back(),dq[SZ(dq)-2],cur))dq.pop_back();
+        dq.emplace_back(cur);
+    }
+
+    cout << dp[n-1] << endl;
     return 0;
 }
 //DP
