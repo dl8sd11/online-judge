@@ -1,66 +1,70 @@
 #include <stdio.h>
 #include <algorithm>
 using namespace std;
-typedef int ll;
-#define FOR(i, j, k, in) for (ll i=j ; i<k ; i+=in)
+#define FOR(i, j, k, in) for (int i=j ; i<k ; i+=in)
 #define REP(i, j) FOR(i, 0, j, 1)
+#define REP1(i, j) FOR(i, 1, j+1, 1)
+#define X first
+#define Y second
 
-const ll MAXN=2e5+5;
 
-ll t,n,m;
-ll djs[MAXN],sz[MAXN];
+const int MAXN=2e5+5;
+
+int djs[MAXN],sz[MAXN];
+int v_cnt = 0;
+pair<int,int> p[MAXN];
 
 void init() {
-    for (int i=0;i<MAXN;i++) {
+    REP (i,MAXN) {
         djs[i] = i;
         sz[i] = 1;
     }
 }
 
-ll fnd(ll x) {
-    return x == djs[x] ? x : fnd(djs[x]);
+int fnd(int nd) {
+    if (djs[nd] == nd) {
+        return nd;
+    } else {
+        return djs[nd] = fnd(djs[nd]);
+    }
 }
 
-void uni(ll x,ll y) {
-    if (sz[x=fnd(x)] > sz[y=fnd(y)]) {
+void uni(int x,int y) {
+    if (fnd(x) == fnd(y)) {
+        return;
+    }
+    if (sz[x=fnd(x)] < sz[y=fnd(y)]) {
         swap(x,y);
     }
-    djs[x] = y;
-    sz[y] += sz[x];
+    djs[y] = x;
+    sz[x] += sz[y];
 }
 
-ll hei(ll x) {
-    ll ret = 0;
-    while (x != djs[x]) {
-        ret++;
-        x = djs[x];
-    }
-    return ret;
-}
+int t,n,m;
 /********** Good Luck :) **********/
 int main()
 {
     scanf(" %d",&t);
+    REP1 (i,MAXN-1) {
+        p[i] = {i<<1,i<<1|1};
+    }
     while (t--) {
-        scanf(" %d%d",&n,&m);
         init();
-        REP (x,m) {
+        scanf(" %d%d",&n,&m);
+        while (m--) {
             char c;
             int u,v;
             scanf(" %c%d%d",&c,&u,&v);
             if (c == 'D') {
-                if(fnd(u) != fnd(v)) {
-                    uni(u,v);
-                }
+                uni(p[u].X,p[v].Y);
+                uni(p[u].Y,p[v].X);
             } else {
-                if (fnd(u) != fnd(v)) {
-                    printf("Not sure yet.\n");
+                if (fnd(p[u].X) == fnd(p[v].Y) || fnd(p[u].Y) == fnd(p[v].X)) {
+                    puts("In different gangs.");
+                } else if (fnd(p[u].X) == fnd(p[v].X) || fnd(p[u].Y) == fnd(p[v].Y)) {
+                    puts("In the same gang.");
                 } else {
-                    if (abs(hei(u) - hei(v))&1) {
-                        printf("In different gangs.\n");
-                    } else {
-                        printf("In the same gang.\n");
-                    }
+                    puts("Not sure yet.");
                 }
             }
         }
