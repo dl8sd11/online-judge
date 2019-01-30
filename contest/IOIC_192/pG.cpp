@@ -56,45 +56,24 @@ const ll INF=0x3f3f3f3f3f3f3f3f;
 const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-ll n,cnt[31650];
-ll myrt(ll num,ll i) {
-    ll L = 0, R = pow(num,1.0/i) + 2;
-    while (L < R - 1) {
-        ll mid = L + R >> 1;
-        ll bs = 1;
-        REP (j,i) {
-            bs *= mid;
-        }
-        if (bs <= num) {
-            L = mid;
-        } else {
-            R = mid;
-        }
-    }
-}
+
+ll t,n,k;
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> n;
-    bool flag = n & 1;
-    for (ll i = 2;i<=min(ll(sqrt(n))+1,n);i++) {
-        ll base=1,ep = 0;
-        while (base * i <= n) {
-            base *= i;
-            ep++;
-        }
-        debug(ep);
-        if ((n - ep) % 2 == 0) {
-            flag = true;
+    cin >> t;
+    while (t--) {
+        cin >> n >> k;
+        if (n <= 2 * k) {
+            cout << "First" << endl;
+        } else {
+            if ((n - 2 * k - 1) % (k + 1) == 0) {
+                cout << "Second" << endl;
+            } else {
+                cout << "First" << endl;
+            }
         }
     }
-
-    if (flag) {
-        cout << "Vasya" << endl;
-    } else {
-        cout << "Petya" << endl;
-    }
-
     return 0;
 }

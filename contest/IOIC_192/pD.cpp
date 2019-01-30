@@ -53,48 +53,76 @@ template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=1e5+5;
+const ll MAXN=3005;
 const ll MAXLG=__lg(MAXN)+2;
 
-ll n,cnt[31650];
-ll myrt(ll num,ll i) {
-    ll L = 0, R = pow(num,1.0/i) + 2;
-    while (L < R - 1) {
-        ll mid = L + R >> 1;
-        ll bs = 1;
-        REP (j,i) {
-            bs *= mid;
+
+ll sg[MAXN];
+void build() {
+    sg[0] = 0;
+    sg[1] = 1;
+    sg[2] = 1;
+    sg[3] = 1;
+    for (ll i=4;i<MAXN;i++) {
+        bool bs[MAXN] = {};
+        for (ll j=0;j<i;j++) {
+            ll L = 0,R = 0;
+            if (j - 2 >= 0) {
+                L = sg[j-2];
+            }
+            if (i - j - 3 >= 0) {
+                R = sg[i-j-3];
+            }
+            bs[L^R] = true;
         }
-        if (bs <= num) {
-            L = mid;
-        } else {
-            R = mid;
+        REP (j,MAXN) {
+            if (!bs[j]) {
+                sg[i] = j;
+                break;
+            }
         }
     }
 }
+ll t,n,a[10003];
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> n;
-    bool flag = n & 1;
-    for (ll i = 2;i<=min(ll(sqrt(n))+1,n);i++) {
-        ll base=1,ep = 0;
-        while (base * i <= n) {
-            base *= i;
-            ep++;
+    cin >> t;
+    build();
+    while (t--) {
+        cin >> n;
+        bool flag = false;
+        REP (i,n) {
+            cin >> a[i];
+            if (a[i] >= 3) {
+                flag = true;
+            }
         }
-        debug(ep);
-        if ((n - ep) % 2 == 0) {
-            flag = true;
+
+        if (!flag) {
+            cout << "Draw" << endl;
+        } else {
+            ll gg = 0;
+            REP (i,n) {
+                if (a[i] == 1) {
+                    gg ^= 1;
+                } else if (a[i] == 2) {
+                    gg ^= 0;
+                } else {
+                    gg ^= sg[a[i]];
+                }
+            }
+            if (gg == 0) {
+                cout << "Second" << endl;
+            } else {
+                cout << "First" << endl;
+            }
         }
+
+
     }
 
-    if (flag) {
-        cout << "Vasya" << endl;
-    } else {
-        cout << "Petya" << endl;
-    }
 
     return 0;
 }

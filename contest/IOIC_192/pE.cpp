@@ -56,19 +56,73 @@ const ll INF=0x3f3f3f3f3f3f3f3f;
 const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-ll n,cnt[31650];
-ll myrt(ll num,ll i) {
-    ll L = 0, R = pow(num,1.0/i) + 2;
-    while (L < R - 1) {
-        ll mid = L + R >> 1;
-        ll bs = 1;
-        REP (j,i) {
-            bs *= mid;
+
+ll anc[MAXLG][MAXN];
+ll dep[MAXN],fat[MAXN];
+vector<pii> edge[MAXN];
+ll n,q,a,b;
+
+
+void dfs(ll nd,ll par){
+  anc[0][nd] = par;
+  dep[nd] = dep[par] + 1;
+  for(auto v:edge[nd]){
+    if(v.X!=par) dfs(v.X,nd);
+    fat[v.X] = v.Y; 
+  }
+}
+void build_lca(){
+  for(ll i=1;i<MAXLG;i++){
+    for(ll j=1;j<=n;j++){
+      anc[i][j] = anc[i-1][anc[i-1][j]];
+    }
+  }
+}
+
+ll query(ll u,ll v){
+  if(dep[u] < dep[v])swap(u,v);
+  for(ll i=MAXLG-1;i>=0;i--){
+    if(dep[anc[i][u]] >= dep[v]) u = anc[i][u];
+  }
+  if(u==v)return u;
+
+  for(ll i=MAXLG-1;i>=0;i--){
+    if(anc[i][u] != anc[i][v]) {
+      u = anc[i][u];
+      v = anc[i][v];
+    }
+  }
+
+  return anc[0][u];
+}
+
+ll kthanc(ll nd,ll k) {
+    ll tmp = nd;
+    for (ll i=MAXLG-1;i>=0;i--) {
+        if (dep[nd] - dep[anc[i][tmp]] <= k) {
+            tmp = anc[i][tmp];
         }
-        if (bs <= num) {
-            L = mid;
+    }
+    return tmp;
+}
+
+ll dp1[MAXN],dp2[MAXN];
+void dfs2(ll nd,ll par) {
+    if (nd != par) {
+        if (fat[nd] >= fat[par] || par == 1) {
+            dp1[nd] = dp1[par] + 1;
         } else {
-            R = mid;
+            dp1[nd] = 1;
+        }
+        if (fat[nd] <= fat[par] || par == 1) {
+            dp2[nd] = dp2[par] + 1;
+        } else {
+            dp2[nd] = 1;
+        }
+    }
+    for (auto e : edge[nd]) {
+        if (e.X != par) {
+            dfs2(e.X,nd);
         }
     }
 }
@@ -76,24 +130,32 @@ ll myrt(ll num,ll i) {
 int main()
 {
     IOS();
-    cin >> n;
-    bool flag = n & 1;
-    for (ll i = 2;i<=min(ll(sqrt(n))+1,n);i++) {
-        ll base=1,ep = 0;
-        while (base * i <= n) {
-            base *= i;
-            ep++;
-        }
-        debug(ep);
-        if ((n - ep) % 2 == 0) {
-            flag = true;
-        }
+    cin >> n >> q;
+    REP (i,n-1) {
+        ll u,v,d;
+        cin >> u >> v >> d;
+        edge[u].emplace_back(v,d);
+        edge[v].emplace_back(u,d);
     }
 
-    if (flag) {
-        cout << "Vasya" << endl;
-    } else {
-        cout << "Petya" << endl;
+    dfs(1,1);
+    build_lca();
+    dfs2(1,1);
+
+    pary(dp1+1,dp1+n+1);
+    pary(dp2+1,dp2+n+1);
+    while (q--) {
+        cin >> a >> b;
+        ll l = query(a,b);
+        debug(l);
+        debug(kthanc(a,dep[a]-dep[l]-1),kthanc(b,dep[b]-dep[l]-1));
+        if (dp1[a] >= dep[a]-dep[l] && dp2[b] >= dep[b] - dep[l] && (a == l || b == l || fat[kthanc(a,dep[a]-dep[l]-1)] >= fat[kthanc(b,dep[b]-dep[l]-1)])) {
+            cout << "YES" << endl;
+        } else if (dp2[a] >= dep[a]-dep[l] && dp1[b] >= dep[b] - dep[l] && (a == l || b == l || fat[kthanc(a,dep[a]-dep[l]-1)] <= fat[kthanc(b,dep[b]-dep[l]-1)])) {
+            cout << "YES" << endl;
+        } else {
+            cout << "NO" << endl;
+        }
     }
 
     return 0;
