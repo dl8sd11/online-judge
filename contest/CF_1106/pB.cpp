@@ -17,22 +17,22 @@ typedef pair<double,double> pdd;
 #define X first
 #define Y second
 #ifdef tmd
-#define debug(...) do{							\
-    fprintf(stderr,"%s - %d (%s) = ",__PRETTY_FUNCTION__,__LINE__,#__VA_ARGS__); \
-    _do(__VA_ARGS__);							\
-  }while(0)
+#define debug(...) do{\
+    fprintf(stderr,"%s - %d (%s) = ",__PRETTY_FUNCTION__,__LINE__,#__VA_ARGS__);\
+    _do(__VA_ARGS__);\
+}while(0)
 template<typename T>void _do(T &&_x){cerr<<_x<<endl;}
 template<typename T,typename ...S> void _do(T &&_x,S &&..._t){cerr<<_x<<" ,";_do(_t...);}
 template<typename _a,typename _b> ostream& operator << (ostream &_s,const pair<_a,_b> &_p){return _s<<"("<<_p.X<<","<<_p.Y<<")";}
 template<typename It> ostream& _OUTC(ostream &_s,It _ita,It _itb)
 {
-  _s<<"{";
-  for(It _it=_ita;_it!=_itb;_it++)
+    _s<<"{";
+    for(It _it=_ita;_it!=_itb;_it++)
     {
-      _s<<(_it==_ita?"":",")<<*_it;
+        _s<<(_it==_ita?"":",")<<*_it;
     }
-  _s<<"}";
-  return _s;
+    _s<<"}";
+    return _s;
 }
 template<typename _a> ostream &operator << (ostream &_s,vector<_a> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _a> ostream &operator << (ostream &_s,set<_a> &_c){return _OUTC(_s,ALL(_c));}
@@ -56,40 +56,51 @@ const ll INF=0x3f3f3f3f3f3f3f3f;
 const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-ll n,m,k;
-ll x,y,cur,ans;
-vector<pair<ll,ll> > input;
-vector<ll> edge[MAXN];
-ll cnt[MAXN];
-bool trip[MAXN];
-queue<ll> qu;
-/********** Main()  function **********/
+ll n,m;
+ll a[MAXN],c[MAXN],t,d;
+priority_queue<pii,vector<pii>,greater<pii> > fd;
+/********** Good Luck :) **********/
 int main()
 {
-  IOS();
-  cin>>n>>m>>k;
-  REP(i,m){
-    cin>>x>>y;
-    input.eb(x,y);
-    edge[x].eb(y);
-    edge[y].eb(x);
-    cnt[x]++,cnt[y]++;
-  }
-
-  ans = n;
-  REP1(i,n)trip[i] = 1;
-  REP1(i,n)if(cnt[i] < k)qu.push(i),trip[i]=0,ans--;
-  while(qu.size()){
-    cur = qu.front();qu.pop();
-    for(auto v:edge[cur]){
-      if(cnt[v]-- == k){
-	qu.push(v);
-	trip[v] = 0;
-	ans--;
-      }
+    IOS();
+    cin >> n >> m;
+    REP (i,n) {
+        cin >> a[i];
     }
-  }
+    REP (i,n) {
+        cin >> c[i];
+        fd.emplace(c[i],i);
+    }
 
-  debug(ans);
-  return 0;
+    while (m--) {
+        cin >> t >> d;
+        t--;
+        ll cur = 0;
+        while (d) {
+            if (a[t] > 0) {
+                ll rm = min(a[t],d);
+                d -= rm;
+                a[t] -= rm;
+                cur += c[t] * rm;
+                debug(d,cur);
+            } else if (fd.size()) {
+                pii f = fd.top();
+                fd.pop();
+                ll rm = min(a[f.Y],d);
+                d -= rm;
+                a[f.Y] -= rm;
+                cur += rm * c[f.Y];
+                if (a[f.Y] > 0) {
+                    fd.emplace(f);
+                }
+                debug(d,cur);
+            } else {
+                cur = 0;
+                d = 0;
+            }
+        }
+        cout << cur << endl;
+    }
+
+    return 0;
 }

@@ -17,22 +17,22 @@ typedef pair<double,double> pdd;
 #define X first
 #define Y second
 #ifdef tmd
-#define debug(...) do{							\
-    fprintf(stderr,"%s - %d (%s) = ",__PRETTY_FUNCTION__,__LINE__,#__VA_ARGS__); \
-    _do(__VA_ARGS__);							\
-  }while(0)
+#define debug(...) do{\
+    fprintf(stderr,"%s - %d (%s) = ",__PRETTY_FUNCTION__,__LINE__,#__VA_ARGS__);\
+    _do(__VA_ARGS__);\
+}while(0)
 template<typename T>void _do(T &&_x){cerr<<_x<<endl;}
 template<typename T,typename ...S> void _do(T &&_x,S &&..._t){cerr<<_x<<" ,";_do(_t...);}
 template<typename _a,typename _b> ostream& operator << (ostream &_s,const pair<_a,_b> &_p){return _s<<"("<<_p.X<<","<<_p.Y<<")";}
 template<typename It> ostream& _OUTC(ostream &_s,It _ita,It _itb)
 {
-  _s<<"{";
-  for(It _it=_ita;_it!=_itb;_it++)
+    _s<<"{";
+    for(It _it=_ita;_it!=_itb;_it++)
     {
-      _s<<(_it==_ita?"":",")<<*_it;
+        _s<<(_it==_ita?"":",")<<*_it;
     }
-  _s<<"}";
-  return _s;
+    _s<<"}";
+    return _s;
 }
 template<typename _a> ostream &operator << (ostream &_s,vector<_a> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _a> ostream &operator << (ostream &_s,set<_a> &_c){return _OUTC(_s,ALL(_c));}
@@ -53,43 +53,76 @@ template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=1e5+5;
+const ll MAXN=3e6+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-ll n,m,k;
-ll x,y,cur,ans;
-vector<pair<ll,ll> > input;
-vector<ll> edge[MAXN];
-ll cnt[MAXN];
-bool trip[MAXN];
-queue<ll> qu;
-/********** Main()  function **********/
+ll t,n;
+ll prime[216818],pid;
+bitset<MAXN> sieve;
+
+void linear_sieve() {
+    for (ll i=2;i<MAXN;i++) {
+        if (!sieve[i]) {
+            prime[pid++] = i;
+        }
+        for (ll j=0;j<pid && prime[j]*i<MAXN; j++) {
+            sieve[prime[j]*i] = true;
+            if (i % prime[j] == 0 ) {
+                break;
+            }
+        }
+    }
+}
+
+ll mpow(ll a, ll b, ll mod = MOD)
+{
+    ll ans = 1;
+    while(b) {
+        if(b & 1) ans = (ans * a) % mod;
+        a = (a * a) % mod;
+        b >>= 1;
+    }
+    return ans;
+}
+
+
+pair<ll,ll> f[25];
+/********** Good Luck :) **********/
 int main()
 {
-  IOS();
-  cin>>n>>m>>k;
-  REP(i,m){
-    cin>>x>>y;
-    input.eb(x,y);
-    edge[x].eb(y);
-    edge[y].eb(x);
-    cnt[x]++,cnt[y]++;
-  }
+    IOS();
+    linear_sieve();
+    cin >> t;
+    while (t--) {
+        ll ans = 1;
+        cin >> n;
+        for (ll i=0;i<pid && prime[i] <= n;i++) {
+            ll p = prime[i];
+            
+            ll idx = 0;
+            for (ll j=1;j<=n;j*=p,idx++) {
+                f[idx] = {j,n/j - n/(j*p)};
+            }
+            assert(idx < 25);
 
-  ans = n;
-  REP1(i,n)trip[i] = 1;
-  REP1(i,n)if(cnt[i] < k)qu.push(i),trip[i]=0,ans--;
-  while(qu.size()){
-    cur = qu.front();qu.pop();
-    for(auto v:edge[cur]){
-      if(cnt[v]-- == k){
-	qu.push(v);
-	trip[v] = 0;
-	ans--;
-      }
+            for (ll i1=0;i1<idx;i1++) {
+                for (ll i2=0;i2<idx;i2++) {
+                    for (ll i3=0;i3<idx;i3++) {
+                        ll lcd = f[max(min(i1,i2),i3)].X;
+                        ll gcm = f[min(max(i1,i2),i3)].X;
+                        ll cur = lcd * gcm % MOD;
+                        cur = mpow(cur,(f[i1].Y*f[i2].Y%MOD*f[i3].Y)%MOD);
+                        if (cur != 0) {
+                            ans = (ans * cur) % MOD;
+                        }
+                    }
+                }
+            }
+
+        }
+
+        cout << ans << endl;
     }
-  }
-
-  debug(ans);
-  return 0;
+    return 0;
 }
+
