@@ -56,60 +56,59 @@ const ll INF=0x3f3f3f3f3f3f3f3f;
 const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-ll h,w,n;
-pair<ll,ll> pos[MAXN];
-ll dp[MAXN],fac[200003],rev[200003];
+//dp[n][m] denote n boxed and m remainding moves
+ll dp[105][105];
+double dp2[105][105];
 
-ll mpow(ll a,ll b) {
-    if (b == 0) {
+ll mpow(ll base,ll ep) {
+    if (ep == 0) {
         return 1;
     }
-    ll hf = mpow(a,b >> 1);
+    ll hf = mpow(base,ep>>1);
     hf = hf * hf % MOD;
-    return b & 1 ? hf * a % MOD : hf;
+    return ep & 1 ? hf * base % MOD : hf;
 }
 
-ll inv(ll a) {
-    return mpow(a,MOD - 2);
+ll inv(ll base,ll md=MOD) {
+    return mpow(base,md-2);
 }
 
-ll cob(ll a,ll b) {
-    a += b;
-    return fac[a] * rev[b] % MOD * rev[a-b] % MOD;
+ll t,n,m,k,invn;
+ll solve(ll g,ll st) {
+    if (dp[g][st] != -1) {
+        return dp[g][st];
+    }
+    if (st == 0) {
+        dp2[g][st] = 0;
+        dp[g][st] = 0;
+        return 0;
+    }
+    if (g == 0) {
+        solve(g+1,st-1);
+        dp2[g][st] = 1.0 / n + double(n-1)/n * dp2[g+1][st-1];
+        return dp[g][st] = (invn + (n-1) * invn % MOD * dp[g+1][st-1] % MOD) % MOD;
+    } else {
+        ll o1 = (inv(n+g*k) + (n-1) * inv(n+g*k) % MOD * solve(g+1,st-1) % MOD) % MOD;
+        ll o2 = solve(0,st - 1);
+        if (1.0 / (n+g*k) + double(n-1)/(n+g*k) * dp2[g+1][st-1] > dp2[0][st-1]) {
+            dp2[g][st] = 1.0 / (n+g*k) + double(n-1)/(n+g*k) * dp2[g+1][st-1];
+            return dp[g][st] = o1;
+        } else {
+            dp2[g][st] = dp2[0][st-1];
+            return dp[g][st] = o2;
+        }
+    }
 }
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> h >> w >> n;
-    REP (i,n) {
-        cin >> pos[i].X >> pos[i].Y;
+    cin >> t;
+    while (t--) {
+        MEM(dp,-1);
+        cin >> n >> k >> m;
+        invn = inv(n);
+        cout << solve(0,m) << endl;
     }
-    pos[n++] = {h,w};
-
-    sort(pos,pos+n);
-
-    fac[0] = 1;
-    rev[0] = 1;
-    REP1 (i,200002) {
-        fac[i] = fac[i-1] * i % MOD;
-        rev[i] = inv(fac[i]);
-    }
-
-    REP (i,n) {
-        dp[i] = cob(pos[i].X-1,pos[i].Y-1);
-        REP (j,i) {
-            if (pos[i].X >= pos[j].X && pos[i].Y >= pos[j].Y) {
-                dp[i] -= (dp[j] * cob(pos[i].X-pos[j].X,pos[i].Y-pos[j].Y)) % MOD;
-                if (dp[i] < 0) {
-                    dp[i] += MOD;
-                }                
-            }
-        }
-        debug(pos[i],dp[i]);
-    }
-
-    cout << dp[n-1] << endl;
     return 0;
 }
-//DP

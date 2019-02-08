@@ -53,63 +53,42 @@ template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=1e5+5;
+const ll MAXN=3002;
 const ll MAXLG=__lg(MAXN)+2;
 
-ll h,w,n;
-pair<ll,ll> pos[MAXN];
-ll dp[MAXN],fac[200003],rev[200003];
-
-ll mpow(ll a,ll b) {
-    if (b == 0) {
-        return 1;
-    }
-    ll hf = mpow(a,b >> 1);
-    hf = hf * hf % MOD;
-    return b & 1 ? hf * a % MOD : hf;
-}
-
-ll inv(ll a) {
-    return mpow(a,MOD - 2);
-}
-
-ll cob(ll a,ll b) {
-    a += b;
-    return fac[a] * rev[b] % MOD * rev[a-b] % MOD;
-}
+string s;
+ll n;
+ll dp[MAXN][MAXN];
+ll pre[MAXN][MAXN];
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> h >> w >> n;
-    REP (i,n) {
-        cin >> pos[i].X >> pos[i].Y;
-    }
-    pos[n++] = {h,w};
+    cin >> n;
+    cin >> s;
 
-    sort(pos,pos+n);
-
-    fac[0] = 1;
-    rev[0] = 1;
-    REP1 (i,200002) {
-        fac[i] = fac[i-1] * i % MOD;
-        rev[i] = inv(fac[i]);
+    dp[0][1] = 1;
+    REP1 (i,n) {
+        pre[0][i] = 1;
     }
 
-    REP (i,n) {
-        dp[i] = cob(pos[i].X-1,pos[i].Y-1);
-        REP (j,i) {
-            if (pos[i].X >= pos[j].X && pos[i].Y >= pos[j].Y) {
-                dp[i] -= (dp[j] * cob(pos[i].X-pos[j].X,pos[i].Y-pos[j].Y)) % MOD;
-                if (dp[i] < 0) {
-                    dp[i] += MOD;
-                }                
+    REP1 (i,n-1) {
+        REP1 (j,i+1) {
+            if (s[i-1] == '>') {
+                dp[i][j] = (pre[i-1][i] - pre[i-1][j-1] + MOD) % MOD;
+            } else {
+                dp[i][j] = pre[i-1][j-1];
             }
+            pre[i][j] = (pre[i][j-1] + dp[i][j]) % MOD;
         }
-        debug(pos[i],dp[i]);
     }
 
-    cout << dp[n-1] << endl;
+    ll ans = 0;
+    REP1 (i,n) {
+        ans += dp[n-1][i];
+        ans %= MOD;
+    }
+
+    cout << ans << endl;
     return 0;
 }
-//DP

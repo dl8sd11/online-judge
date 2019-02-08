@@ -56,60 +56,43 @@ const ll INF=0x3f3f3f3f3f3f3f3f;
 const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-ll h,w,n;
-pair<ll,ll> pos[MAXN];
-ll dp[MAXN],fac[200003],rev[200003];
-
-ll mpow(ll a,ll b) {
-    if (b == 0) {
-        return 1;
-    }
-    ll hf = mpow(a,b >> 1);
-    hf = hf * hf % MOD;
-    return b & 1 ? hf * a % MOD : hf;
-}
-
-ll inv(ll a) {
-    return mpow(a,MOD - 2);
-}
-
-ll cob(ll a,ll b) {
-    a += b;
-    return fac[a] * rev[b] % MOD * rev[a-b] % MOD;
-}
+ll t;
+string str;
+ll cnt[30];
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> h >> w >> n;
-    REP (i,n) {
-        cin >> pos[i].X >> pos[i].Y;
-    }
-    pos[n++] = {h,w};
+    cin >> t;
+    while (t--) {
+        cin >> str;
+        MEM(cnt,0);
+        REP (i,SZ(str)) {
+            cnt[str[i] - 'A']++;
+        }
+        sort(cnt,cnt+30,[&](const ll &a,const ll &b){return a > b;});
+        pary(cnt,cnt+30);
 
-    sort(pos,pos+n);
-
-    fac[0] = 1;
-    rev[0] = 1;
-    REP1 (i,200002) {
-        fac[i] = fac[i-1] * i % MOD;
-        rev[i] = inv(fac[i]);
-    }
-
-    REP (i,n) {
-        dp[i] = cob(pos[i].X-1,pos[i].Y-1);
-        REP (j,i) {
-            if (pos[i].X >= pos[j].X && pos[i].Y >= pos[j].Y) {
-                dp[i] -= (dp[j] * cob(pos[i].X-pos[j].X,pos[i].Y-pos[j].Y)) % MOD;
-                if (dp[i] < 0) {
-                    dp[i] += MOD;
-                }                
+        ll ans = INF;
+        REP1 (i,SZ(str)) {
+            if (SZ(str) % i == 0 && i <= 26) {
+                ll tg = SZ(str) / i;
+                ll po = 0,na = 0;
+                REP (j,i) {
+                    if (cnt[j] > tg) {
+                        po += cnt[j] - tg;
+                    } else {
+                        na += tg - cnt[j];
+                    }
+                }   
+                
+                ll cur = max(po,na);
+                debug(i,cur);
+                ans = min(ans,cur);
             }
         }
-        debug(pos[i],dp[i]);
-    }
 
-    cout << dp[n-1] << endl;
+        cout << ans << endl;
+    }
     return 0;
 }
-//DP

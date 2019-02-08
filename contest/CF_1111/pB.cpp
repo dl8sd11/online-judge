@@ -56,60 +56,29 @@ const ll INF=0x3f3f3f3f3f3f3f3f;
 const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-ll h,w,n;
-pair<ll,ll> pos[MAXN];
-ll dp[MAXN],fac[200003],rev[200003];
-
-ll mpow(ll a,ll b) {
-    if (b == 0) {
-        return 1;
-    }
-    ll hf = mpow(a,b >> 1);
-    hf = hf * hf % MOD;
-    return b & 1 ? hf * a % MOD : hf;
-}
-
-ll inv(ll a) {
-    return mpow(a,MOD - 2);
-}
-
-ll cob(ll a,ll b) {
-    a += b;
-    return fac[a] * rev[b] % MOD * rev[a-b] % MOD;
-}
+ll n,k,m;
+ll a[MAXN];
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> h >> w >> n;
+    cin >> n >> k >> m;
     REP (i,n) {
-        cin >> pos[i].X >> pos[i].Y;
+        cin >> a[i];
     }
-    pos[n++] = {h,w};
+    sort(a,a+n,[&](ll i,ll j){return i>j;});
 
-    sort(pos,pos+n);
-
-    fac[0] = 1;
-    rev[0] = 1;
-    REP1 (i,200002) {
-        fac[i] = fac[i-1] * i % MOD;
-        rev[i] = inv(fac[i]);
+    ll sum = 0;
+    REP (i,n-min(m,n-1)) {
+        sum += a[i];
     }
 
-    REP (i,n) {
-        dp[i] = cob(pos[i].X-1,pos[i].Y-1);
-        REP (j,i) {
-            if (pos[i].X >= pos[j].X && pos[i].Y >= pos[j].Y) {
-                dp[i] -= (dp[j] * cob(pos[i].X-pos[j].X,pos[i].Y-pos[j].Y)) % MOD;
-                if (dp[i] < 0) {
-                    dp[i] += MOD;
-                }                
-            }
-        }
-        debug(pos[i],dp[i]);
+    double ans = 0;
+    RREP (i,min(m,n-1)) {
+        ans = max(ans,double(sum+min((n-i)*k,m-i)) / double(n-i));
+        sum += a[n-i];
     }
 
-    cout << dp[n-1] << endl;
+    cout << fixed << setprecision(10) << ans << endl;
     return 0;
 }
-//DP

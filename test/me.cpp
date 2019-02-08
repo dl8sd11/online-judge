@@ -1,6 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
-typedef  int ll;
+typedef long long ll;
 typedef pair<ll, ll> pii;
 typedef pair<double,double> pdd;
 #define MEM(a, b) memset(a, (b), sizeof(a))
@@ -52,82 +52,140 @@ template<class T> using MaxHeap = priority_queue<T>;
 template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
-const ll INF=0x3f3f3f3f;
-const ll MAXN=3e5+5;
+const ll INF=0x3f3f3f3f3f3f3f3f;
+const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-int n,k,sft;
-deque<pii> qu[MAXN];
-int dp[MAXN],pos[MAXN],zero;
-bool c[MAXN];
-
-int t[MAXN*2],N;
-void build(){
-    for(int i=MAXN-1;i>0;i--)t[i] = min(t[i<<1],t[i<<1|1]);
-}
-void modi(int x,int y){
-    x += sft;
-    for(t[x+=MAXN]=y;x>1;x>>=1)t[x>>1] = min(t[x],t[x^1]);
-}
-int query(int l,int r){
-    int res = INF;
-    l += sft;
-    r += sft;
-    for(l+=MAXN,r+=MAXN;l<r;l>>=1,r>>=1){
-        if(l&1)res=min(res,t[l++]);
-        if(r&1)res=min(res,t[--r]);
+struct SuffixArray {
+    ll n;
+    string s;
+    vector<ll> x,r,t,lcp;
+    SuffixArray(const string str) : s(str),n(SZ(str)),lcp(n), x(n), r(n), t(n) {
+        for (ll i=0; i < n; i++) {
+            r[x[i] = i] = s[i];
+        }
+        for (ll h=1; t[n-1] != n-1; h *= 2) {
+            auto cmp = [&](ll i,ll j) {
+                if (r[i] != r[j]) {
+                    return r[i] < r[j];
+                } else {
+                    return i+h < n && j+h < n ? r[i+h] < r[j+h] : i > j;
+                }
+            };
+            sort(ALL(x),cmp);
+            for (ll i=0; i+1 < n; i++) {
+                t[i+1] = t[i] + cmp(x[i],x[i+1]);
+            }
+            for (ll i=0; i < n; i++) {
+                r[x[i]] = t[i];
+            }
+        }                    
     }
-    return res;
-}
+    ll operator [] (ll idx) {
+        return x[idx];
+    }
+
+    void build_lcp() {
+        for (ll i = 0,p = 0; i < n; i++) {
+            if (r[i] == 0) {
+                lcp[r[i]] = 0;
+            } else {
+                ll j = x[r[i]-1];
+                if (p > 0) {
+                    p--;
+                }
+                while (s[i+p] == s[j+p]) {
+                    p++;
+                }
+                lcp[r[i]] = p;
+            }
+        }
+    }
+
+};
+ll L[MAXN],R[MAXN],G[MAXN],gid,st[MAXN],ans[MAXN];
 /********** Good Luck :) **********/
 int main()
 {
-    // IOS();
-#ifndef tmd
-    freopen("redistricting.in","r",stdin);
-    freopen ("redistricting.out","w",stdout);
-#endif
-    cin >> n >> k;
+    IOS();
+    ll n;
+    string name[MAXN],t;
 
-    MEM(t,INF);
-    N = n;
-    sft = -INF;
-    int sum = 0;
+// #ifndef tmd
+//     freopen("standingout.in","r",stdin);
+//     freopen ("standingout.out","w",stdout);
+// #endif
+    cin >> n;
     REP (i,n) {
-        char inp;
-        cin >> inp;
-        c[i] = inp=='H';
-        sum += c[i]?1:-1;
-        sft = max(sft,sum);
+        cin >> name[i];
+        t += name[i] + char(123);
+        st[i] = gid;
+        REP (j,SZ(name[i])) {
+            G[gid++] = i;
+        }
+        G[gid++] = -1;
     }
-    sft++;
-    debug(sft);
-    build();
-    REP (i,n) {
-        // debug(i);
-        pos[i] = zero;
-        zero -= c[i]?1:-1;
+    debug(t);
+    pary(G,G+SZ(t));
+    
+    SuffixArray sa(t);
+    sa.build_lcp();
 
-        if (i-k>=0) {
-            while(qu[sft+pos[i-k]].size()&&qu[sft+pos[i-k]].front().X == i-k) {
-                qu[sft+pos[i-k]].pop_front();
-            }
-            if (qu[sft+pos[i-k]].empty()) {
-                modi(pos[i-k],INF);
+    debug(sa.lcp);
+    REP (i,sa.n) {
+        debug(t.substr(sa[i]));
+    }
+    REP (i,sa.n) {
+        if (i == 0) {
+            L[sa[i]] = 0;
+        } else {
+            ll idx = sa[i];
+            ll cp = min(SZ(name[G[idx]])-idx+st[G[idx]],sa.lcp[i]);
+            if (G[idx] != G[sa[i-1]]) {
+                L[idx] = cp;
             } else {
-                modi(pos[i-k],qu[sft+pos[i-k]].front().Y);
+                L[idx] = min(cp,L[sa[i-1]]);
             }
         }
-
-        while (qu[sft+pos[i]].size()&&qu[sft+pos[i]].back().Y >= dp[i-1])qu[sft+pos[i]].pop_back();
-        qu[sft+pos[i]].emplace_back(i,i?dp[i-1]:0);
-        modi(pos[i],qu[sft+pos[i]].front().Y);
-
-        debug(query(zero+1,MAXN-sft),query(-sft,zero+1)+1);
-        dp[i] = min(query(zero+1,MAXN-sft),query(-sft,zero+1)+1);
     }
 
-    pary(dp,dp+n);
-    cout << dp[n-1] << endl;
+    RREP(i,sa.n-1) {
+        ll idx = sa[i];
+        if (i == sa.n - 1) {
+            R[idx] = 0;
+        } else {
+            debug(SZ(name[G[idx]])-idx+st[G[idx]],sa.lcp[i+1]);
+            R[idx] = min(SZ(name[G[idx]])-idx+st[G[idx]],sa.lcp[i+1]);
+        }
+    }
+    // REP (i,sa.n) {
+    //     if (sa.r[i] == 0) {
+    //         L[i] = 0;
+    //     } else {
+    //         ll cur = sa.r[i]; // rank of the suffix
+    //     }
+    // }
+
+    // RREP(i,sa.n-1) {
+    //     if (sa.r[i] == sa.n - 1) {
+    //         R[i] = 0;
+    //     } else {
+    //         ll cur = sa.r[i];
+    //         R[i] = min(SZ(name[G[i]])-i+st[G[i]],sa.lcp[cur+1]);
+    //     }
+    // }
+
+    pary(L,L+sa.n);
+    pary(R,R+sa.n);
+
+    REP (i,sa.n) {
+        if (G[i] != -1) {
+            ans[G[i]] += SZ(name[G[i]])-i+st[G[i]]-max(L[i],R[i]);
+        }
+    }
+
+    REP (i,n) {
+        cout << ans[i] << endl;
+    }
     return 0;
 }

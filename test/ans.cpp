@@ -1,86 +1,126 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <cstring>
+#include <vector>
+#include <algorithm>
+ 
 using namespace std;
-typedef  int ll;
-typedef pair<ll, ll> pii;
-typedef pair<double,double> pdd;
-#define MEM(a, b) memset(a, (b), sizeof(a))
-#define SZ(i) ll(i.size())
-#define FOR(i, j, k, in) for (ll i=j ; i<k ; i+=in)
-#define RFOR(i, j, k, in) for (ll i=j ; i>=k ; i-=in)
-#define REP(i, j) FOR(i, 0, j, 1)
-#define REP1(i,j) FOR(i, 1, j+1, 1)
-#define RREP(i, j) RFOR(i, j, 0, 1)
-#define ALL(_a) _a.begin(),_a.end()
-#define mp make_pair
-#define pb push_back
-#define eb emplace_back
-#define X first
-#define Y second
-#ifdef tmd
-#define debug(...) do{\
-    fprintf(stderr,"%s - %d (%s) = ",__PRETTY_FUNCTION__,__LINE__,#__VA_ARGS__);\
-    _do(__VA_ARGS__);\
-}while(0)
-template<typename T>void _do(T &&_x){cerr<<_x<<endl;}
-template<typename T,typename ...S> void _do(T &&_x,S &&..._t){cerr<<_x<<" ,";_do(_t...);}
-template<typename _a,typename _b> ostream& operator << (ostream &_s,const pair<_a,_b> &_p){return _s<<"("<<_p.X<<","<<_p.Y<<")";}
-template<typename It> ostream& _OUTC(ostream &_s,It _ita,It _itb)
-{
-    _s<<"{";
-    for(It _it=_ita;_it!=_itb;_it++)
-    {
-        _s<<(_it==_ita?"":",")<<*_it;
-    }
-    _s<<"}";
-    return _s;
+ 
+struct suffix_array {
+suffix_array(const char* S) : N(strlen(S)) {
+  vector<int> V;
+  for(int i = 0; i < N; i++) V.push_back(S[i]);
+  init(V);
 }
-template<typename _a> ostream &operator << (ostream &_s,vector<_a> &_c){return _OUTC(_s,ALL(_c));}
-template<typename _a> ostream &operator << (ostream &_s,set<_a> &_c){return _OUTC(_s,ALL(_c));}
-template<typename _a,typename _b> ostream &operator << (ostream &_s,map<_a,_b> &_c){return _OUTC(_s,ALL(_c));}
-template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
-#define IOS()
-#else
-#define debug(...)
-#define pary(...)
-#define endl '\n'
-#define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
-#endif
-
-template<class T> inline bool cmax(T &a, const T &b) { return b > a ? a = b, true : false; }
-template<class T> inline bool cmin(T &a, const T &b) { return b < a ? a = b, true : false; }
-template<class T> using MaxHeap = priority_queue<T>;
-template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
-
-const ll MOD=1000000007;
-const ll INF=0x3f3f3f3f;
-const ll MAXN=3e5+5;
-const ll MAXLG=__lg(MAXN)+2;
-
-int n,k;
-int dp[MAXN],pre[MAXN];
-/********** Good Luck :) **********/
-int main()
-{
-    // IOS();
-// #ifndef tmd
-//     freopen("redistricting.in","r",stdin);
-//     freopen ("redistricting.out","w",stdout);
-// #endif
-    cin >> n >> k;
-
-    MEM(dp,INF);
-    REP (i,n) {
-        debug(i);
-        char inp;
-        cin >> inp;
-        pre[i] = (i?pre[i-1]:0) + (inp=='H'?1:-1);
-        REP (j,k) {
-            dp[i] = min(dp[i],(i-j>0?dp[i-j-1]:0)+(pre[i]-(i-j>0?pre[i-j-1]:0)<1));
-        }
-        
+ 
+suffix_array(const vector<int>& VV) : N(VV.size()) {
+  vector<int> V(VV);
+  init(V);
+}
+ 
+int N;
+vector<int> SA;
+vector<int> RA;
+ 
+void compress(vector<int>& V, vector<int>& C) {
+  copy(V.begin(), V.end(), C.begin());
+  sort(C.begin(), C.end());
+  auto cend = unique(C.begin(), C.end());
+  for(int i = 0; i < N; i++) {
+    V[i] = lower_bound(C.begin(), cend, V[i]) - C.begin() + 1;
+  }
+  V.push_back(0); C.push_back(0);
+}
+ 
+void compute_sa(vector<int>& V, vector<int>& C) {
+  vector<int> T(N + 1);
+  for(int i = 0; i <= N; i++) SA.push_back(i);
+  for(int ski = 0; V[SA[N]] < N; ski = ski ? ski << 1 : 1) {
+    fill(C.begin(), C.end(), 0);
+    for(int i = 0; i < ski; i++) T[i] = N - i;
+    for(int i = 0, p = ski; i <= N; i++) if(SA[i] >= ski) T[p++] = SA[i] - ski;
+    for(int i = 0; i <= N; i++) C[V[i]]++;
+    for(int i = 1; i <= N; i++) C[i] += C[i - 1];
+    for(int i = N; i >= 0; i--) SA[--C[V[T[i]]]] = T[i];
+    
+    T[SA[0]] = 0;
+    for(int j = 1; j <= N; j++) {
+      int a = SA[j];
+      int b = SA[j - 1];
+      T[a] = T[b] + (a + ski >= N || b + ski >= N ||
+                     V[a] != V[b] || V[a + ski] != V[b + ski]);
     }
-    // pary(dp,dp+n);
-    // pary(pre,pre+n);
-    cout << dp[n-1] << endl;
-    return 0;
+    V.swap(T);
+  }
+}
+ 
+void compute_lcp(const vector<int>& OV) {
+  LCP = vector<int>(N);
+  int len = 0;
+  for(int i = 0; i < N; i++, len = max(0, len - 1)) {
+    int si = RA[i];
+    int j = SA[si - 1];
+    for(; i + len < N && j + len < N && OV[i + len] == OV[j + len]; len++);
+    LCP[si - 1] = len;
+  }
+}
+ 
+void init(vector<int>& V) {
+  vector<int> OV(V);
+  vector<int> C(N);
+  compress(V, C);
+  compute_sa(V, C);
+  RA.resize(N + 1);
+  for(int i = 0; i <= N; i++) RA[SA[i]] = i;
+  compute_lcp(OV);
+}
+  
+vector<int> LCP;
+};
+ 
+int main() {
+  ios_base::sync_with_stdio(false);
+ 
+  string S;
+  vector<pair<int, int> > A;
+ 
+  int N; cin >> N;
+  for (int i = 0; i < N; i++) {
+    string T; cin >> T;
+ 
+    S += T;
+    S += "?";
+    for (int j = 0; j < T.size(); j++) {
+      A.push_back(make_pair(i, T.size() - j));
+    }
+    A.push_back(make_pair(-1, -1));
+  }
+  A.push_back(make_pair(-1, -1));
+ 
+  vector<int> result(N);
+  suffix_array sa(S.c_str());
+  sa.LCP.push_back(0);
+  for (int i = 1; i <= sa.N; ) {
+    int j = sa.SA[i];
+    int ind = A[j].first;
+    if (ind == -1) {
+      ++i;
+      continue;
+    }
+    int sz = 1;
+    while (i + sz <= sa.N && A[sa.SA[i + sz]].first == ind) {
+      ++sz;
+    }
+ 
+    int ln = sa.LCP[i - 1];
+    for (int j = i; j < i + sz; j++) {
+      result[ind] += max(A[sa.SA[j]].second - max(ln, sa.LCP[j]), 0);
+      ln = min(ln, sa.LCP[j]);
+    }
+    i += sz;
+  }
+  for (int x : result) {
+    cout << x << '\n';
+  }
+ 
+  return 0;
 }

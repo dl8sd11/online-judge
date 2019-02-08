@@ -56,60 +56,35 @@ const ll INF=0x3f3f3f3f3f3f3f3f;
 const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-ll h,w,n;
-pair<ll,ll> pos[MAXN];
-ll dp[MAXN],fac[200003],rev[200003];
-
-ll mpow(ll a,ll b) {
-    if (b == 0) {
-        return 1;
+ll n,k,a,b;
+ll p[MAXN];
+ll solve(ll L,ll R) {
+    ll *lptr = lower_bound(p,p+k,L);
+    ll *rptr = lower_bound(p,p+k,R);
+    // debug(L,R,(rptr - lptr));
+    
+    if (rptr == lptr) {
+        return a;
+    } else {
+        if (L == R - 1) {
+            return b * (rptr - lptr);
+        }
+        ll o2 = b * (rptr - lptr) * (R - L);
+        ll mid = (L + R) >> 1;
+        debug(L,R,solve(L,mid),solve(mid,R),o2);
+        return min(solve(L,mid)+solve(mid,R),o2);
     }
-    ll hf = mpow(a,b >> 1);
-    hf = hf * hf % MOD;
-    return b & 1 ? hf * a % MOD : hf;
-}
-
-ll inv(ll a) {
-    return mpow(a,MOD - 2);
-}
-
-ll cob(ll a,ll b) {
-    a += b;
-    return fac[a] * rev[b] % MOD * rev[a-b] % MOD;
 }
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> h >> w >> n;
-    REP (i,n) {
-        cin >> pos[i].X >> pos[i].Y;
+    cin >> n >> k >> a >> b;
+    REP (i,k) {
+        cin >> p[i];
     }
-    pos[n++] = {h,w};
+    sort(p,p+k);
 
-    sort(pos,pos+n);
-
-    fac[0] = 1;
-    rev[0] = 1;
-    REP1 (i,200002) {
-        fac[i] = fac[i-1] * i % MOD;
-        rev[i] = inv(fac[i]);
-    }
-
-    REP (i,n) {
-        dp[i] = cob(pos[i].X-1,pos[i].Y-1);
-        REP (j,i) {
-            if (pos[i].X >= pos[j].X && pos[i].Y >= pos[j].Y) {
-                dp[i] -= (dp[j] * cob(pos[i].X-pos[j].X,pos[i].Y-pos[j].Y)) % MOD;
-                if (dp[i] < 0) {
-                    dp[i] += MOD;
-                }                
-            }
-        }
-        debug(pos[i],dp[i]);
-    }
-
-    cout << dp[n-1] << endl;
+    cout << solve(1,(1<<n)+1) << endl;
     return 0;
 }
-//DP

@@ -17,22 +17,22 @@ typedef pair<double,double> pdd;
 #define X first
 #define Y second
 #ifdef tmd
-#define debug(...) do{							\
-    fprintf(stderr,"%s - %d (%s) = ",__PRETTY_FUNCTION__,__LINE__,#__VA_ARGS__); \
-    _do(__VA_ARGS__);							\
-  }while(0)
+#define debug(...) do{\
+    fprintf(stderr,"%s - %d (%s) = ",__PRETTY_FUNCTION__,__LINE__,#__VA_ARGS__);\
+    _do(__VA_ARGS__);\
+}while(0)
 template<typename T>void _do(T &&_x){cerr<<_x<<endl;}
 template<typename T,typename ...S> void _do(T &&_x,S &&..._t){cerr<<_x<<" ,";_do(_t...);}
 template<typename _a,typename _b> ostream& operator << (ostream &_s,const pair<_a,_b> &_p){return _s<<"("<<_p.X<<","<<_p.Y<<")";}
 template<typename It> ostream& _OUTC(ostream &_s,It _ita,It _itb)
 {
-  _s<<"{";
-  for(It _it=_ita;_it!=_itb;_it++)
+    _s<<"{";
+    for(It _it=_ita;_it!=_itb;_it++)
     {
-      _s<<(_it==_ita?"":",")<<*_it;
+        _s<<(_it==_ita?"":",")<<*_it;
     }
-  _s<<"}";
-  return _s;
+    _s<<"}";
+    return _s;
 }
 template<typename _a> ostream &operator << (ostream &_s,vector<_a> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _a> ostream &operator << (ostream &_s,set<_a> &_c){return _OUTC(_s,ALL(_c));}
@@ -56,40 +56,35 @@ const ll INF=0x3f3f3f3f3f3f3f3f;
 const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-ll n,m,k;
-ll x,y,cur,ans;
-vector<pair<ll,ll> > input;
-vector<ll> edge[MAXN];
-ll cnt[MAXN];
-bool trip[MAXN];
-queue<ll> qu;
-/********** Main()  function **********/
+int t,n;
+string a;
+int cnt[30];
+/********** Good Luck :) **********/
 int main()
 {
-  IOS();
-  cin>>n>>m>>k;
-  REP(i,m){
-    cin>>x>>y;
-    input.eb(x,y);
-    edge[x].eb(y);
-    edge[y].eb(x);
-    cnt[x]++,cnt[y]++;
-  }
+    IOS();
+    cin >> t;
+    while (t--) {
+        cin >> n;
+        MEM(cnt,0);
+        REP (i,n) {
+            int tcnt[30] = {};
+            cin >> a;
+            for (char c : a) {
+                tcnt[c - 'a'] = true;
+            }
+            REP (j,30) {
+                cnt[j]+= tcnt[j];
+            }
+        }
+        ll ans = 0;
+        REP (i,30) {
+            if (cnt[i] == n) {
+                ans++;
+            }
+        }
+        cout << ans << endl;
 
-  ans = n;
-  REP1(i,n)trip[i] = 1;
-  REP1(i,n)if(cnt[i] < k)qu.push(i),trip[i]=0,ans--;
-  while(qu.size()){
-    cur = qu.front();qu.pop();
-    for(auto v:edge[cur]){
-      if(cnt[v]-- == k){
-	qu.push(v);
-	trip[v] = 0;
-	ans--;
-      }
     }
-  }
-
-  debug(ans);
-  return 0;
+    return 0;
 }

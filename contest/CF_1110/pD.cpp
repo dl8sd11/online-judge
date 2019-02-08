@@ -56,60 +56,46 @@ const ll INF=0x3f3f3f3f3f3f3f3f;
 const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-ll h,w,n;
-pair<ll,ll> pos[MAXN];
-ll dp[MAXN],fac[200003],rev[200003];
-
-ll mpow(ll a,ll b) {
-    if (b == 0) {
-        return 1;
-    }
-    ll hf = mpow(a,b >> 1);
-    hf = hf * hf % MOD;
-    return b & 1 ? hf * a % MOD : hf;
-}
-
-ll inv(ll a) {
-    return mpow(a,MOD - 2);
-}
-
-ll cob(ll a,ll b) {
-    a += b;
-    return fac[a] * rev[b] % MOD * rev[a-b] % MOD;
-}
+ll n,m,a[MAXN];
+vector<pii> tile;
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> h >> w >> n;
+    cin >> n >> m;
     REP (i,n) {
-        cin >> pos[i].X >> pos[i].Y;
+        cin >> a[i];
     }
-    pos[n++] = {h,w};
+    sort(a,a+n);
 
-    sort(pos,pos+n);
-
-    fac[0] = 1;
-    rev[0] = 1;
-    REP1 (i,200002) {
-        fac[i] = fac[i-1] * i % MOD;
-        rev[i] = inv(fac[i]);
+    ll cnt = 0;
+    REP (i,n+1) {
+        if (i==n || (i != 0 && a[i] != a[i-1])) {
+            tile.emplace_back(a[i-1],cnt);
+            cnt = 0;
+        }
+        cnt++;
     }
 
-    REP (i,n) {
-        dp[i] = cob(pos[i].X-1,pos[i].Y-1);
-        REP (j,i) {
-            if (pos[i].X >= pos[j].X && pos[i].Y >= pos[j].Y) {
-                dp[i] -= (dp[j] * cob(pos[i].X-pos[j].X,pos[i].Y-pos[j].Y)) % MOD;
-                if (dp[i] < 0) {
-                    dp[i] += MOD;
-                }                
+    debug(tile);
+
+    ll ans  = 0;
+    REP (i,SZ(tile)) {
+        ans += tile[i].Y / 3;
+        tile[i].Y %= 3;
+        if (i < SZ(tile) - 2 && tile[i+1].X == tile[i].X + 1 && tile[i+2].X == tile[i+1].X + 1) {
+            while (tile[i].Y > 0 && tile[i+1].Y > 0 && tile[i+2].Y > 0) {
+                ans++;
+                tile[i].Y--;
+                tile[i+1].Y--;
+                tile[i+2].Y--;
             }
         }
-        debug(pos[i],dp[i]);
+        debug(tile);
     }
 
-    cout << dp[n-1] << endl;
+    cout << ans << endl;
+
+
     return 0;
 }
-//DP

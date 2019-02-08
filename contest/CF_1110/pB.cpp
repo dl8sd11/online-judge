@@ -56,60 +56,31 @@ const ll INF=0x3f3f3f3f3f3f3f3f;
 const ll MAXN=1e5+5;
 const ll MAXLG=__lg(MAXN)+2;
 
-ll h,w,n;
-pair<ll,ll> pos[MAXN];
-ll dp[MAXN],fac[200003],rev[200003];
+ll n,m,k,p[MAXN];
 
-ll mpow(ll a,ll b) {
-    if (b == 0) {
-        return 1;
-    }
-    ll hf = mpow(a,b >> 1);
-    hf = hf * hf % MOD;
-    return b & 1 ? hf * a % MOD : hf;
-}
-
-ll inv(ll a) {
-    return mpow(a,MOD - 2);
-}
-
-ll cob(ll a,ll b) {
-    a += b;
-    return fac[a] * rev[b] % MOD * rev[a-b] % MOD;
-}
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> h >> w >> n;
+    cin >> n >> m >> k;
+    vector<ll> x;
     REP (i,n) {
-        cin >> pos[i].X >> pos[i].Y;
-    }
-    pos[n++] = {h,w};
-
-    sort(pos,pos+n);
-
-    fac[0] = 1;
-    rev[0] = 1;
-    REP1 (i,200002) {
-        fac[i] = fac[i-1] * i % MOD;
-        rev[i] = inv(fac[i]);
-    }
-
-    REP (i,n) {
-        dp[i] = cob(pos[i].X-1,pos[i].Y-1);
-        REP (j,i) {
-            if (pos[i].X >= pos[j].X && pos[i].Y >= pos[j].Y) {
-                dp[i] -= (dp[j] * cob(pos[i].X-pos[j].X,pos[i].Y-pos[j].Y)) % MOD;
-                if (dp[i] < 0) {
-                    dp[i] += MOD;
-                }                
-            }
+        cin >> p[i];
+        if (i) {
+            x.emplace_back(p[i] - p[i-1]-1);
         }
-        debug(pos[i],dp[i]);
     }
+    debug(x);
+    ll len = p[n-1] - p[0] + 1;
+    sort(ALL(x),[&](ll i,ll j){return i > j;});
 
-    cout << dp[n-1] << endl;
+    ll sum = 0;
+    REP (i,k-1) {
+        sum += x[i];
+    }
+    debug(len,sum);
+
+    cout << len - sum << endl;
+
     return 0;
 }
-//DP

@@ -111,5 +111,6 @@ int main()
   lcp_array();
   cout<<ans<<endl;
   pary(sa,sa+N);
+  pary(lcpa,lcpa+N);
 	return 0;
 }
