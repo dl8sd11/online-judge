@@ -49,48 +49,84 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
-const ll MAXN = 5e5 + 7;
+const ll MAXN = 1003;
 
-ll dp[MAXN],n,k,val[MAXN],pre[MAXN],f[MAXN],c[MAXN];
-deque<ll> line;
-
-pair<double,double> solve(ll i,ll j) {
-    double x = double(c[j]-c[i])/(2*i-2*j);
-    double y = 2*i*x+c[i];
-    return {x,y};
-}
-
-inline ll p(ll idx) {
-    return idx>=0 ? pre[idx] : 0;
-}
+ll n,cnt[MAXN],a[30][30];
+vector<ll> one,two,four;
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> n >> k;
-    REP (i,n) {
-        cin >> val[i];
-        pre[i] = val[i];
-        if (i) {
-            pre[i] += pre[i-1];
+    cin >> n;
+    REP (i,n*n) {
+        ll num;
+        cin >> num;
+        cnt[num]++;
+    }
+
+    REP (i,MAXN) {
+        REP (j,cnt[i]/4) {
+            four.emplace_back(i);
+        }
+        cnt[i] = cnt[i] % 4;
+        if (cnt[i] / 2) {
+            two.emplace_back(i);
+        }
+        if (cnt[i] & 1) {
+            one.emplace_back(i);
         }
     }
 
-    REP (i,n) {
-        dp[i] = -INF;
-    }
-    dp[n] = 0;
-    c[n] = -p(n-1)-n*n;
-
-    for (ll i=n-1;i>=0;i--) {
-        f[i] = (i+1)*p(n-1)-i*p(i-1)-i*i;
-        // dp[i] = f[i]+c[line.front()]+2*i*line.front();
-        for (ll j=i+1;j<=min(n,i+k);j++) {
-            dp[i] = max(dp[i],f[i]+c[j]+2*i*j);
+    bool flag = true;
+    REP (i,n/2) {
+        REP (j,n/2) {
+            if (four.size()) {
+                a[i][j] = a[n-i-1][j] = a[i][n-j-1] = a[n-i-1][n-j-1] = four.back();
+                four.pop_back();
+            } else {
+                flag = false;
+            }
         }
-        c[i]=(p(i-1)-p(n-1))*i-p(i-1)-i*i+dp[i];
     }
-    pary(dp,dp+n);
-    cout << dp[0] << endl;
+
+    if (n & 1) {
+        for (auto idx : four) {
+            two.emplace_back(idx);
+            two.emplace_back(idx);
+        }
+        REP (i,n/2) {
+            if (two.size()) {
+                a[i][n/2] = a[n-i-1][n/2] = two.back();
+                two.pop_back();
+            } else {
+                flag = false;
+            }
+        }
+        REP (i,n/2) {
+            if (two.size()) {
+                a[n/2][i] = a[n/2][n-i-1] = two.back();
+                two.pop_back();
+            } else {
+                flag = false;
+            }
+        }
+        if (one.size()) {
+            a[n/2][n/2] = one.back();
+        } else {
+            flag = false;
+        }
+    }
+
+    if (flag) {
+        cout << "YES" << endl;
+        REP (i,n) {
+            REP (j,n) {
+                cout << a[i][j] << " \n"[j==n-1];
+            }
+        }
+    } else {
+        cout << "NO" << endl;
+    }
+
     return 0;
 }

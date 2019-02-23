@@ -1,5 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
+#pragma GCC optimize("O3")
 typedef long long ll;
 typedef pair<ll, ll> pii;
 typedef pair<double,double> pdd;
@@ -53,32 +54,143 @@ template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
 const ll MOD=1000000007;
 const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=1e5+5;
+const ll MAXN=1e6+5;
 const ll MAXLG=__lg(MAXN)+2;
 
+stack<pair<ll*,ll> > stk_sz;
+stack<pair<ll*,ll> > stk_djs;
+
+ll djs[MAXN],sz[MAXN],ans;
+
+void init(ll n) {
+    while (stk_sz.size()) {
+        stk_sz.pop();
+    }
+    while (stk_djs.size()) {
+        stk_djs.pop();
+    }
+    ans = n;
+    REP (i,n) {
+        djs[i] = i;
+        sz[i] = 1;
+    }
+}
+ll fnd(ll x) {
+    while (x != djs[x]) {
+        x = djs[x];
+    }
+    return x;
+}
+
+bool uni(ll x,ll y) {
+    x = fnd(x);
+    y = fnd(y);
+    if (x == y) {
+        return 0;
+    }
+    if (sz[x] > sz[y]) {
+        swap(x,y);
+    }
+    stk_sz.emplace(&sz[y],sz[y]);
+    stk_djs.emplace(&djs[x],djs[x]);
+
+    ans--;
+    sz[y] += sz[x];
+    djs[x] = y;
+    return 1;
+}
+
+void undo() {
+    *(stk_sz.top().X) = stk_sz.top().Y;
+    *(stk_djs.top().X) = stk_djs.top().Y;
+    stk_sz.pop();
+    stk_djs.pop();
+    ans++;
+}
 
 ll  t,n,m,q;
-map<pair<ll,ll>,ll> sp;
-map<pair<ll,ll>,ll> cnt;
+map<ll,ll> sp;
+map<ll,ll> cnt;
 
-struct Query {
-    ll L,R,u,v;
+struct node {
+    ll l,r;
+    node *lc,*rc;
+    vector<ll> data;
 };
-vector<Query> query;
+node *root;
+
+pii d[MAXN];
+ll did;
+
+node *build(ll l,ll r) {
+    if (r == l+1) {
+        return new node {l,r,0,0,vector<ll>()};
+    }
+    ll mid = (l + r) >> 1;
+    return new node{l,r,build(l,mid),build(mid,r),vector<ll>()};
+}
+
+void insert_query(ll l,ll r,ll dd,node *nd) {
+    if (l == nd->l && r == nd->r) {
+        nd->data.emplace_back(dd);
+        return;
+    }
+    ll mid = (nd->l + nd->r) >> 1;
+    if (l >= mid) {
+        insert_query(l,r,dd,nd->rc);
+    } else if (r <= mid) {
+        insert_query(l,r,dd,nd->lc);
+    } else {
+        insert_query(l,mid,dd,nd->lc);
+        insert_query(mid,r,dd,nd->rc);
+    }
+}
+
+void traversal(node *nd) {
+    ll chg = 0;
+    for (auto p : nd->data) {
+        pii pa = d[p];
+        if (uni(pa.X,pa.Y)) {
+            chg++;
+        }
+    }
+    if (nd->l == nd->r - 1) {
+        if (nd->l >= 1 && nd->l <= q) {
+            cout << ans << endl;
+        }
+    } else {
+        traversal(nd->lc);
+        traversal(nd->rc);
+    }
+    REP (i,chg) {
+        undo();
+    }
+    delete nd;
+}
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
     cin >> t;
     while (t--) {
+        cnt.clear();
+        sp.clear();
         cin >> n >> m >> q;
+
         REP (i,m) {
             ll u,v;
             cin >> u >> v;
-            cnt[{u,v}]++;
-            sp[{u,v}] = 0;
+            if (u > v ) {
+                swap(u,v);
+            }
+            cnt[u*1000000+v]++;
+            sp[u*1000000+v] = 0;
         }
-        REP (i,q) {
+
+        root = build(0,q+2);
+        init(n);
+
+        REP1 (i,q) {
             char c;
             ll u,v;
             cin >> c >> u >> v;
@@ -86,29 +198,31 @@ int main()
                 swap(u,v);
             }
             if (c == 'N') {
-                cnt[{u,v}]++;
-                if (cnt[{u,v}] == 1) {
-                    sp[{u,v}] = i;
+                cnt[u*1000000+v]++;
+                if (cnt[u*1000000+v] == 1) {
+                    sp[u*1000000+v] = i;
                 }
             } else {
-                cnt[{u,v}]--;
-                if (cnt[{u,v}] == 0) {
-                    query.push_back({sp[{u,v}],i,u,v});
+                cnt[u*1000000+v]--;
+                if (cnt[u*1000000+v] == 0) {
+                    d[did++] = {u,v};
+                    insert_query(sp[u*1000000+v],i,did-1,root);
                 }
             }
         }
         for (auto E:cnt) {
             if (E.Y > 0) {
-                query.push_back({sp[E.X],q,E.X.X,E.X.Y});
+                d[did++] = {E.X/1000000,E.X%1000000};
+                insert_query(sp[E.X],q+1,did-1,root);
             }
         }
 
-        for (auto Q:query) {
-            debug(Q.L,Q.R,Q.u,Q.v);
-        }
 
 
+
+        traversal(root);
 
     }
     return 0;
 }
+//TLE SF

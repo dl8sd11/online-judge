@@ -49,48 +49,82 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
-const ll MAXN = 5e5 + 7;
+// const ll MAXN = 
 
-ll dp[MAXN],n,k,val[MAXN],pre[MAXN],f[MAXN],c[MAXN];
-deque<ll> line;
-
-pair<double,double> solve(ll i,ll j) {
-    double x = double(c[j]-c[i])/(2*i-2*j);
-    double y = 2*i*x+c[i];
-    return {x,y};
-}
-
-inline ll p(ll idx) {
-    return idx>=0 ? pre[idx] : 0;
-}
+ll n,k,sum;
+string s,t;
+pair<ll,ll> ps,pt;
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
     cin >> n >> k;
+    cin >> s >> t;
+
+    ll dif = -1;
     REP (i,n) {
-        cin >> val[i];
-        pre[i] = val[i];
-        if (i) {
-            pre[i] += pre[i-1];
+        if (s[i] != t[i]) {
+            dif = i;
+            break;
         }
     }
 
-    REP (i,n) {
-        dp[i] = -INF;
-    }
-    dp[n] = 0;
-    c[n] = -p(n-1)-n*n;
+    if (dif == -1) {
+        cout << n << endl;
+        return 0;
+    }  
 
-    for (ll i=n-1;i>=0;i--) {
-        f[i] = (i+1)*p(n-1)-i*p(i-1)-i*i;
-        // dp[i] = f[i]+c[line.front()]+2*i*line.front();
-        for (ll j=i+1;j<=min(n,i+k);j++) {
-            dp[i] = max(dp[i],f[i]+c[j]+2*i*j);
+    ps.Y = 1;
+    bool flag = false;
+    for (ll i=dif+1;i<n;i++) {
+        if (flag) {
+            ps.Y *= 2;
+            if (s[i] == 'b') {
+                ps.Y++;
+            }
+            if (ps.Y > k) {
+                break;
+            }
+        } else {
+            if (s[i] == 'a') {
+                flag = true;
+                ps.X = i;
+            }
         }
-        c[i]=(p(i-1)-p(n-1))*i-p(i-1)-i*i+dp[i];
     }
-    pary(dp,dp+n);
-    cout << dp[0] << endl;
+
+    pt.Y = 1;
+    flag = false;
+    for (ll i=dif+1;i<n;i++) {
+        if (flag) {
+            pt.Y *= 2;
+            if (t[i] == 'a') {
+                pt.Y++;
+            }
+            if (pt.Y > k) {
+                break;
+            }
+        } else {
+            if (t[i] == 'b') {
+                flag = true;
+                pt.X = i;
+            }
+        }
+    }
+    debug(ps,pt);
+    vector<pii> val;
+    val.eb(n,2);
+    val.eb(n-ps.X,ps.Y);
+    val.eb(n-pt.X,pt.Y);
+    sort(ALL(val),[&](pii a,pii b){return a.X > b.X;});
+    debug(val);
+
+    for (auto p : val) {
+        sum += min(k,p.Y)*p.X;
+        k -= min(k,p.Y);
+    }
+    
+    debug(sum);
+    cout << sum << endl;
     return 0;
 }

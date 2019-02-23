@@ -1,19 +1,21 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
+typedef pair<ll, ll> pii;
+typedef pair<double,double> pdd;
 #define MEM(a, b) memset(a, (b), sizeof(a))
+#define SZ(i) ll(i.size())
 #define FOR(i, j, k, in) for (ll i=j ; i<k ; i+=in)
 #define RFOR(i, j, k, in) for (ll i=j ; i>=k ; i-=in)
 #define REP(i, j) FOR(i, 0, j, 1)
 #define REP1(i,j) FOR(i, 1, j+1, 1)
 #define RREP(i, j) RFOR(i, j, 0, 1)
 #define ALL(_a) _a.begin(),_a.end()
-#define FOREACH(it, l) for (auto it = l.begin(); it != l.end(); it++)
 #define mp make_pair
 #define pb push_back
+#define eb emplace_back
 #define X first
 #define Y second
-typedef pair<ll, ll> pi;
 #ifdef tmd
 #define debug(...) do{\
     fprintf(stderr,"%s - %d (%s) = ",__PRETTY_FUNCTION__,__LINE__,#__VA_ARGS__);\
@@ -34,6 +36,7 @@ template<typename It> ostream& _OUTC(ostream &_s,It _ita,It _itb)
 }
 template<typename _a> ostream &operator << (ostream &_s,vector<_a> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _a> ostream &operator << (ostream &_s,set<_a> &_c){return _OUTC(_s,ALL(_c));}
+template<typename _a> ostream &operator << (ostream &_s,deque<_a> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _a,typename _b> ostream &operator << (ostream &_s,map<_a,_b> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS()
@@ -44,62 +47,62 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
 #endif
 
-const ll INF = (ll)1e18 + 7;
 const ll MOD = 1000000007;
-const ll MAXN = 200003;
-ll a[MAXN],n;
-map<ll,ll> ms;
+const ll INF = 0x3f3f3f3f3f3f3f3f;
+const ll MAXN = 5e5 + 7;
 
-std::ostream&
-operator<<( std::ostream& dest, __int128_t value )
-{
-    std::ostream::sentry s( dest );
-    if ( s ) {
-        __uint128_t tmp = value < 0 ? -value : value;
-        char buffer[ 128 ];
-        char* d = std::end( buffer );
-        do
-        {
-            -- d;
-            *d = "0123456789"[ tmp % 10 ];
-            tmp /= 10;
-        } while ( tmp != 0 );
-        if ( value < 0 ) {
-            -- d;
-            *d = '-';
-        }
-        int len = std::end( buffer ) - d;
-        if ( dest.rdbuf()->sputn( d, len ) != len ) {
-            dest.setstate( std::ios_base::badbit );
-        }
-    }
-    return dest;
+ll dp[MAXN],n,k,val[MAXN],pre[MAXN],f[MAXN],c[MAXN];
+deque<ll> line;
+
+ll solve(ll i,ll x) {
+    return c[x]+2*i*x;
 }
 
-/********** Main()  function **********/
+ll inter(ll i,ll j) {
+    return (c[j]-c[i])/(i-j);
+}
+
+inline ll p(ll idx) {
+    return idx>=0 ? pre[idx] : 0;
+}
+/********** Good Luck :) **********/
 int main()
 {
-  IOS();
-  cin>>n;
-  ll sum = 0;
-  REP (i,n) {
-    cin>>a[i];
-    sum += a[i];
-  }
+    IOS();
+    cin >> n >> k;
+    REP (i,n) {
+        cin >> val[i];
+        pre[i] = val[i];
+        if (i) {
+            pre[i] += pre[i-1];
+        }
+    }
 
-  __int128 x = 0;
-  REP (i,n) {
-    x -= a[i] * ((n-1) - 2 * i);
-  }
+    REP (i,n) {
+        dp[i] = -INF;
+    }
+    dp[n] = 0;
+    c[n] = -p(n-1)-n*n;
+    line.emplace_back(n);
+    for (ll i=n-1;i>=0;i--) {
+        f[i] = (i+1)*p(n-1)-i*p(i-1)-i*i;
+        while (line.size()>1 && line.front()-i >k) {
+            line.pop_front();
+        }
+        while (line.size()>1 && solve(i,line[0]) <= solve(i,line[1])) {
+            line.pop_front();
+        }
+        dp[i] = f[i]+solve(i,line.front());
+        // for (ll j=i+1;j<=min(n,i+k);j++) {
+        //     dp[i] = max(dp[i],f[i]+c[j]+2*i*j);
+        // }
+        c[i]=(p(i-1)-p(n-1))*i-p(i-1)-i*i+dp[i];
+        while (SZ(line) > 1 && solve(i,line.back()) >= max(line[SZ(line)-2]-k,solve(line.back(),line[SZ(line)-2]))) {
+            line.pop_back();
+        }
+        line.emplace_back(i);
+    }
 
-  for(ll i = 0; i < n; i++) {
-    x -= ms[a[i] - 1];
-    x += ms[a[i] + 1];
-    ms[a[i]]++;
-  }
-
-  cout << x << endl;
-
-
-	return 0;
+    cout << dp[0] << endl;
+    return 0;
 }

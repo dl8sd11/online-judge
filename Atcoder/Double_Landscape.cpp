@@ -49,48 +49,81 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
-const ll MAXN = 5e5 + 7;
+const ll MAXN = 1003;
 
-ll dp[MAXN],n,k,val[MAXN],pre[MAXN],f[MAXN],c[MAXN];
-deque<ll> line;
+ll n,m,posx[MAXN*MAXN],posy[MAXN*MAXN];
+ll a[MAXN],b[MAXN];
+bool visx[MAXN][MAXN],visy[MAXN][MAXN];
+ll cnt;
 
-pair<double,double> solve(ll i,ll j) {
-    double x = double(c[j]-c[i])/(2*i-2*j);
-    double y = 2*i*x+c[i];
-    return {x,y};
+void vx(ll y) {
+    REP (i,n) {
+        if (!visy[i][y]) {
+            if (visx[y][i]) {
+                cnt++;
+            }
+            visy[i][y] = true;
+        }
+    }
 }
 
-inline ll p(ll idx) {
-    return idx>=0 ? pre[idx] : 0;
+void vy(ll x) {
+    REP (i,m) {
+        if (!visx[i][x]) {
+            if (visy[x][i]) {
+                cnt++;
+            }
+            visx[i][x] = true;
+        }
+    }
 }
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> n >> k;
+    cin >> n >> m;
+
+    MEM(posx,-1);
+    MEM(posy,-1);
     REP (i,n) {
-        cin >> val[i];
-        pre[i] = val[i];
-        if (i) {
-            pre[i] += pre[i-1];
+        cin >> a[i];
+        posx[a[i]] = i;
+    }
+    REP (i,m) {
+        cin >> b[i];
+        posy[b[i]] = i;
+    }
+
+    ll ans = 1;
+    for (ll i=n*m;i>=1;i--) {
+        if (posx[i] != -1 && posy[i] != -1) {
+            vx(posy[i]);
+            vy(posx[i]);
+            cnt--;
+        } else if (posx[i] != -1) {
+            ll cur = 0;
+            REP (j,m) {
+                cur += visy[posx[i]][j];
+            }
+            ans = ans * cur % MOD;
+            debug(cur);
+            vy(posx[i]);
+            cnt--;
+        } else if (posy[i] != -1) {
+            ll cur = 0;
+            REP (j,n) {
+                cur += visx[posy[i]][j];
+            }
+            ans = ans * cur % MOD;
+            debug(cur);
+            vx(posy[i]);
+            cnt--;
+        } else {
+            debug(cnt);
+            ans = ans * (cnt--) % MOD;
         }
     }
 
-    REP (i,n) {
-        dp[i] = -INF;
-    }
-    dp[n] = 0;
-    c[n] = -p(n-1)-n*n;
-
-    for (ll i=n-1;i>=0;i--) {
-        f[i] = (i+1)*p(n-1)-i*p(i-1)-i*i;
-        // dp[i] = f[i]+c[line.front()]+2*i*line.front();
-        for (ll j=i+1;j<=min(n,i+k);j++) {
-            dp[i] = max(dp[i],f[i]+c[j]+2*i*j);
-        }
-        c[i]=(p(i-1)-p(n-1))*i-p(i-1)-i*i+dp[i];
-    }
-    pary(dp,dp+n);
-    cout << dp[0] << endl;
+    cout << ans << endl;
     return 0;
 }

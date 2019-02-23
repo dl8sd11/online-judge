@@ -1,19 +1,21 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
+typedef pair<ll, ll> pii;
+typedef pair<double,double> pdd;
 #define MEM(a, b) memset(a, (b), sizeof(a))
+#define SZ(i) ll(i.size())
 #define FOR(i, j, k, in) for (ll i=j ; i<k ; i+=in)
 #define RFOR(i, j, k, in) for (ll i=j ; i>=k ; i-=in)
 #define REP(i, j) FOR(i, 0, j, 1)
 #define REP1(i,j) FOR(i, 1, j+1, 1)
 #define RREP(i, j) RFOR(i, j, 0, 1)
 #define ALL(_a) _a.begin(),_a.end()
-#define FOREACH(it, l) for (auto it = l.begin(); it != l.end(); it++)
 #define mp make_pair
 #define pb push_back
+#define eb emplace_back
 #define X first
 #define Y second
-typedef pair<ll, ll> pi;
 #ifdef tmd
 #define debug(...) do{\
     fprintf(stderr,"%s - %d (%s) = ",__PRETTY_FUNCTION__,__LINE__,#__VA_ARGS__);\
@@ -34,6 +36,7 @@ template<typename It> ostream& _OUTC(ostream &_s,It _ita,It _itb)
 }
 template<typename _a> ostream &operator << (ostream &_s,vector<_a> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _a> ostream &operator << (ostream &_s,set<_a> &_c){return _OUTC(_s,ALL(_c));}
+template<typename _a> ostream &operator << (ostream &_s,deque<_a> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _a,typename _b> ostream &operator << (ostream &_s,map<_a,_b> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS()
@@ -44,62 +47,58 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
 #endif
 
-const ll INF = (ll)1e18 + 7;
 const ll MOD = 1000000007;
-const ll MAXN = 200003;
-ll a[MAXN],n;
-map<ll,ll> ms;
+const ll INF = 0x3f3f3f3f3f3f3f3f;
+const ll MAXN = 4e5 + 8;
 
-std::ostream&
-operator<<( std::ostream& dest, __int128_t value )
-{
-    std::ostream::sentry s( dest );
-    if ( s ) {
-        __uint128_t tmp = value < 0 ? -value : value;
-        char buffer[ 128 ];
-        char* d = std::end( buffer );
-        do
-        {
-            -- d;
-            *d = "0123456789"[ tmp % 10 ];
-            tmp /= 10;
-        } while ( tmp != 0 );
-        if ( value < 0 ) {
-            -- d;
-            *d = '-';
-        }
-        int len = std::end( buffer ) - d;
-        if ( dest.rdbuf()->sputn( d, len ) != len ) {
-            dest.setstate( std::ios_base::badbit );
-        }
+ll n,a[MAXN],dp[MAXN][7];
+inline ll poe(ll val) {
+    if (val == 0) {
+        return 2;
+    } else {
+        return val & 1;
     }
-    return dest;
 }
 
-/********** Main()  function **********/
+ll mn (vector<ll> idx,ll i) {
+    ll ret = INF;
+    for (auto x : idx) {
+        ret = min(ret,dp[i][x]);
+    }
+    return ret;
+}
+/********** Good Luck :) **********/
 int main()
 {
-  IOS();
-  cin>>n;
-  ll sum = 0;
-  REP (i,n) {
-    cin>>a[i];
-    sum += a[i];
-  }
+    IOS();
+    cin >> n;
+    REP (i,n) {
+        cin >> a[i];
+    }
 
-  __int128 x = 0;
-  REP (i,n) {
-    x -= a[i] * ((n-1) - 2 * i);
-  }
-
-  for(ll i = 0; i < n; i++) {
-    x -= ms[a[i] - 1];
-    x += ms[a[i] + 1];
-    ms[a[i]]++;
-  }
-
-  cout << x << endl;
+    dp[0][0] = 1 - (a[0] & 1);
+    dp[0][1] = poe(a[0]);
+    dp[0][2] = poe(a[0]);
+    dp[0][3] = a[0];
+    dp[0][4] = a[0];
 
 
-	return 0;
+    REP1 (i,n-1) {
+        dp[i][0] = mn({0,1,3},i-1) + 1 - (a[i] & 1);
+        dp[i][1] = mn({1,3},i-1) + poe(a[i]);
+        dp[i][2] = mn({0,1,2,3},i-1) + poe(a[i]);
+        dp[i][3] = dp[i-1][3] + a[i];
+        dp[i][4] = mn({0,1,2,3,4},i-1) + a[i];
+    }
+
+    ll ans = INF;
+    REP (i,5) {
+        ans = min(ans,dp[n-1][i]);
+    }
+
+    REP (i,n) {
+        pary(dp[i],dp[i]+5);
+    }
+    cout << ans << endl;
+    return 0;
 }

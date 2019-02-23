@@ -1,19 +1,21 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
+typedef pair<ll, ll> pii;
+typedef pair<double,double> pdd;
 #define MEM(a, b) memset(a, (b), sizeof(a))
+#define SZ(i) ll(i.size())
 #define FOR(i, j, k, in) for (ll i=j ; i<k ; i+=in)
 #define RFOR(i, j, k, in) for (ll i=j ; i>=k ; i-=in)
 #define REP(i, j) FOR(i, 0, j, 1)
 #define REP1(i,j) FOR(i, 1, j+1, 1)
 #define RREP(i, j) RFOR(i, j, 0, 1)
 #define ALL(_a) _a.begin(),_a.end()
-#define FOREACH(it, l) for (auto it = l.begin(); it != l.end(); it++)
 #define mp make_pair
 #define pb push_back
+#define eb emplace_back
 #define X first
 #define Y second
-typedef pair<ll, ll> pi;
 #ifdef tmd
 #define debug(...) do{\
     fprintf(stderr,"%s - %d (%s) = ",__PRETTY_FUNCTION__,__LINE__,#__VA_ARGS__);\
@@ -34,6 +36,7 @@ template<typename It> ostream& _OUTC(ostream &_s,It _ita,It _itb)
 }
 template<typename _a> ostream &operator << (ostream &_s,vector<_a> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _a> ostream &operator << (ostream &_s,set<_a> &_c){return _OUTC(_s,ALL(_c));}
+template<typename _a> ostream &operator << (ostream &_s,deque<_a> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _a,typename _b> ostream &operator << (ostream &_s,map<_a,_b> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS()
@@ -44,62 +47,37 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
 #endif
 
-const ll INF = (ll)1e18 + 7;
 const ll MOD = 1000000007;
-const ll MAXN = 200003;
-ll a[MAXN],n;
-map<ll,ll> ms;
+const ll INF = 0x3f3f3f3f3f3f3f3f;
 
-std::ostream&
-operator<<( std::ostream& dest, __int128_t value )
-{
-    std::ostream::sentry s( dest );
-    if ( s ) {
-        __uint128_t tmp = value < 0 ? -value : value;
-        char buffer[ 128 ];
-        char* d = std::end( buffer );
-        do
-        {
-            -- d;
-            *d = "0123456789"[ tmp % 10 ];
-            tmp /= 10;
-        } while ( tmp != 0 );
-        if ( value < 0 ) {
-            -- d;
-            *d = '-';
-        }
-        int len = std::end( buffer ) - d;
-        if ( dest.rdbuf()->sputn( d, len ) != len ) {
-            dest.setstate( std::ios_base::badbit );
-        }
+ll n,dp[16][360];
+
+inline ll normal(ll x) {
+    x %= 360;
+    if (x < 0) {
+        x += 360;
     }
-    return dest;
+    return x;
 }
-
-/********** Main()  function **********/
+/********** Good Luck :) **********/
 int main()
 {
-  IOS();
-  cin>>n;
-  ll sum = 0;
-  REP (i,n) {
-    cin>>a[i];
-    sum += a[i];
-  }
+    IOS();
+    cin >> n;
+    dp[0][0] = 1;
+    REP1 (i,n) {
+        ll a;
+        cin >> a;
+        REP (j,360) {
+            dp[i][j] += dp[i-1][normal(j-a)];
+            dp[i][j] += dp[i-1][normal(j+a)];
+        }
+    }
 
-  __int128 x = 0;
-  REP (i,n) {
-    x -= a[i] * ((n-1) - 2 * i);
-  }
-
-  for(ll i = 0; i < n; i++) {
-    x -= ms[a[i] - 1];
-    x += ms[a[i] + 1];
-    ms[a[i]]++;
-  }
-
-  cout << x << endl;
-
-
-	return 0;
+    if (dp[n][0] > 0) {
+        cout << "YES" << endl;
+    } else {
+        cout << "NO" << endl;
+    }
+    return 0;
 }

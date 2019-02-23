@@ -1,5 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
+#pragma GCC optimize("O3")
 typedef long long ll;
 typedef pair<ll, ll> pii;
 typedef pair<double,double> pdd;
@@ -49,48 +50,116 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
-const ll MAXN = 5e5 + 7;
+const ll MAXN = 100003;
 
-ll dp[MAXN],n,k,val[MAXN],pre[MAXN],f[MAXN],c[MAXN];
-deque<ll> line;
+ll n,k;
+string str;
+vector<ll> h[30];
+ll hei[MAXN];
+ll cnt[30],fac[MAXN],inv[MAXN];
 
-pair<double,double> solve(ll i,ll j) {
-    double x = double(c[j]-c[i])/(2*i-2*j);
-    double y = 2*i*x+c[i];
-    return {x,y};
+ll mypow(ll base,ll ep) {
+    if (ep == 1) {
+        return base;
+    }
+    ll tmp = mypow(base,ep>>1);
+    tmp = tmp * tmp % MOD;
+    return ep & 1 ? tmp * base % MOD : tmp;
+}
+void build() {
+    fac[0] = 1;
+    inv[0] = 1;
+    for (ll i=1;i<MAXN;i++) {
+        fac[i] = fac[i-1] * i % MOD;
+        inv[i] = mypow(fac[i],MOD-2);
+    }
 }
 
-inline ll p(ll idx) {
-    return idx>=0 ? pre[idx] : 0;
+ll C(ll N,ll R) {
+    if (N < R) {
+        return 0;
+    }
+    return fac[N] * inv[N-R] % MOD;
 }
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
+    build();
+    cin >> str;
+    for (auto c : str) {
+        cnt[c-'a']++;
+    }
+
+
     cin >> n >> k;
     REP (i,n) {
-        cin >> val[i];
-        pre[i] = val[i];
-        if (i) {
-            pre[i] += pre[i-1];
+        char c;
+        ll hi;
+        cin >> c >> hi;
+        h[c-'a'].emplace_back(hi);
+        hei[i] = hi;
+    }
+
+
+    REP (i,26) {
+        sort(ALL(h[i]));
+    }
+
+    sort(hei,hei+n);
+    ll m = unique(hei,hei+n)-hei;
+
+    REP (i,26) {
+        if (h[i].size()) {
+            debug(char(i+'a'),h[i]);
+        }
+    } 
+
+    ll ans = 0;
+    for (ll x=0;x<m;x++) {
+        ll low = hei[x];
+        ll G = 1,S = 1;
+        REP (i,26) { // exact low
+            G *= C(upper_bound(ALL(h[i]),low+k)-lower_bound(ALL(h[i]),low),cnt[i]);
+            G %= MOD;
+        }
+        REP (i,26) {
+            S *= C(upper_bound(ALL(h[i]),low+k)-lower_bound(ALL(h[i]),low+1),cnt[i]);
+            S %= MOD;
+        }
+
+        ans += G - S;
+        ans %= MOD;
+
+        if (ans < 0) {
+            ans += MOD;
         }
     }
 
-    REP (i,n) {
-        dp[i] = -INF;
-    }
-    dp[n] = 0;
-    c[n] = -p(n-1)-n*n;
 
-    for (ll i=n-1;i>=0;i--) {
-        f[i] = (i+1)*p(n-1)-i*p(i-1)-i*i;
-        // dp[i] = f[i]+c[line.front()]+2*i*line.front();
-        for (ll j=i+1;j<=min(n,i+k);j++) {
-            dp[i] = max(dp[i],f[i]+c[j]+2*i*j);
-        }
-        c[i]=(p(i-1)-p(n-1))*i-p(i-1)-i*i+dp[i];
-    }
-    pary(dp,dp+n);
-    cout << dp[0] << endl;
+    cout << ans << endl;
     return 0;
 }
+/*
+
+nehs
+5 10
+h 8
+s 15
+e 4
+s 9
+n 14
+
+kirino
+10 7
+i 5
+n 4
+n 10
+o 9
+i 11
+i 3
+i 6
+r 7
+k 8
+r 2
+*/

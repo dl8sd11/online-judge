@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 from random import randint
-t = 100
-print(t)
+n = 200
+k = 12
+print("{} {}".format(n,k))
 
-for i in range(t):
-    n = randint(1,1000)
-    for j in range(n):
-        print(chr(97+randint(0,3)),end='')
-    print()
+
+for i in range(n):
+    print(randint(-5,5),end=' ')
+print()

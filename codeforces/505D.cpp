@@ -49,48 +49,120 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
-const ll MAXN = 5e5 + 7;
+const ll MAXN = 100003;
 
-ll dp[MAXN],n,k,val[MAXN],pre[MAXN],f[MAXN],c[MAXN];
-deque<ll> line;
+ll n,m,cc[MAXN],ccnt;
+vector<ll> edge[MAXN],redge[MAXN];
+bool vis[MAXN];
+bool hsscc[MAXN];
 
-pair<double,double> solve(ll i,ll j) {
-    double x = double(c[j]-c[i])/(2*i-2*j);
-    double y = 2*i*x+c[i];
-    return {x,y};
+
+vector<ll> topo;
+void dfs1(ll nd) {
+    vis[nd] = true;
+    for (auto v : redge[nd]) {
+        if (!vis[v]) {
+            dfs1(v);
+        }
+    }
+    topo.emplace_back(nd);
 }
 
-inline ll p(ll idx) {
-    return idx>=0 ? pre[idx] : 0;
+ll ccs;
+void dfs2(ll nd) {
+    debug(nd);
+    ccs++;
+    vis[nd] = false;
+    cc[nd] = ccnt;
+    for (auto v : edge[nd]) {
+        if (vis[v]) {
+            dfs2(v);
+        }
+    }
+}
+
+ll ccsize[MAXN];
+ll djs[MAXN],sz[MAXN],ans;
+void init(ll a) {
+    ans = a;
+    REP1 (i,a) {
+        djs[i] = i;
+        sz[i] = 1;
+    }
+}
+
+ll fnd(ll x) {
+    return x == djs[x] ? x : djs[x] = fnd(djs[x]);
+}
+
+void uni(ll x,ll y) {
+    if ((x=fnd(x)) == (y=fnd(y))) {
+        return;
+    }
+    ans--;
+    if (sz[x] > sz[y]) {
+        swap(x,y);
+    }
+    djs[x] = y;
+    sz[y] += sz[x];
 }
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> n >> k;
-    REP (i,n) {
-        cin >> val[i];
-        pre[i] = val[i];
-        if (i) {
-            pre[i] += pre[i-1];
+    cin >> n >> m;
+    REP (i,m) {
+        ll f,t;
+        cin >> f >> t;
+        edge[f].emplace_back(t);
+        redge[t].emplace_back(f);
+    }
+
+    REP1 (i,n) {
+        if (!vis[i]) {
+            dfs1(i);
+        }
+    }
+    debug(topo);
+    for (auto it=topo.rbegin();it!=topo.rend();it++) {
+        ll i = *it;
+        if (vis[i]) {
+            ccs = 0;
+            dfs2(i);
+            ccsize[ccnt++] = ccs;
         }
     }
 
-    REP (i,n) {
-        dp[i] = -INF;
-    }
-    dp[n] = 0;
-    c[n] = -p(n-1)-n*n;
+    pary(cc+1,cc+n+1);
 
-    for (ll i=n-1;i>=0;i--) {
-        f[i] = (i+1)*p(n-1)-i*p(i-1)-i*i;
-        // dp[i] = f[i]+c[line.front()]+2*i*line.front();
-        for (ll j=i+1;j<=min(n,i+k);j++) {
-            dp[i] = max(dp[i],f[i]+c[j]+2*i*j);
+    init(n);
+    REP1 (i,n) {
+        for (auto v : edge[i]) {
+            uni(i,v);
         }
-        c[i]=(p(i-1)-p(n-1))*i-p(i-1)-i*i+dp[i];
     }
-    pary(dp,dp+n);
-    cout << dp[0] << endl;
+    
+    REP1 (i,n) {
+        hsscc[fnd(i)] |= ccsize[cc[i]] > 1;
+    }
+
+    ans = n - ans;
+    REP1 (i,n) {
+        if (hsscc[i]) {
+            ans++;
+        }
+    }
+
+    cout << ans << endl;
     return 0;
 }
+/*
+6 7
+1 2
+2 3
+3 1
+3 4
+4 5
+5 6
+6 4
+*/
