@@ -49,34 +49,72 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
-const ll MAXN = 5e5 + 7;
+const ll MAXN = 53;
 
+ll n;
+pii s,t;
+bool w[MAXN][MAXN];
+vector<pii> sp,tp;
+bool vis[MAXN][MAXN];
+
+ll dx[4] = {1,0,-1,0};
+ll dy[4] = {0,1,0,-1};
+bool val(ll x,ll y) {
+    if (x >= 1 && x <= n && y >= 1 && y <= n) {
+        return true;
+    } else {
+        return false;
+    }
+}
+void dfss(ll x,ll y) {
+    sp.emplace_back(x,y);
+    vis[x][y] = true;
+    REP (i,4) {
+        ll cx = x + dx[i],cy = y + dy[i];
+        if (val(cx,cy) && !vis[cx][cy] && !w[cx][cy]) {
+            dfss(cx,cy);
+        }
+    }
+}
+void dfst(ll x,ll y) {
+    tp.emplace_back(x,y);
+    vis[x][y] = true;
+    REP (i,4) {
+        ll cx = x + dx[i],cy = y + dy[i];
+        if (val(cx,cy) && !vis[cx][cy] && !w[cx][cy]) {
+            dfst(cx,cy);
+        }
+    }
+}
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    ll n;
     cin >> n;
-    ll ans = 0;
-    ll a[MAXN];
-    REP (i,n) {
-        cin >> a[i];
-    }
-    REP (i,n) {
-        REP (j,i+1) {
-            ll sum = 0;
-            for (ll k=j;k<=i;k++) {
-                sum += a[k]*(i-j+1);
-            }
-            ans = max(ans,sum);
+    cin >> s.X >> s.Y;
+    cin >> t.X >> t.Y;
+
+    REP1 (i,n) {
+        REP1 (j,n) {
+            char c;
+            cin >> c;
+            w[i][j] = (c=='1');
         }
     }
 
-    cout <<ans << endl;
+    dfss(s.X,s.Y);
+    dfst(t.X,t.Y);
+
+    debug(sp);
+    
+    #define SQ(i) ((i)*(i))
+    ll ans = INF;
+    for (auto p1 : sp) {
+        for (auto p2 : tp) {
+            ans = min(ans,SQ(p1.X-p2.X)+SQ(p2.Y-p1.Y));
+        }
+    }
+
+    cout << ans << endl;
     return 0;
 }
-
-/*
-17
-1 -2 1 -2 1 -2 1 -2 1 -2 1 -2 1 -2 1 -2 9
-*/

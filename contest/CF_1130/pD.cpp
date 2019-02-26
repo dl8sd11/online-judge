@@ -36,8 +36,6 @@ template<typename It> ostream& _OUTC(ostream &_s,It _ita,It _itb)
 }
 template<typename _a> ostream &operator << (ostream &_s,vector<_a> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _a> ostream &operator << (ostream &_s,set<_a> &_c){return _OUTC(_s,ALL(_c));}
-template<typename _a> ostream &operator << (ostream &_s,deque<_a> &_c){return _OUTC(_s,ALL(_c));}
-template<typename _a,typename _b> ostream &operator << (ostream &_s,map<_a,_b> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS()
 #else
@@ -49,34 +47,46 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
-const ll MAXN = 5e5 + 7;
+const ll MAXN = 5004; 
 
+ll n,m;
+vector<ll> canv[MAXN];
+ll ptr[MAXN];
+
+ll dis(ll i,ll j) {
+    return (j + n - i)%n;
+}
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    ll n;
-    cin >> n;
-    ll ans = 0;
-    ll a[MAXN];
-    REP (i,n) {
-        cin >> a[i];
-    }
-    REP (i,n) {
-        REP (j,i+1) {
-            ll sum = 0;
-            for (ll k=j;k<=i;k++) {
-                sum += a[k]*(i-j+1);
-            }
-            ans = max(ans,sum);
-        }
+    cin >> n >> m;
+    REP (i,m) {
+        ll f,t;
+        cin >> f >> t;
+        canv[f].eb(t);
     }
 
-    cout <<ans << endl;
+    REP1 (i,n) {
+        sort(ALL(canv[i]));
+    }
+
+    REP1 (i,n) {
+        ll mx = 0;
+        // debug(i);
+        REP1 (j,n) {
+            if (canv[j].empty()) {
+                continue;
+            }
+            while (ptr[j]<SZ(canv[j]) && canv[j][ptr[j]]<j) {
+                ptr[j]++;
+            }
+            ll bst = ptr[j] < SZ(canv[j]) ? canv[j][ptr[j]] : canv[j][0];
+            mx = max(mx,dis(i,j) + n*(SZ(canv[j])-1) + dis(j,bst));
+            // debug(dis(i,j) , n*(canv[j].size()-1) , dis(j,bst));
+            // debug(j,dis(i,j) + n*(canv[j].size()-1) + dis(j,bst));
+        }
+        cout << mx << " \n"[i==n];
+    }
     return 0;
 }
-
-/*
-17
-1 -2 1 -2 1 -2 1 -2 1 -2 1 -2 1 -2 1 -2 9
-*/

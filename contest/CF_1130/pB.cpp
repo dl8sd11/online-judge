@@ -49,34 +49,29 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
-const ll MAXN = 5e5 + 7;
+const ll MAXN = 100003;
 
+ll n;
+pii pos[MAXN];
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    ll n;
     cin >> n;
-    ll ans = 0;
-    ll a[MAXN];
-    REP (i,n) {
-        cin >> a[i];
+    REP (i,n*2) {
+        ll d;
+        cin >> d;
+        swap(pos[d].X,pos[d].Y);
+        pos[d].X = i;
     }
-    REP (i,n) {
-        REP (j,i+1) {
-            ll sum = 0;
-            for (ll k=j;k<=i;k++) {
-                sum += a[k]*(i-j+1);
-            }
-            ans = max(ans,sum);
-        }
+    pary(pos+1,pos+n+1);
+    
+    pos[0] = {0,0};
+    ll ans = 0;
+    REP1 (i,n) {
+        ans += min(abs(pos[i].X-pos[i-1].X)+abs(pos[i].Y-pos[i-1].Y),abs(pos[i].X-pos[i-1].Y)+abs(pos[i].Y-pos[i-1].X));
     }
 
-    cout <<ans << endl;
+    cout << ans << endl;
     return 0;
 }
-
-/*
-17
-1 -2 1 -2 1 -2 1 -2 1 -2 1 -2 1 -2 1 -2 9
-*/
