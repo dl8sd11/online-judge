@@ -1,6 +1,8 @@
 #include <bits/stdc++.h>
+#pragma GCC optimize("O3,unroll-loops,no-stack-protector")
+#pragma GCC target("sse,sse2,sse3,ssse3,sse4,popcnt,abm,mmx,avx,tune=native")
 using namespace std;
-typedef long long ll;
+typedef int ll;
 typedef pair<ll, ll> pii;
 typedef pair<double,double> pdd;
 #define MEM(a, b) memset(a, (b), sizeof(a))
@@ -49,34 +51,48 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
-const ll MAXN = 5e5 + 7;
+const ll MAXN = 100003;
 
+ll t,n,k,a[MAXN],sum;
+ll event[MAXN];
+
+void build_event(ll pos) {
+    ll val = a[pos];
+    ll lst = 0;
+    ll dv = val/pos;
+    for (ll i=pos;i>=1;i--) {
+        event[pos-i+1] += dv-lst;
+        assert(dv != lst);
+        lst = dv;
+        i = val/(++dv) + 1;
+    }
+    event[pos+1] += -lst;
+}
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    ll n;
-    cin >> n;
-    ll ans = 0;
-    ll a[MAXN];
-    REP (i,n) {
-        cin >> a[i];
-    }
-    REP (i,n) {
-        REP (j,i+1) {
-            ll sum = 0;
-            for (ll k=j;k<=i;k++) {
-                sum += a[k]*(i-j+1);
-            }
-            ans = max(ans,sum);
+    cin >> t;
+    while (t--) {
+        sum = 0;
+        memset(event,0,sizeof(int)*(n+3));
+        cin >> n >> k;
+        REP1 (i,n) {
+            cin >> a[i];
+            build_event(i);
         }
-    }
 
-    cout <<ans << endl;
+        ll ans = -1;
+        REP1 (i,n+1) {
+            sum += event[i];
+            if (sum <= k) {
+                ans = i;
+                break;
+            }
+        }
+
+        assert(ans != -1);
+        cout << ans << endl;
+    }
     return 0;
 }
-
-/*
-17
-1 -2 1 -2 1 -2 1 -2 1 -2 1 -2 1 -2 1 -2 9
-*/

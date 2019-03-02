@@ -54,6 +54,7 @@ namespace SEG {
     }
 };
 int main () {
+    IOS();
     cin >> n;
     REP1 (i,n) {
         char c;
