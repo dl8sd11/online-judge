@@ -10,3 +10,4 @@ test/standard.cpp
 test/target.cpp
 test/testcase.in
 tmp.cpp
+contest/MARCH19A/*
