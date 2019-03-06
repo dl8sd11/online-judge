@@ -49,23 +49,70 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
-// const ll MAXN = 
+const ll MAXN = 200003;
 
-double a1,a2,b1,b2;
+ll n,m;
+ll a[MAXN];
+ll c[MAXN];
+vector<pii> pos[MAXN];
+vector<pii> cnt;
 
-void ans(double x) {
-    cout << fixed << setprecision(2) << (abs(x) < 1e-6 ? 0.00 : x) << endl;
-}
+ll nxt[MAXN];
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> a1 >> a2 >> b1 >> b2;
-    
-    double x = (b2-b1)/(a1-a2);
-    double y = (b2*a1-b1*a2)/(a1-a2);
+    cin >> n >> m;
+    REP (i,n) {
+        cin >> a[i];
+        c[a[i]%m]++;
+        pos[a[i]%m].emplace_back(i,a[i]);
+    }
 
-    ans(x);ans(y);
+    ll k = n/m;
+    pary(c,c+m);
+    vector<ll> src;
+    REP (i,m) {
+        if (c[i] > k) {
+            src.emplace_back(i);
+        }
+    }
+
+    debug(src);
+    ll stp = 0;
+    for (ll i=0;i<m;i++) {
+        debug(i);
+        while (c[i] < k) {
+            ll ptr = src.back();
+            while (c[ptr] <= k) {
+                src.pop_back();
+                ptr = src.back();
+            }
+
+            ll dt = min(k-c[i],c[ptr]-k);
+            stp += dt * ((i+m-ptr) % m);
+            REP (z,dt) {
+                pos[i].emplace_back(pos[ptr].back().X,pos[ptr].back().Y+(i+m-ptr)%m);
+                pos[ptr].pop_back();
+            }
+            c[i] += dt;
+            c[ptr] -= dt;
+        } 
+        if (c[i] > k) {
+            src.eb(i);
+        }
+    }
+    vector<ll> ans(n);
+    REP (i,m) {
+        for (auto el : pos[i]) {
+            ans[el.X] = el.Y;
+        }
+    }
+
+    cout << stp << endl;
+    for (auto v : ans) {
+        cout << v << " ";
+    }
+    cout << endl;
     return 0;
 }
-/* 海選加油 */

@@ -51,21 +51,24 @@ const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 // const ll MAXN = 
 
-double a1,a2,b1,b2;
-
-void ans(double x) {
-    cout << fixed << setprecision(2) << (abs(x) < 1e-6 ? 0.00 : x) << endl;
-}
+ll n,sum;
+string num;
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> a1 >> a2 >> b1 >> b2;
-    
-    double x = (b2-b1)/(a1-a2);
-    double y = (b2*a1-b1*a2)/(a1-a2);
-
-    ans(x);ans(y);
+    cin >> n;
+    while (n--) {
+        cin >> num;
+        if (num[2] == num[3] && num[3] == num[4] && num[4] == num[5]) {
+            sum += 2000;
+        } else if (num[2] == num[3] && num[4] == num[5]) {
+            sum += 1500;
+        } else {
+            sum += 1000;
+        }
+    }
+    cout << sum << endl;
     return 0;
 }
 /* 海選加油 */

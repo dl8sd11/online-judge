@@ -1,6 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
-typedef long long ll;
+typedef int ll;
 typedef pair<ll, ll> pii;
 typedef pair<double,double> pdd;
 #define MEM(a, b) memset(a, (b), sizeof(a))
@@ -51,21 +51,63 @@ const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 // const ll MAXN = 
 
-double a1,a2,b1,b2;
+int m,n,b[52],w[1003];
 
-void ans(double x) {
-    cout << fixed << setprecision(2) << (abs(x) < 1e-6 ? 0.00 : x) << endl;
+bool solve(int idx,int lst) {
+    if (-1 == idx) {
+        return true;
+    }
+
+    int st = 0;
+    if (lst != -1 && w[idx] == w[idx+1]) {
+        st = lst;
+    }
+    for (int i=st;i<m;i++) {
+        if (b[i] < w[idx]) {
+            continue;
+        }
+        b[i] -= w[idx];
+        bool ret = solve(idx-1,i);
+        b[i] += w[idx];
+        if (ret) {
+            return true;
+        }
+    }
+    return false;
 }
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> a1 >> a2 >> b1 >> b2;
-    
-    double x = (b2-b1)/(a1-a2);
-    double y = (b2*a1-b1*a2)/(a1-a2);
+    cin >> m >> n;
 
-    ans(x);ans(y);
+    int tot = 0;
+    REP (i,m) {
+        cin >> b[i];
+        tot += b[i];
+    }
+    REP (i,n) {
+        cin >> w[i];
+    }
+
+    sort(w,w+n);
+    pary(w,w+n);
+    debug(tot);
+    int ans = 0,sum = 0;
+    REP (i,n) {
+        if (sum + w[i] > tot) {
+            break;
+        }
+        if (solve(i,-1)) {
+            ans = i + 1;
+        } else {
+            break;
+        }
+        sum += w[i];
+        
+    }
+
+    cout << ans << endl;
     return 0;
 }
 /* 海選加油 */

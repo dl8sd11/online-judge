@@ -1,6 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
-typedef long long ll;
+#pragma GCC optimize("O3")
+typedef int ll;
 typedef pair<ll, ll> pii;
 typedef pair<double,double> pdd;
 #define MEM(a, b) memset(a, (b), sizeof(a))
@@ -49,23 +50,28 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
-// const ll MAXN = 
 
-double a1,a2,b1,b2;
-
-void ans(double x) {
-    cout << fixed << setprecision(2) << (abs(x) < 1e-6 ? 0.00 : x) << endl;
-}
+ll n,a[1000003];
+unordered_map<ll,ll> po,na;
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> a1 >> a2 >> b1 >> b2;
+    po.reserve(1<<20);
+    po.max_load_factor(0.25);
+    na.reserve(1<<20);
+    na.max_load_factor(0.25);
     
-    double x = (b2-b1)/(a1-a2);
-    double y = (b2*a1-b1*a2)/(a1-a2);
+    cin >> n;
+    long long sum = 0;
+    REP (i,n) {
+        cin >> a[i];
+        sum += po[a[i]+i];
+        sum += na[a[i]-i];
+        po[a[i]+i]++;
+        na[a[i]-i]++;
+    }
 
-    ans(x);ans(y);
+    cout << sum*2 << endl;
     return 0;
 }
-/* 海選加油 */

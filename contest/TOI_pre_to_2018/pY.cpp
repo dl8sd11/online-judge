@@ -36,7 +36,6 @@ template<typename It> ostream& _OUTC(ostream &_s,It _ita,It _itb)
 }
 template<typename _a> ostream &operator << (ostream &_s,vector<_a> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _a> ostream &operator << (ostream &_s,set<_a> &_c){return _OUTC(_s,ALL(_c));}
-template<typename _a> ostream &operator << (ostream &_s,deque<_a> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _a,typename _b> ostream &operator << (ostream &_s,map<_a,_b> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS()
@@ -47,25 +46,62 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
 #endif
 
-const ll MOD = 1000000007;
-const ll INF = 0x3f3f3f3f3f3f3f3f;
-// const ll MAXN = 
+template<class T> inline bool cmax(T &a, const T &b) { return b > a ? a = b, true : false; }
+template<class T> inline bool cmin(T &a, const T &b) { return b < a ? a = b, true : false; }
+template<class T> using MaxHeap = priority_queue<T>;
+template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
-double a1,a2,b1,b2;
+const ll MOD=1000000007;
+const ll INF=0x3f3f3f3f3f3f3f3f;
+const ll MAXN=1500;
+const ll MAXLG=__lg(MAXN)+2;
 
-void ans(double x) {
-    cout << fixed << setprecision(2) << (abs(x) < 1e-6 ? 0.00 : x) << endl;
+ll c[MAXN][MAXN];
+string str;
+ll d;
+void build() {
+    REP (i,MAXN) {
+        c[i][0] = 1;
+        c[i][i] = 1;
+    }
+    for (int i=1;i<MAXN;i++) {
+        for (int j=1;j<i;j++) {
+            c[i][j] = (c[i-1][j] + c[i-1][j-1]) % d;
+        }
+    }
 }
+ll cnt[256];
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> a1 >> a2 >> b1 >> b2;
-    
-    double x = (b2-b1)/(a1-a2);
-    double y = (b2*a1-b1*a2)/(a1-a2);
+    cin >> d >> str;
+    build();
+    REP (i,SZ(str)) {
+        cnt[str[i]]++;
+    }
 
-    ans(x);ans(y);
+    ll ans = 0;
+    REP (i,SZ(str)-1) {
+        REP (j,str[i]) {
+            if (cnt[j] > 0) {
+                ll sum = 1;
+                ll cur = c[SZ(str)-i-sum][cnt[j]-1];
+                sum += cnt[j] - 1;
+                debug(i,j,cur);
+                REP (k,256) {
+                    if (k != j && cnt[k]) {
+                        cur = cur * c[SZ(str)-i-sum][cnt[k]] % d;
+                        debug(SZ(str),i,sum,cnt[k]);
+                        sum += cnt[k];
+                    }
+                }
+                ans = (ans + cur) % d;
+            }
+        }
+        cnt[str[i]]--;
+    }
+
+    cout << ans << endl;
     return 0;
 }
-/* 海選加油 */

@@ -49,23 +49,56 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
-// const ll MAXN = 
+const ll MAXN = 1003;
 
-double a1,a2,b1,b2;
+ll t,n;
+vector<ll> edge[MAXN];
+ll w[MAXN],dp[MAXN];
 
-void ans(double x) {
-    cout << fixed << setprecision(2) << (abs(x) < 1e-6 ? 0.00 : x) << endl;
+void dfs(ll nd) {
+    if (dp[nd] != -1) {
+        return;
+    }
+
+    dp[nd] = 0;
+    for (auto v : edge[nd]) {
+        dfs(v);
+        dp[nd] = max(dp[nd],dp[v]);
+    }
+    dp[nd] += w[nd];
 }
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> a1 >> a2 >> b1 >> b2;
-    
-    double x = (b2-b1)/(a1-a2);
-    double y = (b2*a1-b1*a2)/(a1-a2);
+    cin >> t;
+    while (t--) {
+        MEM(dp,-1);
+        cin >> n;
+        REP (i,MAXN) {
+            edge[i].clear();
+            edge[i].shrink_to_fit();
+        }
 
-    ans(x);ans(y);
+        REP1 (i,n) {
+            cin >> w[i];
+            ll m;
+            cin >> m;
+            REP (j,m) {
+                ll to;
+                cin >> to;
+                edge[i].emplace_back(to);
+            }
+        }
+
+        ll ans = 0;
+        REP1 (i,n) {
+            dfs(i);
+            ans = max(ans,dp[i]);
+        }
+
+        cout << ans << endl;
+    }
     return 0;
 }
 /* 海選加油 */

@@ -51,21 +51,54 @@ const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 // const ll MAXN = 
 
-double a1,a2,b1,b2;
-
-void ans(double x) {
-    cout << fixed << setprecision(2) << (abs(x) < 1e-6 ? 0.00 : x) << endl;
+ll n ,m;
+bool g[513][513],vis[513][513];
+ll dx[] = {0,1,1,1,0,-1,-1,-1};
+ll dy[] = {-1,-1,0,1,1,1,0,-1};
+inline bool valid(ll x,ll y) {
+    return x >= 0 && x < n && y >= 0 && y < m;
 }
+void dfs(ll x,ll y) {
+    vis[x][y] = true;
+    REP (d,8) {
+        ll cx = x + dx[d], cy = y + dy[d];
+        if (valid(cx,cy) && g[cx][cy] && !vis[cx][cy]) {
+            dfs(cx,cy);
+        }
+    }
+}
+
+ll lev[] = {0,1,2,4,6,10,12,14,16,18,20};
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> a1 >> a2 >> b1 >> b2;
-    
-    double x = (b2-b1)/(a1-a2);
-    double y = (b2*a1-b1*a2)/(a1-a2);
+    cin >> n >> m;
+    REP (i,n) {
+        REP (j,m) {
+            char c;
+            cin >> c;
+            g[i][j] = (c == '1');
+        }
+    }
 
-    ans(x);ans(y);
+    ll cnt = 0;
+    REP (i,n) {
+        REP (j,m) {
+            if (!vis[i][j] && g[i][j]) {
+                dfs(i,j);
+                cnt++;
+            }
+        }
+    }
+    debug(cnt);
+    REP (i,11) {
+        if (lev[i] >= cnt) {
+            cout << i << endl;
+            return 0;
+        }
+    }
+    cout << 10 << endl;
     return 0;
 }
 /* 海選加油 */

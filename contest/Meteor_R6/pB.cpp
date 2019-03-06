@@ -51,21 +51,51 @@ const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 // const ll MAXN = 
 
-double a1,a2,b1,b2;
+ll n,x,y,k,t;
+ll dx[] = {0,-1,0,1};
+ll dy[] = {1,0,-1,0};
+ll dir = 0;
 
-void ans(double x) {
-    cout << fixed << setprecision(2) << (abs(x) < 1e-6 ? 0.00 : x) << endl;
+void normal() {
+    if (x >= n) {
+        x = n-1;
+    }
+    if (y >= n) {
+        y = n-1;
+    }
+    if (x < 0) {
+        x = 0;
+    }
+    if (y < 0) {
+        y = 0;
+    }
 }
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> a1 >> a2 >> b1 >> b2;
-    
-    double x = (b2-b1)/(a1-a2);
-    double y = (b2*a1-b1*a2)/(a1-a2);
+    cin >> n;
+    cin >> x >> y;
+    cin >> k;
+    while (k--) {
+        char c;
+        cin >> c >> t;
+        if (c == 'W') {
+            x += dx[dir] * t;
+            y += dy[dir] * t;
+        } else if (c == 'L') {
+            dir -= t;
+            dir %= 4;
+            if (dir < 0) {
+                dir += 4;
+            }
+        } else {
+            dir += t;
+            dir %= 4;
+        }
+        normal();
+    }
 
-    ans(x);ans(y);
+    cout << "(" << x << ", " << y <<")" << endl;
     return 0;
 }
-/* 海選加油 */

@@ -51,21 +51,45 @@ const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 // const ll MAXN = 
 
-double a1,a2,b1,b2;
-
-void ans(double x) {
-    cout << fixed << setprecision(2) << (abs(x) < 1e-6 ? 0.00 : x) << endl;
-}
+ll n,t;
+pii food[100001];
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> a1 >> a2 >> b1 >> b2;
-    
-    double x = (b2-b1)/(a1-a2);
-    double y = (b2*a1-b1*a2)/(a1-a2);
+    cin >> n;
+    REP (i,n) {
+        cin >> food[i].X >> food[i].Y;
+    }
+    sort(food,food+n,[&](pii &p1,pii &p2){return p1.Y > p2.Y;});
+    cin >> t;
 
-    ans(x);ans(y);
+    priority_queue<ll> pq;
+    vector<ll> eng;
+    ll ans = 0;
+
+    pary(food,food+n);
+    REP (i,n) {
+
+        ll fst = i;
+        while (food[i].Y == food[fst].Y) {
+            pq.emplace(food[i].X);
+            i++;
+        }
+        i--;
+
+        ans -= max(0LL,t - food[i].Y);
+        t = min(t,food[i].Y);
+        while (SZ(pq) && t - 1 >= (i<n-1?food[i+1].Y:0)) {
+            ans += pq.top();
+            pq.pop();
+            t--;
+        }
+        debug(i,t,ans);
+    }
+    ans -= t;
+
+    cout << ans << endl;
     return 0;
 }
 /* 海選加油 */

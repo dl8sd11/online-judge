@@ -49,23 +49,75 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
-// const ll MAXN = 
+const ll MAXN = 500003;
 
-double a1,a2,b1,b2;
-
-void ans(double x) {
-    cout << fixed << setprecision(2) << (abs(x) < 1e-6 ? 0.00 : x) << endl;
-}
+ll m,k,n,s;
+ll a[MAXN],b[MAXN];
+ll cntr[MAXN],cntt[MAXN];
+ll cmt,mmt;
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> a1 >> a2 >> b1 >> b2;
-    
-    double x = (b2-b1)/(a1-a2);
-    double y = (b2*a1-b1*a2)/(a1-a2);
+    cin >> m >> k >> n >> s;
+    REP (i,m) {
+        cin >> a[i];
+    }
+    REP (i,s) {
+        cin >> b[i];
+        cntt[b[i]]++;
+    }
+    REP (i,MAXN) {
+        if (cntt[i] > 0) {
+            mmt++;
+        }
+    }
 
-    ans(x);ans(y);
+    ll r = 0;
+    REP (l,m) {
+        bool fnd = true;
+        while (cmt < mmt || r-l < k) {
+            if (r == m) {
+                fnd = false;
+                break;
+            }
+            if (++cntr[a[r]] == cntt[a[r]]) {
+                cmt++;
+            }
+            r++;
+        }
+        if (!fnd) {
+            break;
+        }
+
+
+        if (l/k + 1 + (m-r)/k >= n) {
+            debug(l,r);
+            cout << (l-l/k*k) + (r-l-k) << endl;
+            vector<ll> rmv;
+            REP1 (i,l-l/k*k) {
+                rmv.eb(i);
+            }
+            ll rem = r-l-k;
+            for (ll i=l;i<r;i++) {
+                if (--cntt[a[i]] < 0 && rem > 0) {
+                    rmv.emplace_back(i+1);
+                    rem--;
+                }
+            }
+
+            for (auto d : rmv) {
+                cout << d << " ";
+            }
+            cout << endl;
+            return 0;
+
+        }
+        if (cntr[a[l]]-- == cntt[a[l]]) {
+            cmt--;
+        }
+    }
+
+    cout << -1 << endl;    
     return 0;
 }
-/* 海選加油 */

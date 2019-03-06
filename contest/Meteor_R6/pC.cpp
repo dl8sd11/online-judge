@@ -1,6 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
-typedef long long ll;
+#pragma GCC optimize("O3")
+typedef int ll;
 typedef pair<ll, ll> pii;
 typedef pair<double,double> pdd;
 #define MEM(a, b) memset(a, (b), sizeof(a))
@@ -49,23 +50,42 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
-// const ll MAXN = 
-
-double a1,a2,b1,b2;
-
-void ans(double x) {
-    cout << fixed << setprecision(2) << (abs(x) < 1e-6 ? 0.00 : x) << endl;
-}
+const ll MAXN = 1000003;
+ll n,a[MAXN];
+vector<ll> po,na;
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> a1 >> a2 >> b1 >> b2;
-    
-    double x = (b2-b1)/(a1-a2);
-    double y = (b2*a1-b1*a2)/(a1-a2);
+    cin >> n;
+    long long sum = 0;
+    REP (i,n) {
+        cin >> a[i];
+        po.emplace_back(a[i]+i);
+        na.emplace_back(a[i]-i);
+    }
+    sort(ALL(po));
+    sort(ALL(na));
 
-    ans(x);ans(y);
+    ll cnt = 1;
+    REP1 (i,n) {
+        if (i == n || po[i] != po[i-1]) {
+            sum += (long long)cnt * (cnt-1);
+            cnt = 1;
+        } else {
+            cnt++;
+        }
+    }
+    cnt = 1;
+    REP1 (i,n) {
+        if (i == n || na[i] != na[i-1]) {
+            sum += (long long)cnt * (cnt-1);
+            cnt = 1;
+        } else {
+            cnt++;
+        }
+    }
+
+    cout << sum << endl;
     return 0;
 }
-/* 海選加油 */

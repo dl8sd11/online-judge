@@ -51,21 +51,22 @@ const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 // const ll MAXN = 
 
-double a1,a2,b1,b2;
-
-void ans(double x) {
-    cout << fixed << setprecision(2) << (abs(x) < 1e-6 ? 0.00 : x) << endl;
-}
+string str;
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> a1 >> a2 >> b1 >> b2;
-    
-    double x = (b2-b1)/(a1-a2);
-    double y = (b2*a1-b1*a2)/(a1-a2);
-
-    ans(x);ans(y);
+    cin >> str;
+    vector<char> stk;
+    for (auto c : str) {
+        if (stk.empty()) {
+            stk.emplace_back(c);
+        } else if (stk.back() != c) {
+            stk.pop_back();
+        } else {
+            stk.eb(c);
+        }
+    }
+    cout << str.size() - stk.size() << endl;
     return 0;
 }
-/* 海選加油 */

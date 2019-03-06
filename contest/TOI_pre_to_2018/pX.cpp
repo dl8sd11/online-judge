@@ -36,7 +36,6 @@ template<typename It> ostream& _OUTC(ostream &_s,It _ita,It _itb)
 }
 template<typename _a> ostream &operator << (ostream &_s,vector<_a> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _a> ostream &operator << (ostream &_s,set<_a> &_c){return _OUTC(_s,ALL(_c));}
-template<typename _a> ostream &operator << (ostream &_s,deque<_a> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _a,typename _b> ostream &operator << (ostream &_s,map<_a,_b> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS()
@@ -47,25 +46,74 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
 #endif
 
-const ll MOD = 1000000007;
-const ll INF = 0x3f3f3f3f3f3f3f3f;
-// const ll MAXN = 
+template<class T> inline bool cmax(T &a, const T &b) { return b > a ? a = b, true : false; }
+template<class T> inline bool cmin(T &a, const T &b) { return b < a ? a = b, true : false; }
+template<class T> using MaxHeap = priority_queue<T>;
+template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
-double a1,a2,b1,b2;
+const ll MOD=1000000007;
+const ll INF=0x3f3f3f3f3f3f3f3f;
+const ll MAXN=1e5+5;
+const ll MAXLG=__lg(MAXN)+2;
 
-void ans(double x) {
-    cout << fixed << setprecision(2) << (abs(x) < 1e-6 ? 0.00 : x) << endl;
+string str;
+ll ptr = 0;
+vector<map<string,ll>> stk;
+
+string get_element() {
+    if (ptr == SZ(str)-1 || !(str[ptr+1] >= 'a' && str[ptr+1] <= 'z')) {
+        ptr++;
+        return str.substr(ptr-1,1);
+    } else {
+        ptr += 2;
+        return str.substr(ptr-2,2);
+    }
+}
+
+ll get_num() {
+    ll ret = 0;
+    while (ptr < SZ(str) && str[ptr] >= '0' && str[ptr] <= '9') {
+        ret *= 10;
+        ret += str[ptr] - '0';
+        ptr++;
+    }
+    return ret;
 }
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> a1 >> a2 >> b1 >> b2;
-    
-    double x = (b2-b1)/(a1-a2);
-    double y = (b2*a1-b1*a2)/(a1-a2);
+    cin >> str;
+    stk.push_back(map<string,ll>());
+    while (ptr < SZ(str)) {
+        if (str[ptr] == '(') {
+            stk.push_back(map<string,ll>());
+            ptr++;
+        } else if (str[ptr] == ')') {
+            map<string,ll> trans = stk.back();
+            stk.pop_back();
+            ptr++;
+            ll num = get_num();
+            if (num == 0) {
+                num++;
+            }
+            for (auto p : trans) {
+                stk.back()[p.X] += p.Y * num;
+            }
+        } else {
+            string el = get_element();
+            ll num = get_num();
+            if (num == 0) {
+                num++;
+            }
+            debug(el,num);
+            stk.back()[el] += num;
+        }
+    }
+    cout << str << endl;
+    for (auto p : stk.back()) {
+        cout << p.X << ":" << p.Y << endl; 
+    }
 
-    ans(x);ans(y);
     return 0;
 }
-/* 海選加油 */

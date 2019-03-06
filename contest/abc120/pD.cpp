@@ -49,23 +49,54 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
-// const ll MAXN = 
+const ll MAXN = 100003;
 
-double a1,a2,b1,b2;
+ll n,m,djs[MAXN],sz[MAXN];
+vector<pii> edge;
+void init() {
+    REP (i,MAXN) {
+        djs[i] = i;
+        sz[i] = 1;
+    }
+}
 
-void ans(double x) {
-    cout << fixed << setprecision(2) << (abs(x) < 1e-6 ? 0.00 : x) << endl;
+ll fnd(ll x) {
+    return x == djs[x] ? x : (djs[x] = fnd(djs[x]));
+}
+
+ll ans = 0;
+void uni(ll x,ll y) {
+    if (sz[x=fnd(x)] > sz[y=fnd(y)]) {
+        swap(x,y);
+    }
+    if (x == y) {
+        return;
+    }
+    djs[x] = y;
+    ans -= sz[x] * sz[y];
+    sz[y] += sz[x];
 }
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> a1 >> a2 >> b1 >> b2;
-    
-    double x = (b2-b1)/(a1-a2);
-    double y = (b2*a1-b1*a2)/(a1-a2);
+    cin >> n >> m;
+    REP (i,m) {
+        ll u,v;
+        cin >> u >> v;
+        edge.emplace_back(u,v);
+    }
+    init();
+    ans = n * (n-1) / 2;
+    vector<ll> opt;
+    opt.emplace_back(ans);
+    RREP (i,m-1) {
+        uni(edge[i].X,edge[i].Y);
+        opt.emplace_back(ans);
+    }
 
-    ans(x);ans(y);
+    RREP (i,m-1) {
+        cout << opt[i] << endl;
+    }
     return 0;
 }
-/* 海選加油 */

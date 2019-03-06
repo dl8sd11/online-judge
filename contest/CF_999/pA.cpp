@@ -51,21 +51,29 @@ const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 // const ll MAXN = 
 
-double a1,a2,b1,b2;
-
-void ans(double x) {
-    cout << fixed << setprecision(2) << (abs(x) < 1e-6 ? 0.00 : x) << endl;
-}
+ll n,k;
+deque<ll> p;
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> a1 >> a2 >> b1 >> b2;
-    
-    double x = (b2-b1)/(a1-a2);
-    double y = (b2*a1-b1*a2)/(a1-a2);
+    cin >> n >> k;
+    REP (i,n) {
+        ll d;
+        cin >> d;
+        p.emplace_back(d);
+    }
 
-    ans(x);ans(y);
+    while (p.size()) {
+        if (p.back() <= k) {
+            p.pop_back();
+        } else if (p.front() <= k) {
+            p.pop_front();
+        } else {
+            break;
+        }
+    }
+
+    cout << n - SZ(p) << endl;
     return 0;
 }
-/* 海選加油 */

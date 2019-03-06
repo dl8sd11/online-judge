@@ -50,22 +50,34 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 // const ll MAXN = 
-
-double a1,a2,b1,b2;
-
-void ans(double x) {
-    cout << fixed << setprecision(2) << (abs(x) < 1e-6 ? 0.00 : x) << endl;
-}
+ll T,n,a[101],sum;
+bool dp[100001];
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> a1 >> a2 >> b1 >> b2;
-    
-    double x = (b2-b1)/(a1-a2);
-    double y = (b2*a1-b1*a2)/(a1-a2);
+    cin >> T >> n;
+    while (T--) {
+        sum = 0;
+        MEM(dp,0);
 
-    ans(x);ans(y);
+        REP (i,n) {
+            cin >> a[i];
+            sum += a[i];
+        }
+        dp[0] = true;
+        REP (i,n) {
+            for (ll j = sum/2;j >= a[i];j--) {
+                dp[j] |= dp[j-a[i]];
+            }
+        }
+
+        if (sum % 2 == 0 && dp[sum/2]) {
+            cout << "Yes" << endl;
+        } else {
+            cout << "No" << endl;
+        }
+    }
     return 0;
 }
 /* 海選加油 */

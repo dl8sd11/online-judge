@@ -49,23 +49,55 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
-// const ll MAXN = 
+const ll MAXN = 1003;
 
-double a1,a2,b1,b2;
-
-void ans(double x) {
-    cout << fixed << setprecision(2) << (abs(x) < 1e-6 ? 0.00 : x) << endl;
+ll n,k,a[MAXN],done,test[MAXN];
+vector<ll> wk;
+bool in[MAXN];
+ll cal(ll x,ll y) {
+    return round(100.0*x/y);
 }
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> a1 >> a2 >> b1 >> b2;
-    
-    double x = (b2-b1)/(a1-a2);
-    double y = (b2*a1-b1*a2)/(a1-a2);
+    cin >> n >> k;
+    REP (i,n) {
+        cin >> a[i];
+    }
+    wk.resize(k);
+    REP (i,k) {
+        wk[i] = -1;
+    }
+    ll idx = 0;
+    REP (i,150001) {
+    // REP (i,100) {
+        // debug(done);
+        // pary(test,test+n);
+        ll tmp = done;
+        REP (i,k) {
+            if (wk[i] == -1 && idx < n) {
+                wk[i] = idx++;
+            }
+        }
+        REP (i,k) {
+            if (wk[i] != -1) {
+                test[wk[i]]++;
+                if (test[wk[i]] == cal(tmp,n)) {
+                    in[wk[i]] = true;
+                }
+                if (test[wk[i]] == a[wk[i]]) {
+                    wk[i] = -1;
+                    done++;
+                }
+            }
+        }
+    }
 
-    ans(x);ans(y);
+    ll ans = 0;
+    REP (i,n) {
+        ans += in[i];
+    }
+    cout << ans << endl;
     return 0;
 }
-/* 海選加油 */

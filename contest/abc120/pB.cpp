@@ -50,22 +50,20 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 // const ll MAXN = 
-
-double a1,a2,b1,b2;
-
-void ans(double x) {
-    cout << fixed << setprecision(2) << (abs(x) < 1e-6 ? 0.00 : x) << endl;
-}
+ll a,b,k;
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> a1 >> a2 >> b1 >> b2;
-    
-    double x = (b2-b1)/(a1-a2);
-    double y = (b2*a1-b1*a2)/(a1-a2);
-
-    ans(x);ans(y);
+    cin >> a >> b >> k;
+    ll lst = 1;
+    vector<ll> div;
+    REP1 (i,min(a,b)) {
+        if (a % i == 0 && b % i == 0) {
+            div.emplace_back(i);
+        }
+    }
+    reverse(ALL(div));
+    cout << div[k-1] << endl;
     return 0;
 }
-/* 海選加油 */

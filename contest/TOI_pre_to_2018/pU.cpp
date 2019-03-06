@@ -51,21 +51,37 @@ const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 // const ll MAXN = 
 
-double a1,a2,b1,b2;
-
-void ans(double x) {
-    cout << fixed << setprecision(2) << (abs(x) < 1e-6 ? 0.00 : x) << endl;
-}
+ll m,n,p;
+ll dp[20003][101];
+ll sz[101][101],pw[101][101];
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> a1 >> a2 >> b1 >> b2;
-    
-    double x = (b2-b1)/(a1-a2);
-    double y = (b2*a1-b1*a2)/(a1-a2);
+    cin >> m >> n >> p;
+    REP (i,n) {
+        REP (j,p) {
+            cin >> sz[i][j] >> pw[i][j];
+        }
+    }
 
-    ans(x);ans(y);
+    ll mx = 0;
+    REP (k,m+1) {
+        REP (i,n) {
+            if (i) {
+                dp[k][i] = dp[k][i-1];
+            }
+            REP (j,p) {
+                if (sz[i][j] <= k) {
+                    dp[k][i] = max(dp[k][i],(i?dp[k-sz[i][j]][i-1]:0)+pw[i][j]);
+                }
+            }
+            mx = max(mx,dp[k][i]);
+        }
+    }
+
+    cout << mx << endl;
+    
     return 0;
 }
 /* 海選加油 */

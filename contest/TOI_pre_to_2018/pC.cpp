@@ -49,23 +49,53 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
-// const ll MAXN = 
-
-double a1,a2,b1,b2;
-
-void ans(double x) {
-    cout << fixed << setprecision(2) << (abs(x) < 1e-6 ? 0.00 : x) << endl;
+const ll MAXN = 30;
+ll n,m;
+bitset<MAXN> ban[MAXN];
+vector<ll> conf[MAXN];
+ll ans;
+void dfs(ll idx,ll cl) {
+    if (idx == n+1) {
+        ans++;
+        return;
+    }
+    REP1 (i,cl) {
+        if (!ban[idx][i]) {
+            bitset<MAXN> tmp[MAXN];
+            for (auto v : conf[idx]) {
+                tmp[v] = ban[v];
+                ban[v][i] = true;
+            }
+            dfs(idx+1,cl);
+            for (auto v : conf[idx]) {
+                ban[v] = tmp[v];
+            }
+        }
+    }
 }
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> a1 >> a2 >> b1 >> b2;
-    
-    double x = (b2-b1)/(a1-a2);
-    double y = (b2*a1-b1*a2)/(a1-a2);
+    cin >> n >> m;
+    ll u,v;
+    while (cin >> u >> v) {
+        conf[min(u,v)].emplace_back(max(u,v));
+    }
 
-    ans(x);ans(y);
+    dfs(1,m);
+    cout << ans << endl;
+    REP1 (i,20) {
+        REP1 (j,n) {
+            ban[j].reset();
+        }
+        ans = 0;
+        dfs(1,i);
+        if (ans > 0) {
+            cout << i << endl;
+            return 0;
+        }
+    }
     return 0;
 }
 /* 海選加油 */

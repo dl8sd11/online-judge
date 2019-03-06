@@ -49,23 +49,42 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
-// const ll MAXN = 
 
-double a1,a2,b1,b2;
-
-void ans(double x) {
-    cout << fixed << setprecision(2) << (abs(x) < 1e-6 ? 0.00 : x) << endl;
-}
+ll n,k,dp[5001][501];
+ll cnt[100001],fav[100001],h[20];
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> a1 >> a2 >> b1 >> b2;
-    
-    double x = (b2-b1)/(a1-a2);
-    double y = (b2*a1-b1*a2)/(a1-a2);
+    cin >> n >> k;
+    REP (i,n*k) {
+        ll d;
+        cin >> d;
+        cnt[d]++;
+    }
 
-    ans(x);ans(y);
+    REP (i,n) {
+        ll d;
+        cin >> d;
+        fav[d]++;
+    }
+
+    REP1 (i,k) {
+        cin >> h[i];
+    }
+    REP1 (j,500) {
+        REP (i,5001) {
+            for (ll l=0;l<=k;l++) {
+                if (i >= l) {
+                    dp[i][j] = max(dp[i][j],dp[i-l][j-1] + h[l]);
+                }
+            }
+        }
+    }
+    ll ans = 0;
+    REP (i,100001) {
+        ans += dp[cnt[i]][fav[i]];
+    }
+    cout << ans << endl;
     return 0;
 }
-/* 海選加油 */

@@ -49,23 +49,34 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
-// const ll MAXN = 
+const ll MAXN = 1000003;
 
-double a1,a2,b1,b2;
-
-void ans(double x) {
-    cout << fixed << setprecision(2) << (abs(x) < 1e-6 ? 0.00 : x) << endl;
-}
+ll n,k,a[MAXN],dp[MAXN],pre[MAXN];
+deque<pii> dq;
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> a1 >> a2 >> b1 >> b2;
-    
-    double x = (b2-b1)/(a1-a2);
-    double y = (b2*a1-b1*a2)/(a1-a2);
+    cin >> n >> k;
+    REP (i,n) {
+        cin >> a[i];
+        pre[i] += (i ? pre[i-1] : 0) + a[i];
+    }
 
-    ans(x);ans(y);
+    dq.emplace_back(-1,0);
+    REP (i,n) {
+        while (SZ(dq) && dq.front().X < i-k) {
+            dq.pop_front();
+        }
+        dp[i] = max(dp[i-1],dq.front().Y + pre[i]);
+        debug(dp[i],dq.front());
+        ll cur = (i?dp[i-1]:0)- pre[i];
+        while (SZ(dq) && dq.back().Y < cur) {
+            dq.pop_back();
+        }
+        dq.push_back({i,cur});
+    }
+
+    cout << dp[n-1] << endl;
     return 0;
 }
-/* 海選加油 */

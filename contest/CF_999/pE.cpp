@@ -49,23 +49,61 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
-// const ll MAXN = 
+const ll MAXN = 5003;
 
-double a1,a2,b1,b2;
+ll n,m,s;
+ll cnt[MAXN];
+bool vis[MAXN];
+vector<ll> edge[MAXN];
+vector<pii> siz;
 
-void ans(double x) {
-    cout << fixed << setprecision(2) << (abs(x) < 1e-6 ? 0.00 : x) << endl;
+ll sum;
+void dfs(ll nd) {
+    sum++;
+    vis[nd] = true;
+    for (auto v : edge[nd]) {
+        if (!vis[v]) {
+            dfs(v);
+        }
+    }
 }
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> a1 >> a2 >> b1 >> b2;
-    
-    double x = (b2-b1)/(a1-a2);
-    double y = (b2*a1-b1*a2)/(a1-a2);
+    cin >> n >> m >> s;
+    REP (i,m) {
+        ll f, t;
+        cin >> f >> t;
+        edge[f].emplace_back(t);
+    }
 
-    ans(x);ans(y);
+    ll ans = 0;
+
+    REP1 (i,n) {
+        sum = 0;
+        MEM(vis,0);
+        dfs(i);
+        siz.emplace_back(sum,i);
+    }
+
+    sort(ALL(siz));
+
+    MEM(vis,0);
+    dfs(s);
+
+    reverse(ALL(siz));
+
+    debug(siz);
+    for (auto p : siz) {
+        ll i = p.Y;
+        if (vis[i] == 0) {
+            dfs(i);
+            ans++;
+        }
+
+    }
+
+    cout << ans << endl;
     return 0;
 }
-/* 海選加油 */

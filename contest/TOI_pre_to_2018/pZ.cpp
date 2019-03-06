@@ -36,7 +36,6 @@ template<typename It> ostream& _OUTC(ostream &_s,It _ita,It _itb)
 }
 template<typename _a> ostream &operator << (ostream &_s,vector<_a> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _a> ostream &operator << (ostream &_s,set<_a> &_c){return _OUTC(_s,ALL(_c));}
-template<typename _a> ostream &operator << (ostream &_s,deque<_a> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _a,typename _b> ostream &operator << (ostream &_s,map<_a,_b> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS()
@@ -47,25 +46,62 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
 #endif
 
-const ll MOD = 1000000007;
-const ll INF = 0x3f3f3f3f3f3f3f3f;
-// const ll MAXN = 
+template<class T> inline bool cmax(T &a, const T &b) { return b > a ? a = b, true : false; }
+template<class T> inline bool cmin(T &a, const T &b) { return b < a ? a = b, true : false; }
+template<class T> using MaxHeap = priority_queue<T>;
+template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
-double a1,a2,b1,b2;
+const ll MOD=1000000007;
+const ll INF=0x3f3f3f3f3f3f3f3f;
+const ll MAXN=1e5+5;
+const ll MAXLG=__lg(MAXN)+2;
+struct Matrix {
+    ll dt[2][2];
+    Matrix operator * (const Matrix &m) {
+        Matrix ret;
+        for (int i=0;i<2;i++) {
+            for (int j=0;j<2;j++) {
+                ret.dt[i][j] = 0;
+                for (int k=0;k<2;k++) {
+                    ret.dt[i][j] = (ret.dt[i][j] + dt[i][k] * m.dt[k][j]) % MOD;
+                }
+            }
+        }
+        return ret;
+    }
+    void operator = (const Matrix &m) {
+        for (int i=0;i<2;i++) {
+            for (int j=0;j<2;j++) {
+                dt[i][j] = m.dt[i][j];         
+            }
+        }
+    }
+};
 
-void ans(double x) {
-    cout << fixed << setprecision(2) << (abs(x) < 1e-6 ? 0.00 : x) << endl;
+Matrix mpow(Matrix base,ll ep) {
+    if (ep == 1) {
+        return base;
+    }
+    Matrix tmp = mpow(base,ep>>1);
+    tmp = tmp * tmp;
+    return ep & 1 ? tmp * base : tmp;
 }
+
+ll f1,f2,a,b,n;
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> a1 >> a2 >> b1 >> b2;
-    
-    double x = (b2-b1)/(a1-a2);
-    double y = (b2*a1-b1*a2)/(a1-a2);
+    cin >> f1 >> f2 >> a >> b >> n;
+    Matrix base;
+    base.dt[0][0] = b;
+    base.dt[0][1] = a;
+    base.dt[1][0] = 1;
+    base.dt[1][1] = 0;
 
-    ans(x);ans(y);
+    base = mpow(base,n-2);
+
+    cout << (f2 * base.dt[0][0] + f1 * base.dt[0][1]) % MOD << endl;
+
     return 0;
 }
-/* 海選加油 */

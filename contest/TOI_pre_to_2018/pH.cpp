@@ -51,21 +51,45 @@ const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 // const ll MAXN = 
 
-double a1,a2,b1,b2;
-
-void ans(double x) {
-    cout << fixed << setprecision(2) << (abs(x) < 1e-6 ? 0.00 : x) << endl;
+ll p[11],n,r;
+ll pnr(ll n,ll r) {
+    return p[n] / p[n-r];
 }
+bool vis[11];
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> a1 >> a2 >> b1 >> b2;
-    
-    double x = (b2-b1)/(a1-a2);
-    double y = (b2*a1-b1*a2)/(a1-a2);
+    p[0] = 1;
+    REP1 (i,10) {
+        p[i] = p[i-1] * i;
+    }
 
-    ans(x);ans(y);
+    cin >> n >> r;
+    ll permu = 1;
+    REP (i,r) {
+        permu *= (n-i);
+    }
+    debug(permu);
+
+    ll goal = (n+r > permu ? 0 : permu - n - r) + 1;
+
+    ll sum = 0;
+    REP (i,r) {
+        REP (j,n) {
+            if (vis[j]) {
+                continue;
+            }
+            if (sum + pnr(n-i-1,r-i-1) >= goal) {
+                cout << j;
+                vis[j] = true;
+                break;
+            } else {
+                sum += pnr(n-i-1,r-i-1);
+            }
+        }
+    }
+    cout << endl;
     return 0;
 }
 /* 海選加油 */

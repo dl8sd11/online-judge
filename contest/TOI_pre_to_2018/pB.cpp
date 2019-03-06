@@ -49,23 +49,43 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
-// const ll MAXN = 
+const ll MAXN = 103; 
 
-double a1,a2,b1,b2;
-
-void ans(double x) {
-    cout << fixed << setprecision(2) << (abs(x) < 1e-6 ? 0.00 : x) << endl;
-}
+ll n;
+ll dp[MAXN][MAXN];
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> a1 >> a2 >> b1 >> b2;
-    
-    double x = (b2-b1)/(a1-a2);
-    double y = (b2*a1-b1*a2)/(a1-a2);
+    cin >> n;
+    REP (i,n) {
+        REP (j,n) {
+            char c;
+            cin >> c;
+            if (c == 'X') {
+                dp[i][j] = -1;
+            } else if (c >= '0' && c <= '9') {
+                if (max((i?dp[i-1][j]:-1),(j?dp[i][j-1]:-1)) >= 0) {
+                    dp[i][j] = max((i?dp[i-1][j]:-1),(j?dp[i][j-1]:-1)) + c - '0';
+                } else {
+                    dp[i][j] = -1;
+                }
+            } else {
+                if (max((i?dp[i-1][j]:-1),(j?dp[i][j-1]:-1)) >= 0) {
+                    dp[i][j] = max((i?dp[i-1][j]:-1),(j?dp[i][j-1]:-1));
+                } else {
+                    dp[i][j] = -1;
+                }
+            }
+            dp[0][0] = 0;
+        }
+    }
 
-    ans(x);ans(y);
+    if (dp[n-1][n-1]>=0) {
+        cout << dp[n-1][n-1] << endl;
+    } else {
+        cout << "X" << endl;
+    }
     return 0;
 }
 /* 海選加油 */

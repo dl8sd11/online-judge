@@ -49,23 +49,46 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
-// const ll MAXN = 
+const ll MAXN = 100001;
 
-double a1,a2,b1,b2;
+ll n,q;
+namespace SEG {
+    ll dt[MAXN*2];
+    void build() {
+        for (ll i=n-1;i>0;i--) {
+            dt[i] = min(dt[i<<1],dt[i<<1|1]);
+        }
+    }
 
-void ans(double x) {
-    cout << fixed << setprecision(2) << (abs(x) < 1e-6 ? 0.00 : x) << endl;
-}
+    ll query(ll l,ll r) {
+        ll ret = INF;
+        for (l+=n,r+=n;l<r;l>>=1,r>>=1) {
+            if (l&1) {
+                ret = min(ret,dt[l++]);
+            }
+            if (r&1) {
+                ret = min(ret,dt[--r]);
+            }
+        }
+        return ret;
+    }
+};
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> a1 >> a2 >> b1 >> b2;
-    
-    double x = (b2-b1)/(a1-a2);
-    double y = (b2*a1-b1*a2)/(a1-a2);
+    cin >> n;
+    REP (i,n) {
+        cin >> SEG::dt[i+n];
+    }
+    SEG::build();
 
-    ans(x);ans(y);
+    REP (i,n) {
+        ll l,r;
+        cin >> l >> r;
+        cout << SEG::query(l-1,r) + 1 << endl;
+    }
+
     return 0;
 }
 /* 海選加油 */

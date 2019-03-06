@@ -49,23 +49,88 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
-// const ll MAXN = 
+const ll MAXN = 5003;
 
-double a1,a2,b1,b2;
-
-void ans(double x) {
-    cout << fixed << setprecision(2) << (abs(x) < 1e-6 ? 0.00 : x) << endl;
+ll n,m,a[MAXN],s[MAXN],c[MAXN];
+ll edge[MAXN][MAXN];
+bool vis[MAXN];
+ll dis[MAXN];
+ll tran(ll i,ll j) {
+    return (a[j]*s[i]+2*min(s[i],s[j]))%888887;
 }
+
+ll dp[MAXN],ans[MAXN];
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> a1 >> a2 >> b1 >> b2;
-    
-    double x = (b2-b1)/(a1-a2);
-    double y = (b2*a1-b1*a2)/(a1-a2);
+    cin >> n >> m;
+    MEM(edge,INF);
+    REP1 (i,n) {
+        cin >> a[i];
+    }
+    REP1 (i,n) {
+        cin >> s[i];
+    }
+    MEM(dis,INF);
+    REP1 (i,n) {
+        cin >> c[i];
+        edge[0][i] = c[i];
+    }
 
-    ans(x);ans(y);
+    debug("HI");
+
+    REP1 (i,n) {
+        REP1 (j,n) {
+            edge[i][j] = min(edge[i][j],tran(i,j));
+        }
+    }
+
+    MEM(dis,INF);
+    priority_queue<pii,vector<pii>,greater<pii> > pq;
+    pq.emplace(0,0);
+    dis[0] = 0;
+    REP (j,n+1) {
+        debug(j);
+        ll fnd = -1;
+        while (pq.size() && vis[fnd=pq.top().Y]) {
+            pq.pop();
+        }
+        assert(fnd != -1);
+        vis[fnd] = true;
+
+        REP (i,n+1) {
+            if (!vis[i] && dis[i] > dis[fnd] + edge[fnd][i]) {
+                dis[i] = dis[fnd] + edge[fnd][i];
+                pq.emplace(dis[i],i);
+            }
+        }
+    }
+    pary(dis,dis+n+1);
+
+    MEM(ans,INF);
+    ans[0] = 0;
+
+    pii bst = {0,0};
+    REP1 (i,n) {
+        REP (j,m+1) {
+            if (j >= s[i]) {
+                if (dp[j] < dp[j-s[i]]+a[i]) {
+                    dp[j] = dp[j-s[i]] + a[i];
+                    ans[j] = ans[j-s[i]]+dis[i];
+                } else if (dp[j] == dp[j-s[i]]+a[i]) {
+                    ans[j] = min(ans[j],ans[j-s[i]]+dis[i]);
+                }
+            }
+            if (dp[j] > bst.X ) {
+                bst = {dp[j],ans[j]};
+            } else if (dp[j] == bst.X) {
+                bst.Y = min(bst.Y,ans[j]);
+            }
+        }
+    }
+
+    pary(ans,ans+m+1);
+    cout << bst.X << " " << bst.Y << endl;
     return 0;
 }
-/* 海選加油 */

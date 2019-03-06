@@ -51,21 +51,26 @@ const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 // const ll MAXN = 
 
-double a1,a2,b1,b2;
-
-void ans(double x) {
-    cout << fixed << setprecision(2) << (abs(x) < 1e-6 ? 0.00 : x) << endl;
-}
+ll n;
+vector<pair<ll,ll>> f;
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> a1 >> a2 >> b1 >> b2;
-    
-    double x = (b2-b1)/(a1-a2);
-    double y = (b2*a1-b1*a2)/(a1-a2);
+    cin >> n;
+    REP1 (i,n) {
+        REP1 (j,i-1) {
+            ll g = __gcd(i,j);
+            f.eb(j/g,i/g);
+        }
+    }
+    sort(ALL(f));
+    f.resize(unique(ALL(f))-f.begin());
+    sort(ALL(f),[&](pii &p1,pii &p2){return double(p1.X)/p1.Y > double(p2.X)/p2.Y;});
+    debug(f);
 
-    ans(x);ans(y);
+    cout << SZ(f) << endl;
+    cout << f[max(SZ(f)-n,0LL)].X <<  "/" << f[max(SZ(f)-n,0LL)].Y << endl;
     return 0;
 }
 /* 海選加油 */

@@ -49,23 +49,69 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
-// const ll MAXN = 
+const ll MAXN = 100003; 
 
-double a1,a2,b1,b2;
 
-void ans(double x) {
-    cout << fixed << setprecision(2) << (abs(x) < 1e-6 ? 0.00 : x) << endl;
+ll n,m,bit[MAXN];
+pair<ll,ll> sc[MAXN];
+void add(ll pos) {
+    for (;pos<MAXN;pos+=-pos&pos) {
+        bit[pos]++;
+    }
 }
+
+ll query(ll pos) {
+    ll ret = 0;
+    for (;pos>=1;pos-=-pos&pos) {
+        ret += bit[pos];
+    }
+    return ret;
+}
+vector<ll> val;
+map<ll,ll> hs;
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> a1 >> a2 >> b1 >> b2;
-    
-    double x = (b2-b1)/(a1-a2);
-    double y = (b2*a1-b1*a2)/(a1-a2);
+    cin >> n >> m;
+    REP (i,n) {
+        cin >> sc[i].X;
+    }
+    REP (i,n) {
+        cin >> sc[i].Y;
+        val.emplace_back(sc[i].Y);
+    }
+    sort(sc,sc+n);
+    sort(ALL(val));
+    val.resize(unique(ALL(val))-val.begin());
 
-    ans(x);ans(y);
+    REP (i,SZ(val)) {
+        hs[val[i]] = i + 1;
+    }
+
+    REP (i,n) {
+        sc[i].Y = hs[sc[i].Y];
+    }
+
+    ll ans = 0;
+    REP (i,n) {
+        vector<ll> md;
+        ll lst = i;
+        while (i < n && sc[i].X == sc[lst].X) {
+            md.emplace_back(sc[i].Y);
+            ans += query(MAXN-1) - query(sc[i].Y);
+            i++;
+        }
+        i--;
+        for (auto v : md) {
+            add(v);
+            debug(v);
+        }
+        debug(i,query(MAXN-1));
+    }
+
+    cout << ans << endl;
     return 0;
 }
 /* 海選加油 */
+ 
