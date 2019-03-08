@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
-typedef pair<int, int> pii;
+typedef pair<ll, ll> pii;
 typedef pair<double,double> pdd;
 #define MEM(a, b) memset(a, (b), sizeof(a))
 #define SZ(i) ll(i.size())
@@ -36,6 +36,7 @@ template<typename It> ostream& _OUTC(ostream &_s,It _ita,It _itb)
 }
 template<typename _a> ostream &operator << (ostream &_s,vector<_a> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _a> ostream &operator << (ostream &_s,set<_a> &_c){return _OUTC(_s,ALL(_c));}
+template<typename _a> ostream &operator << (ostream &_s,multiset<_a> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _a> ostream &operator << (ostream &_s,deque<_a> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _a,typename _b> ostream &operator << (ostream &_s,map<_a,_b> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
@@ -48,82 +49,39 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #endif
 
 const ll MOD = 1000000007;
-const int INF = 0x3f3f3f3f;
-const ll MAXN = 1000003; 
+const ll INF = 0x3f3f3f3f3f3f3f3f;
+const ll MAXN = 100004;
 
-int m,n,c,rc;
-struct Edge {
-    int t,w,nxt;
-};
-Edge G[MAXN];
-Edge rG[MAXN];
-int head[MAXN],rhead[MAXN];
-
-int dis[MAXN];
-bool vis[MAXN];
-priority_queue<pii,vector<pii>,greater<pii> > pq;
-
-ll dij(Edge *edge,int *hd) {
-    while (SZ(pq)) {
-        pq.pop();
-    }
-    MEM(vis,0);
-    MEM(dis,INF);
-    dis[1] = 0;
-    pq.emplace(dis[1],1);
-
-    REP (nu,n) {
-        int fnd = -1;
-        while (pq.size() && vis[fnd=pq.top().Y]) {
-            pq.pop();
-        }
-        if (fnd == -1) {
-            break;
-        }
-        vis[fnd] = true;
-        for (int i=hd[fnd];i!=-1;i=edge[i].nxt) {
-            pii e = {edge[i].t,edge[i].w};
-            debug(fnd,e);
-            if (dis[e.X] > dis[fnd] + e.Y) {
-                dis[e.X] = dis[fnd] + e.Y;
-                pq.emplace(dis[e.X],e.X);
-            }
-        }
-    }
-    pary(dis+1,dis+n+1);
-    ll sum  = 0;
-    REP1 (i,n) {
-        if (dis[i] == INF) {
-            return -1;
-        }
-        sum += dis[i];
-    }
-    return sum;
-}
+ll n,k,a[MAXN];
+vector<ll> df;
+multiset<ll,greater<ll> > ms; 
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> n >> m;
-    MEM(head,-1);
-    MEM(rhead,-1);
-    REP (i,m) {
-        int f,t,w;
-        cin >> f >> t >> w;
-        G[c] = {t,w,head[f]};
-        head[f] = c++;
-        rG[rc] = {f,w,rhead[t]};
-        rhead[t] = rc++;
+    cin >> n >> k;
+    REP (i,n) {
+        cin >> a[i];
+        if (i) {
+            df.emplace_back(a[i]-a[i-1]);
+        }
     }
-    ll go = dij(G,head);
-    ll bac = dij(rG,rhead);
-    debug(go,bac);
-    if (go == -1 || bac == -1) {
-        assert(false);
-        cout << 0 << endl;
-    } else {
-        cout << go + bac << endl;
+
+    REP (i,n-1-k) {
+        ms.insert(df[i]);
     }
+    debug(df);
+    ll ans = INF;
+    REP (i,k+1) {
+        debug(*ms.begin());
+        ans = min(ans,*ms.begin());
+        ms.insert(df[n-1-k+i]);
+        ms.erase(ms.find(df[i]));
+    }
+
+    cout << ans << endl;
+
+
+   
     return 0;
 }
-/* 海選加油 */

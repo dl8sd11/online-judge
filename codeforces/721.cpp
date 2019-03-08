@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
-typedef pair<int, int> pii;
+typedef pair<ll, ll> pii;
 typedef pair<double,double> pdd;
 #define MEM(a, b) memset(a, (b), sizeof(a))
 #define SZ(i) ll(i.size())
@@ -48,82 +48,70 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #endif
 
 const ll MOD = 1000000007;
-const int INF = 0x3f3f3f3f;
-const ll MAXN = 1000003; 
+const ll INF = 0x3f3f3f3f;
+const ll MAXN = 5003;
 
-int m,n,c,rc;
-struct Edge {
-    int t,w,nxt;
-};
-Edge G[MAXN];
-Edge rG[MAXN];
-int head[MAXN],rhead[MAXN];
+ll n,m,T;
+vector<pii> edge[MAXN];
 
-int dis[MAXN];
 bool vis[MAXN];
-priority_queue<pii,vector<pii>,greater<pii> > pq;
+int dp[MAXN][MAXN];
+int tran[MAXN][MAXN];
 
-ll dij(Edge *edge,int *hd) {
-    while (SZ(pq)) {
-        pq.pop();
+void dfs(ll nd) {
+    if (vis[nd]) {
+        return;
     }
-    MEM(vis,0);
-    MEM(dis,INF);
-    dis[1] = 0;
-    pq.emplace(dis[1],1);
+    vis[nd] = true;
 
-    REP (nu,n) {
-        int fnd = -1;
-        while (pq.size() && vis[fnd=pq.top().Y]) {
-            pq.pop();
-        }
-        if (fnd == -1) {
-            break;
-        }
-        vis[fnd] = true;
-        for (int i=hd[fnd];i!=-1;i=edge[i].nxt) {
-            pii e = {edge[i].t,edge[i].w};
-            debug(fnd,e);
-            if (dis[e.X] > dis[fnd] + e.Y) {
-                dis[e.X] = dis[fnd] + e.Y;
-                pq.emplace(dis[e.X],e.X);
+    for (auto e : edge[nd]) {
+        dfs(e.X);
+        REP (i,MAXN) {
+            if (dp[e.X][i-1] + e.Y < dp[nd][i]) {
+                dp[nd][i] = dp[e.X][i-1] + e.Y;
+                if (dp[nd][i] > INF) {
+                    dp[nd][i] = INF;
+                }
+                tran[nd][i] = e.X;
             }
         }
     }
-    pary(dis+1,dis+n+1);
-    ll sum  = 0;
-    REP1 (i,n) {
-        if (dis[i] == INF) {
-            return -1;
-        }
-        sum += dis[i];
-    }
-    return sum;
 }
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> n >> m;
-    MEM(head,-1);
-    MEM(rhead,-1);
+    cin >> n >> m >> T;
     REP (i,m) {
-        int f,t,w;
+        ll f,t,w;
         cin >> f >> t >> w;
-        G[c] = {t,w,head[f]};
-        head[f] = c++;
-        rG[rc] = {f,w,rhead[t]};
-        rhead[t] = rc++;
+        edge[t].emplace_back(f,w);
     }
-    ll go = dij(G,head);
-    ll bac = dij(rG,rhead);
-    debug(go,bac);
-    if (go == -1 || bac == -1) {
-        assert(false);
-        cout << 0 << endl;
-    } else {
-        cout << go + bac << endl;
+
+    MEM(dp,INF);
+    dp[1][1] = 0;
+    dfs(n);
+
+    ll bst = 0;
+    REP1 (i,n) {
+        if (dp[n][i] <= T) {
+            bst = i;
+        }
     }
+
+    cout << bst << endl;
+    vector<ll> ans;
+    do {
+        ans.emplace_back(n);
+        n = tran[n][bst--];
+    } while (n != 1);
+    ans.emplace_back(1);
+
+    reverse(ALL(ans));
+
+    for (auto v : ans) {
+        cout << v << " ";
+    }
+    cout << endl;
     return 0;
 }
-/* 海選加油 */

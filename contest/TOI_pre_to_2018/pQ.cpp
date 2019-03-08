@@ -51,10 +51,68 @@ const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 // const ll MAXN = 
 
+int n;
+int R[1001][1001],G[1001][1001],B[1001][1001],cv[1001][1001];
+map<int,int> cnt;
+int hs(int r,int g,int b) {
+    return (r<<16) + (g<<8) + b;
+}
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
+    cin >> n;
+    REP (s,n) {
+        int xa,xb,ya,yb,r,g,b;
+        cin >> xa >> ya >> xb >> yb >> r >> g >> b;
+        if (xa > xb) {
+            swap(xa,xb);
+        }
+        if (ya > yb) {
+            swap(ya,yb);
+        }
+        for (int i=xa;i<xb;i++) {
+            for (int j=ya;j<yb;j++) {
+                R[i][j] += r;
+                G[i][j] += g;
+                B[i][j] += b;
+                cv[i][j]++;
+            }
+        }
+
+    }
+
+    for (int i=0;i<=1000;i++) {
+        for (int j=0;j<=1000;j++) {
+            if (cv[i][j]) {
+                R[i][j] = (R[i][j]+cv[i][j]-1)/cv[i][j];
+                G[i][j] = (G[i][j]+cv[i][j]-1)/cv[i][j];
+                B[i][j] = (B[i][j]+cv[i][j]-1)/cv[i][j];
+                assert(R[i][j] >= 0 && R[i][j] <= 255);
+                assert(G[i][j] >= 0 && G[i][j] <= 255);
+                assert(B[i][j] >= 0 && B[i][j] <= 255);
+                cnt[hs(R[i][j],G[i][j],B[i][j])]++;
+            }
+        }
+    }
+
+    pii ans;
+
+    for (auto it : cnt) {
+        if (it.X != 0 && it.Y > ans.X) {
+            ans.X = it.Y;
+            ans.Y = it.X;
+        }
+    }
+    
+
+    int ab = ans.Y & ((1<<8)-1);
+    ans.Y >>= 8;
+    int ag = ans.Y & ((1<<8)-1);
+    ans.Y >>= 8;
+    int ar = ans.Y & ((1<<8)-1);
+
+    cout << ar << " " << ag << " " << ab << endl;
 
     return 0;
 }
