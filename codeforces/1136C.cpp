@@ -49,61 +49,39 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
-const ll MAXN =4000003; 
+const ll MAXN = 10003;
 
-
-ll child[MAXN][2],id;
-
-void insert(ll num) {
-    ll ptr = 0;
-    for (ll i=32;i>=0;i--) {
-        ll b = 1&(num>>i);
-        if (child[ptr][b] == -1) {
-            child[ptr][b] = ++id;
-        }
-        ptr = child[ptr][b];
-    }
-}
-
-ll query(ll num) {
-    ll ptr = 0,ret = 0;
-    for (ll i=32;i>=0;i--) {
-        bool b = 1&(num>>i);
-        if (child[ptr][b^1] == -1) {
-            ptr = child[ptr][b];
-        } else {
-            ptr = child[ptr][b^1];
-            ret += 1<<i;
-        }
-    }
-    return ret;
-}
-
-ll t,n,pre;
+ll n,m;
+vector<ll> a[MAXN],b[MAXN];
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    MEM(child,-1);
-
-    cin >> t;
-    while (t--) {
-        cin >> n;
-        MEM(child,-1);
-        id = 0;
-        ll ans = 0;
-        pre = 0;
-
-        insert(0);
-        REP (i,n) {
+    cin >> n >> m;
+    REP (i,n) {
+        REP (j,m) {
             ll d;
             cin >> d;
-            pre ^= d;
-            ans = max(ans,query(pre));
-            insert(pre);
+            a[i+j].emplace_back(d);
         }
-
-        cout << ans << endl;
     }
+    REP (i,n) {
+        REP (j,m) {
+            ll d;
+            cin >> d;
+            b[i+j].emplace_back(d);
+        }
+    }
+
+    REP (i,MAXN) {
+        sort(ALL(a[i]));
+        sort(ALL(b[i]));
+        if (a[i] != b[i]) {
+            cout << "NO" << endl;
+            return 0;
+        } 
+    }
+
+    cout << "YES" << endl;
     return 0;
 }

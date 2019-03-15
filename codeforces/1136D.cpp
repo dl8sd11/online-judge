@@ -49,61 +49,53 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
-const ll MAXN =4000003; 
+const ll MAXN = 300001;
 
+ll n,m;
+ll p[MAXN];
 
-ll child[MAXN][2],id;
+bool is_free[MAXN];
+bool obs[MAXN];
+vector<ll> swp[MAXN];
 
-void insert(ll num) {
-    ll ptr = 0;
-    for (ll i=32;i>=0;i--) {
-        ll b = 1&(num>>i);
-        if (child[ptr][b] == -1) {
-            child[ptr][b] = ++id;
-        }
-        ptr = child[ptr][b];
-    }
-}
-
-ll query(ll num) {
-    ll ptr = 0,ret = 0;
-    for (ll i=32;i>=0;i--) {
-        bool b = 1&(num>>i);
-        if (child[ptr][b^1] == -1) {
-            ptr = child[ptr][b];
-        } else {
-            ptr = child[ptr][b^1];
-            ret += 1<<i;
-        }
-    }
-    return ret;
-}
-
-ll t,n,pre;
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    MEM(child,-1);
-
-    cin >> t;
-    while (t--) {
-        cin >> n;
-        MEM(child,-1);
-        id = 0;
-        ll ans = 0;
-        pre = 0;
-
-        insert(0);
-        REP (i,n) {
-            ll d;
-            cin >> d;
-            pre ^= d;
-            ans = max(ans,query(pre));
-            insert(pre);
-        }
-
-        cout << ans << endl;
+    cin >> n >> m;
+    REP (i,n) {
+        cin >> p[i];
     }
+    REP (i,m) {
+        ll u,v;
+        cin >> u >> v;
+        swp[u].emplace_back(v);
+        if (v == p[n-1]) {
+            is_free[u] = true;
+        }
+    }
+    ll ans = 0;
+    ll obs_cnt = 0;
+    for (ll i=n-2;i>=0;i--) {
+        bool flag = false;
+        if (is_free[p[i]]) {
+            ll cnt = 0;
+            for (auto el : swp[p[i]]) {
+                cnt += obs[el];
+            }
+            if (cnt == obs_cnt) {
+                ans++;
+                flag = true;
+            }
+        }
+        if (!flag) {
+            obs[p[i]] = true;
+            obs_cnt++;
+        }
+    }
+
+    cout << ans << endl;
+
+
     return 0;
 }

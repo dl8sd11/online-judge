@@ -52,54 +52,51 @@ const ll INF = 0x3f3f3f3f3f3f3f3f;
 
 ll t,a,n,b,m;
 
-ll gcd(ll A,ll B,ll *x,ll *y) {
-    if (A == 0) {
-        *x = 0;
-        *y = 1;
-        return B;
+ll extGCD(ll n1,ll n2,ll &x1,ll &x2) {
+    if (n1 == 0) {
+        x2 = 1;
+        x1 = 0;
+        return n2;
     }
-    ll x1,y1;
-    ll ret = gcd(B%A,A,&x1,&y1);
-    *x = y1 - B/A*x1;
-    *y = x1;
+    ll cx1,cx2;
+    ll ret = extGCD(n2%n1,n1,cx1,cx2);
+    x2 = cx1;
+    x1 = cx2 - n2/n1*cx1;
     return ret;
 }
 
-ll md(ll x,ll M) {
-    x %= M;
-    if (x < 0) {
-        x += M;
-    }
-    return x;
+ll mod;
+ll mul(ll v1,ll v2,ll md=mod) {
+    return v1 * v2 % md;
 }
-ll mul(ll x,ll y,ll M) {
-    return x * y % M;
+
+void normal(ll &v1) {
+    v1 %= mod;
+    if (v1 < 0) {
+        v1 += mod;
+    }
 }
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
+
     cin >> t;
     while (t--) {
         cin >> a >> n >> b >> m;
-        ll k1,k2;
-        ll d = gcd(n,m,&k1,&k2);
-        debug(k1,k2);
-        k2 = - k2;
-
-        ll lcm = n * m / d;
-        ll x = n * k1 * (b-a) / d + a;
-        debug(x);
-
-        if ((b-a)*k1 % d != 0) {
+        ll r1,r2;
+        ll gcd = extGCD(n,m,r1,r2);
+        if ((b-a) % gcd != 0) {
             cout << "no solution" << endl;
             continue;
         }
-        debug(lcm);
-        ll ans1 = mul(k1*(b-a)/d%(m/d),n,lcm) + a;
-        ans1 = md(ans1,lcm);
+        mod = n * m / gcd;
 
-        cout << ans1 << " " << lcm << endl;
+        ll ans = mul(mul(r1,(b-a)/gcd,m/gcd),n) + a;
+        normal(ans);
+
+        cout << ans << " " << mod <<  endl;
+
     }
     return 0;
 }

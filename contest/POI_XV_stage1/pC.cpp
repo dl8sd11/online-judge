@@ -49,61 +49,73 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
-const ll MAXN =4000003; 
+const ll MAXN = 250003;
 
-
-ll child[MAXN][2],id;
-
-void insert(ll num) {
-    ll ptr = 0;
-    for (ll i=32;i>=0;i--) {
-        ll b = 1&(num>>i);
-        if (child[ptr][b] == -1) {
-            child[ptr][b] = ++id;
-        }
-        ptr = child[ptr][b];
+ll djs[MAXN],sz[MAXN];
+ll n,d,_;
+ll l[MAXN],r[MAXN],h[MAXN];
+void init() {
+    REP (i,MAXN) {
+        djs[i] = i;
+        sz[i] = 1;
     }
 }
-
-ll query(ll num) {
-    ll ptr = 0,ret = 0;
-    for (ll i=32;i>=0;i--) {
-        bool b = 1&(num>>i);
-        if (child[ptr][b^1] == -1) {
-            ptr = child[ptr][b];
-        } else {
-            ptr = child[ptr][b^1];
-            ret += 1<<i;
-        }
-    }
-    return ret;
+ll fnd(ll x) {
+    return djs[x] == x ? x : (djs[x] = fnd(djs[x]));
 }
 
-ll t,n,pre;
+bool uni(ll x,ll y) {
+    if (sz[x=fnd(x)] > sz[y=fnd(y)]) {
+        swap(x,y);
+    }
+    if (x == y) {
+        return false;
+    }
+    l[y] = min(l[y],l[x]);
+    r[y] = max(r[y],r[x]);
+    djs[x] = y;
+    sz[y] += x;
+    return true;
+}
+
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    MEM(child,-1);
+    cin >> n;
 
-    cin >> t;
-    while (t--) {
-        cin >> n;
-        MEM(child,-1);
-        id = 0;
-        ll ans = 0;
-        pre = 0;
-
-        insert(0);
-        REP (i,n) {
-            ll d;
-            cin >> d;
-            pre ^= d;
-            ans = max(ans,query(pre));
-            insert(pre);
+    init();
+    vector<pii> id;
+    REP1 (i,n) {
+        cin >> _ >> h[i];
+        l[i] = i-1;
+        r[i] = i+1;
+        if (h[i] == h[i-1]) {
+            uni(i,i-1);
         }
-
-        cout << ans << endl;
+        id.emplace_back(h[i],i);
     }
+
+    sort(ALL(id),greater<pii>());
+    
+    ll ans = 0;
+    for (auto p : id) {
+        if (h[p.Y=fnd(p.Y)] == p.X) {
+            if (h[fnd(l[p.Y])] < h[fnd(r[p.Y])]) {
+                h[p.Y] = h[fnd(r[p.Y])];
+            } else {
+                h[p.Y] = h[fnd(l[p.Y])];
+            }
+            if (h[p.Y] == h[fnd(l[p.Y])]) {
+                uni(p.Y,fnd(l[p.Y]));
+            }
+            if (h[p.Y] == h[fnd(r[p.Y])]) {
+                uni(p.Y,fnd(r[p.Y]));
+            }
+            ans++;
+        }
+        pary(h+1,h+1+n);
+    }
+    cout << ans << endl;
     return 0;
 }

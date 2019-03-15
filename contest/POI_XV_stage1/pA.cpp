@@ -1,6 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
-typedef long long ll;
+typedef int ll;
 typedef pair<ll, ll> pii;
 typedef pair<double,double> pdd;
 #define MEM(a, b) memset(a, (b), sizeof(a))
@@ -49,61 +49,77 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
-const ll MAXN =4000003; 
+const ll MAXN = 100003;
 
+ll n,m;
+bool used[MAXN],vis[MAXN];
+ll ans[MAXN];
+vector<ll> edge[MAXN];
 
-ll child[MAXN][2],id;
-
-void insert(ll num) {
-    ll ptr = 0;
-    for (ll i=32;i>=0;i--) {
-        ll b = 1&(num>>i);
-        if (child[ptr][b] == -1) {
-            child[ptr][b] = ++id;
+ll dfn[MAXN],tot;
+void dfs(ll nd,ll par) {
+    debug(nd);
+    vis[nd] = true;
+    dfn[nd] = tot++;
+    debug(edge[nd]);
+    vector<ll> anc;
+    for (auto v : edge[nd]) {
+        if (!vis[v]) {
+            dfs(v,nd);
+        } else if (dfn[v] < dfn[nd]) {
+            anc.eb(v);
         }
-        ptr = child[ptr][b];
     }
-}
-
-ll query(ll num) {
-    ll ptr = 0,ret = 0;
-    for (ll i=32;i>=0;i--) {
-        bool b = 1&(num>>i);
-        if (child[ptr][b^1] == -1) {
-            ptr = child[ptr][b];
+    for (auto v : anc) {
+        if (ans[nd] == -1) {
+            ans[nd] = v;
         } else {
-            ptr = child[ptr][b^1];
-            ret += 1<<i;
+            ans[v] = nd;
         }
     }
-    return ret;
-}
 
-ll t,n,pre;
+}
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    MEM(child,-1);
+    MEM(ans,-1);
+    cin >> n >> m;
+    REP (i,m) {
+        ll u,v;
+        cin >> u >> v;
+        edge[u].emplace_back(v);
+        edge[v].emplace_back(u);
+    }
 
-    cin >> t;
-    while (t--) {
-        cin >> n;
-        MEM(child,-1);
-        id = 0;
-        ll ans = 0;
-        pre = 0;
-
-        insert(0);
-        REP (i,n) {
-            ll d;
-            cin >> d;
-            pre ^= d;
-            ans = max(ans,query(pre));
-            insert(pre);
+    REP1 (i,n) {
+        if (!vis[i]) {
+            dfs(i,i);
         }
+    }
+    pary(ans+1,ans+n+1);
 
-        cout << ans << endl;
+    REP1 (i,n) {
+        if (ans[i] == -1) {
+            cout << "NIE" << endl;
+            return 0;
+        }
+    }
+
+    cout << "TAK" << endl;
+    REP1 (i,n) {
+        cout << ans[i] << endl;
     }
     return 0;
 }
+
+
+/*
+5 5
+1 2
+2 4
+4 3
+3 2
+4 5
+
+*/

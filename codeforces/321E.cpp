@@ -1,12 +1,12 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
-typedef pair<ll, ll> pii;
+typedef pair<int, int> pii;
 typedef pair<double,double> pdd;
 #define MEM(a, b) memset(a, (b), sizeof(a))
-#define SZ(i) ll(i.size())
-#define FOR(i, j, k, in) for (ll i=j ; i<k ; i+=in)
-#define RFOR(i, j, k, in) for (ll i=j ; i>=k ; i-=in)
+#define SZ(i) int(i.size())
+#define FOR(i, j, k, in) for (int i=j ; i<k ; i+=in)
+#define RFOR(i, j, k, in) for (int i=j ; i>=k ; i-=in)
 #define REP(i, j) FOR(i, 0, j, 1)
 #define REP1(i,j) FOR(i, 1, j+1, 1)
 #define RREP(i, j) RFOR(i, j, 0, 1)
@@ -47,63 +47,73 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
 #endif
 
-const ll MOD = 1000000007;
-const ll INF = 0x3f3f3f3f3f3f3f3f;
-const ll MAXN =4000003; 
+const int MOD = 1000000007;
+const int INF = 0x3f3f3f3f;
+const int MAXN = 4096;
 
+int n,k;
+int u[MAXN][MAXN];
+int pre[MAXN][MAXN];
+int dp[MAXN][1024];
 
-ll child[MAXN][2],id;
+inline int cost (int f,int t) {
+    return pre[t][t] - pre[t][f-1] - pre[f-1][t] + pre[f-1][f-1];;
+}
 
-void insert(ll num) {
-    ll ptr = 0;
-    for (ll i=32;i>=0;i--) {
-        ll b = 1&(num>>i);
-        if (child[ptr][b] == -1) {
-            child[ptr][b] = ++id;
+int trans(int i,int d,int oL,int oR) {
+    int mn = oL;
+    int val = dp[mn][d-1]+cost(mn+1,i);
+    for (int t=oL;t<=oR;t++) {
+        if (val > dp[t][d-1]+cost(t+1,i)) {
+            mn = t;
+            val = dp[mn][d-1]+cost(mn+1,i);
         }
-        ptr = child[ptr][b];
+    }
+    dp[i][d] = val;
+    return mn;
+}
+void solve(int d,int L,int R,int oL,int oR) {
+    if (L == R) {
+        trans(L,d,oL,oR);
+    } else if (L < R) {
+        int M = (L + R) >> 1;
+        int o = trans(M,d,oL,oR);
+        solve(d,L,M-1,oL,o);
+        solve(d,M+1,R,o,oR);
     }
 }
 
-ll query(ll num) {
-    ll ptr = 0,ret = 0;
-    for (ll i=32;i>=0;i--) {
-        bool b = 1&(num>>i);
-        if (child[ptr][b^1] == -1) {
-            ptr = child[ptr][b];
-        } else {
-            ptr = child[ptr][b^1];
-            ret += 1<<i;
-        }
-    }
-    return ret;
-}
-
-ll t,n,pre;
+char s[10000];
 /********** Good Luck :) **********/
 int main()
 {
-    IOS();
-    MEM(child,-1);
-
-    cin >> t;
-    while (t--) {
-        cin >> n;
-        MEM(child,-1);
-        id = 0;
-        ll ans = 0;
-        pre = 0;
-
-        insert(0);
-        REP (i,n) {
-            ll d;
-            cin >> d;
-            pre ^= d;
-            ans = max(ans,query(pre));
-            insert(pre);
+    // IOS();
+    // cin >> n >> k;
+    gets(s);
+    sscanf(s,"%d %d",&n,&k);
+    REP1 (i,n) {
+        gets(s);
+        debug(s);
+        REP1 (j,n) {
+            u[i][j] = s[(j-1)*2]-'0';
+            if (i < j) {
+                u[i][j] = 0;
+            }
+            pre[i][j] = u[i][j] + pre[i-1][j] + pre[i][j-1] - pre[i-1][j-1];
         }
-
-        cout << ans << endl;
     }
+
+    MEM(dp,INF);
+    dp[0][0] = 0;
+
+    REP1 (i,n) {
+        dp[i][1] = cost(1,i);
+    }
+
+    for (int i=2;i<=k;i++) {
+        solve(i,1,n,1,n);
+    }
+
+    printf("%d\n",dp[n][k]);
     return 0;
 }

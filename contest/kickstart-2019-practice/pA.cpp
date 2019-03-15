@@ -43,67 +43,51 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #else
 #define debug(...)
 #define pary(...)
-#define endl '\n'
+// #define endl '\n'
 #define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
 #endif
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
-const ll MAXN =4000003; 
+// const ll MAXN = 
 
-
-ll child[MAXN][2],id;
-
-void insert(ll num) {
-    ll ptr = 0;
-    for (ll i=32;i>=0;i--) {
-        ll b = 1&(num>>i);
-        if (child[ptr][b] == -1) {
-            child[ptr][b] = ++id;
-        }
-        ptr = child[ptr][b];
-    }
-}
+ll t,L,R,n;
 
 ll query(ll num) {
-    ll ptr = 0,ret = 0;
-    for (ll i=32;i>=0;i--) {
-        bool b = 1&(num>>i);
-        if (child[ptr][b^1] == -1) {
-            ptr = child[ptr][b];
-        } else {
-            ptr = child[ptr][b^1];
-            ret += 1<<i;
-        }
+    cout << num << endl;
+    string ret;
+    cin >> ret;
+    if (ret == "CORRECT") {
+        return 0;
+    } else if (ret == "TOO_SMALL") {
+        return 1;
+    } else if (ret == "TOO_BIG") {
+        return -1;
+    } else {
+        return INF;
     }
-    return ret;
 }
-
-ll t,n,pre;
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    MEM(child,-1);
-
     cin >> t;
     while (t--) {
+        cin >> L >> R;
         cin >> n;
-        MEM(child,-1);
-        id = 0;
-        ll ans = 0;
-        pre = 0;
-
-        insert(0);
-        REP (i,n) {
-            ll d;
-            cin >> d;
-            pre ^= d;
-            ans = max(ans,query(pre));
-            insert(pre);
+        while (L < R ) {
+            ll mid = (L + R + 1) >> 1;
+            ll ret = query(mid);
+            if (ret == 0) {
+                break;
+            } else if (ret == 1) {
+                L = mid;
+            } else if (ret == -1) {
+                R = mid;
+            } else {
+                return 0;
+            }
         }
-
-        cout << ans << endl;
     }
     return 0;
 }

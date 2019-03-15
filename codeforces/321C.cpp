@@ -49,61 +49,63 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
-const ll MAXN =4000003; 
+const ll MAXN = 100004;
 
+ll n;
+vector<ll> edge[MAXN];
 
-ll child[MAXN][2],id;
+ll son[MAXN],mx_size,center;
+bool vis[MAXN];
 
-void insert(ll num) {
-    ll ptr = 0;
-    for (ll i=32;i>=0;i--) {
-        ll b = 1&(num>>i);
-        if (child[ptr][b] == -1) {
-            child[ptr][b] = ++id;
+char ans[MAXN];
+void centroid(ll nd,ll par,ll size) {
+    ll mx_son = 0;
+    son[nd] = 1;
+    
+    for (auto v : edge[nd]) {
+        if (v != par && !vis[v]) {
+            centroid(v,nd,size);
+            son[nd] += son[v];
+            mx_son = max(mx_son,son[v]);
         }
-        ptr = child[ptr][b];
+    }
+    mx_son = max(mx_son,size-son[nd]);
+
+    if (mx_son < mx_size) {
+        mx_size = mx_son;
+        center = nd;
     }
 }
 
-ll query(ll num) {
-    ll ptr = 0,ret = 0;
-    for (ll i=32;i>=0;i--) {
-        bool b = 1&(num>>i);
-        if (child[ptr][b^1] == -1) {
-            ptr = child[ptr][b];
-        } else {
-            ptr = child[ptr][b^1];
-            ret += 1<<i;
+void decomposition(ll nd,ll size,char c) {
+    mx_size = INF;
+    centroid(nd,-1,size);
+    ll cur = center;
+    vis[cur] = true;
+    ans[cur] = c;
+
+    for (auto v : edge[cur]) {
+        if (!vis[v]) {
+            decomposition(v,son[v],c+1);
         }
     }
-    return ret;
 }
-
-ll t,n,pre;
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    MEM(child,-1);
+    cin >> n;
+    REP (i,n-1) {
+        ll u,v;
+        cin >> u >> v;
+        edge[u].emplace_back(v);
+        edge[v].emplace_back(u);
+    }
 
-    cin >> t;
-    while (t--) {
-        cin >> n;
-        MEM(child,-1);
-        id = 0;
-        ll ans = 0;
-        pre = 0;
+    decomposition(1,n,'A');
 
-        insert(0);
-        REP (i,n) {
-            ll d;
-            cin >> d;
-            pre ^= d;
-            ans = max(ans,query(pre));
-            insert(pre);
-        }
-
-        cout << ans << endl;
+    REP1 (i,n) {
+        cout << ans[i] << " \n"[i==n];
     }
     return 0;
 }

@@ -49,61 +49,87 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
-const ll MAXN =4000003; 
+const ll MAXN = 100003;
 
+ll n,q;
+vector<ll> edge[MAXN];
 
-ll child[MAXN][2],id;
+bool vis[MAXN];
+ll cen,bal,son[MAXN];
 
-void insert(ll num) {
-    ll ptr = 0;
-    for (ll i=32;i>=0;i--) {
-        ll b = 1&(num>>i);
-        if (child[ptr][b] == -1) {
-            child[ptr][b] = ++id;
+vector<ll> cg[MAXN];
+vector<pii> child[MAXN];
+ll fat[MAXN],fatd[MAXN];
+
+void centroid(ll nd,ll par,ll size) {
+    ll mx_son = 0;
+    son[nd] = 1;
+    for (auto v : edge[nd]) {
+        if (v != par && !vis[v]) {
+            centroid(v,nd,size);
+            son[nd] += son[v];
+            mx_son = max(mx_son,son[v]);
         }
-        ptr = child[ptr][b];
+    }
+    mx_son = max(mx_son,size-son[nd]);
+
+    if (mx_son < bal) {
+        bal = mx_son;
+        cen = nd;
     }
 }
 
-ll query(ll num) {
-    ll ptr = 0,ret = 0;
-    for (ll i=32;i>=0;i--) {
-        bool b = 1&(num>>i);
-        if (child[ptr][b^1] == -1) {
-            ptr = child[ptr][b];
-        } else {
-            ptr = child[ptr][b^1];
-            ret += 1<<i;
+void decomposition(ll nd,ll size) {
+    bal = INF;
+    centroid(nd,-1,size);
+    ll cur = cen;
+    if (nd != cur) {
+        centroid(cur,-1,size);
+    }
+
+    vis[cur] = true;
+    debug(cur);
+
+    for (auto v : edge[cur]) {
+        if (!vis[v]) {
+
+
+            cg[nd].eb(v);
+            fat[v] = nd;
+            debug(v,son[v]);
+            decomposition(v,son[v]);
         }
     }
-    return ret;
 }
 
-ll t,n,pre;
+void dfs(ll nd,ll par) {
+    for (auto v : cg[nd]) {
+        if (v != par) {
+            dfs(nd,par);
+            for (auto p : child[v]) {
+                child[nd].eb(p.X+fatd[v],p.Y);
+            }
+        }
+    }
+
+}
+
+void query(ll nd) {
+
+}
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    MEM(child,-1);
-
-    cin >> t;
-    while (t--) {
-        cin >> n;
-        MEM(child,-1);
-        id = 0;
-        ll ans = 0;
-        pre = 0;
-
-        insert(0);
-        REP (i,n) {
-            ll d;
-            cin >> d;
-            pre ^= d;
-            ans = max(ans,query(pre));
-            insert(pre);
-        }
-
-        cout << ans << endl;
+    cin >> n >> q;
+    REP (i,n-1) {
+        ll u,v;
+        cin >> u >> v;
+        edge[u].emplace_back(v);
+        edge[v].emplace_back(u);
     }
+
+    decomposition(1,n);
+
     return 0;
 }

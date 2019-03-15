@@ -49,61 +49,87 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
-const ll MAXN =4000003; 
+const ll MAXN = 100003;
 
+ll n,k,h[MAXN],bit1[1000003],bit2[1000003];
 
-ll child[MAXN][2],id;
-
-void insert(ll num) {
-    ll ptr = 0;
-    for (ll i=32;i>=0;i--) {
-        ll b = 1&(num>>i);
-        if (child[ptr][b] == -1) {
-            child[ptr][b] = ++id;
-        }
-        ptr = child[ptr][b];
+inline void add(ll pos,ll val,ll *bit) {
+    for (;pos<1000003;pos+=-pos&pos) {
+        bit[pos] += val;
     }
 }
 
-ll query(ll num) {
-    ll ptr = 0,ret = 0;
-    for (ll i=32;i>=0;i--) {
-        bool b = 1&(num>>i);
-        if (child[ptr][b^1] == -1) {
-            ptr = child[ptr][b];
-        } else {
-            ptr = child[ptr][b^1];
-            ret += 1<<i;
-        }
+inline ll query(ll pos,ll *bit) {
+    ll ret = 0;
+    for (;pos>=1;pos-=-pos&pos) {
+        ret += bit[pos];
     }
     return ret;
 }
 
-ll t,n,pre;
+inline ll rquery(ll pos,ll *bit) {
+    return query(1000002,bit) - query(pos,bit);
+}
+ll k2;
+ll solve() {
+    ll median = 0,sum = 0;
+    for (ll i=20;i >= 0;i--) {
+        ll pos = median + (1<<i);
+        if (pos < 1000003 && sum + bit1[pos] <= k2) {
+            sum += bit1[pos];
+            median = pos;
+        }
+    }
+    median++;
+    ll pos = median * query(median-1,bit1) - query(median-1,bit2);
+    ll neg = rquery(median,bit2) - median * rquery(median,bit1);
+    return pos + neg;
+}
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    MEM(child,-1);
+    cin >> n >> k;
+    k2 = k/2;
 
-    cin >> t;
-    while (t--) {
-        cin >> n;
-        MEM(child,-1);
-        id = 0;
-        ll ans = 0;
-        pre = 0;
+    REP (i,n) {
+        cin >> h[i];
+        h[i]++;
+    }
 
-        insert(0);
-        REP (i,n) {
-            ll d;
-            cin >> d;
-            pre ^= d;
-            ans = max(ans,query(pre));
-            insert(pre);
+    pii bst;
+    bst.X = INF;
+    REP (i,n) {
+        if (i-k >= 0) {
+            add(h[i-k],-1,bit1);
+            add(h[i-k],-h[i-k],bit2);
         }
+        add(h[i],1,bit1);
+        add(h[i],h[i],bit2);
 
-        cout << ans << endl;
+        if (i >= k-1) {
+            ll ret = solve();
+            if (ret < bst.X) {
+                bst.X = ret;
+                bst.Y = i;
+            }
+        }
+    }
+
+    vector<ll> can;
+    for (ll i=bst.Y-k+1;i<=bst.Y;i++) {
+        can.eb(h[i]);
+    }
+
+    sort(ALL(can));
+
+    for (ll i=bst.Y-k+1;i<=bst.Y;i++) {
+        h[i] = can[SZ(can)/2];
+    }
+
+    cout << bst.X << endl;
+    REP (i,n) {
+        cout << h[i]-1 << endl;
     }
     return 0;
 }
