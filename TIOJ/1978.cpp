@@ -1,6 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
-typedef long long ll;
+typedef int ll;
 typedef pair<ll, ll> pii;
 typedef pair<double,double> pdd;
 #define MEM(a, b) memset(a, (b), sizeof(a))
@@ -36,6 +36,7 @@ template<typename It> ostream& _OUTC(ostream &_s,It _ita,It _itb)
 }
 template<typename _a> ostream &operator << (ostream &_s,vector<_a> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _a> ostream &operator << (ostream &_s,set<_a> &_c){return _OUTC(_s,ALL(_c));}
+template<typename _a> ostream &operator << (ostream &_s,deque<_a> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _a,typename _b> ostream &operator << (ostream &_s,map<_a,_b> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS()
@@ -46,81 +47,45 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
 #endif
 
-template<class T> inline bool cmax(T &a, const T &b) { return b > a ? a = b, true : false; }
-template<class T> inline bool cmin(T &a, const T &b) { return b < a ? a = b, true : false; }
-template<class T> using MaxHeap = priority_queue<T>;
-template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
+const ll MOD = 1000000007;
+const ll INF = 0x3f3f3f3f3f3f3f3f;
+const ll MAXN = 81;
 
-const ll MOD=1000000007;
-const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=1003;
-const ll MAXLG=__lg(MAXN)+2;
+typedef bitset<MAXN> bs;
+bs edge[MAXN];
+ll n,m;
 
-ll T,n,m;
-ll c[MAXN][MAXN];
-ll dis[MAXN][MAXN];
-bool vis[MAXN][MAXN];
+ll ans = 0;
 
-ll dx[] = {-1,0,1,0};
-ll dy[] = {0,-1,0,1};
 /********** Good Luck :) **********/
 int main()
 {
-    IOS(); 
-    cin >> T;
-    while (T--) {
-        cin >> n >> m;
-        REP (i,n) {
-            REP (j,m) {
-                cin >> c[i][j];
-            }
-        }
-
-        MEM(dis,INF);
-        MEM(vis,0);
-        priority_queue<pair<ll,pii>,vector<pair<ll,pii>>,greater<pair<ll,pii> > > pq;
-        dis[0][0] = c[0][0];
-        pq.push({c[0][0],{0,0}});
-
-        while (true) {
-            ll curX = -1,curY = -1;
-            while (pq.size() && vis[curX=pq.top().Y.X][curY=pq.top().Y.Y]) {
-                pq.pop();
-            }
-            if (curX == -1) {
-                break;
-            }
-
-            vis[curX][curY]  = true;
-            if (curX == n-1 && curY == m-1) {
-                break;
-            }
-            REP (i,4) {
-                ll nX = curX + dx[i];
-                ll nY = curY + dy[i];
-                if (nX >= 0 && nX < n && nY >=0 && nY < m) {
-                    if (dis[nX][nY] > dis[curX][curY] + c[nX][nY]) {
-                        dis[nX][nY] = dis[curX][curY] + c[nX][nY];
-                        pq.push({dis[nX][nY],{nX,nY}});
-                    }
-                }
-            }
-        }
-
-        cout << dis[n-1][m-1] << endl;
+    IOS();
+    cin >> n >> m;
+    REP (i,m) {
+        ll u,v;
+        cin >> u >> v;
+        edge[u][v] = true;
+        edge[v][u] = true;
     }
+    vector<ll> permu;
+    REP (i,n) {
+        permu.eb(i);
+    }
+    ll ans = 0;
+    while (double(clock())/CLOCKS_PER_SEC < 1.8) {
+        random_shuffle(ALL(permu));
+        bs ban;
+        ll tmp = 0;
+        REP (i,n) {
+            if (!ban[permu[i]]) {
+                ban |= edge[permu[i]];
+                tmp++;
+            }
+        }
+        ans = max(ans,tmp);
+
+    }
+    cout << ans << endl;
     return 0;
 }
-/*
-2
-4
-5
-0 3 1 2 9
-7 3 4 9 9
-1 7 5 5 3
-2 3 4 2 5
-1
-6
-0 1 2 3 4 5
-
-*/

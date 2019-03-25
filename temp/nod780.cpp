@@ -36,6 +36,7 @@ template<typename It> ostream& _OUTC(ostream &_s,It _ita,It _itb)
 }
 template<typename _a> ostream &operator << (ostream &_s,vector<_a> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _a> ostream &operator << (ostream &_s,set<_a> &_c){return _OUTC(_s,ALL(_c));}
+template<typename _a> ostream &operator << (ostream &_s,deque<_a> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _a,typename _b> ostream &operator << (ostream &_s,map<_a,_b> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS()
@@ -46,81 +47,50 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
 #endif
 
-template<class T> inline bool cmax(T &a, const T &b) { return b > a ? a = b, true : false; }
-template<class T> inline bool cmin(T &a, const T &b) { return b < a ? a = b, true : false; }
-template<class T> using MaxHeap = priority_queue<T>;
-template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
+const ll MOD = 1000000007;
+const ll INF = 0x3f3f3f3f3f3f3f3f;
+// const ll MAXN = 
 
-const ll MOD=1000000007;
-const ll INF=0x3f3f3f3f3f3f3f3f;
-const ll MAXN=1003;
-const ll MAXLG=__lg(MAXN)+2;
 
-ll T,n,m;
-ll c[MAXN][MAXN];
-ll dis[MAXN][MAXN];
-bool vis[MAXN][MAXN];
+ll n;
 
-ll dx[] = {-1,0,1,0};
-ll dy[] = {0,-1,0,1};
+ll query(ll l,ll r) {
+    swap(l,r);
+    debug(l,r);
+    ll ret = 0;
+    if (r-l < 10) {
+        for (ll i=l;i<=r;i++) {
+            ret ^= i;
+        }
+    } else {
+        if (l&1) {
+            ret ^= l;
+        } 
+        if (r&1) {
+            ret ^= r;
+        }
+    }
+    return ret;
+}
 /********** Good Luck :) **********/
 int main()
 {
-    IOS(); 
-    cin >> T;
-    while (T--) {
-        cin >> n >> m;
-        REP (i,n) {
-            REP (j,m) {
-                cin >> c[i][j];
+    IOS();
+    cin >> n;
+
+    ll ans = 0;
+    ll lst = -1;
+    for (ll i=n;i>= 1;i--) {
+        debug(i);
+        if (lst != -1) {
+            if ((n/(i+1)) & 1) {
+                ans ^= query(lst,i+1);
             }
         }
-
-        MEM(dis,INF);
-        MEM(vis,0);
-        priority_queue<pair<ll,pii>,vector<pair<ll,pii>>,greater<pair<ll,pii> > > pq;
-        dis[0][0] = c[0][0];
-        pq.push({c[0][0],{0,0}});
-
-        while (true) {
-            ll curX = -1,curY = -1;
-            while (pq.size() && vis[curX=pq.top().Y.X][curY=pq.top().Y.Y]) {
-                pq.pop();
-            }
-            if (curX == -1) {
-                break;
-            }
-
-            vis[curX][curY]  = true;
-            if (curX == n-1 && curY == m-1) {
-                break;
-            }
-            REP (i,4) {
-                ll nX = curX + dx[i];
-                ll nY = curY + dy[i];
-                if (nX >= 0 && nX < n && nY >=0 && nY < m) {
-                    if (dis[nX][nY] > dis[curX][curY] + c[nX][nY]) {
-                        dis[nX][nY] = dis[curX][curY] + c[nX][nY];
-                        pq.push({dis[nX][nY],{nX,nY}});
-                    }
-                }
-            }
-        }
-
-        cout << dis[n-1][m-1] << endl;
+        lst = i;
+        i = n/(n/i+1)+1;
     }
+
+    cout << ans << endl;
     return 0;
 }
-/*
-2
-4
-5
-0 3 1 2 9
-7 3 4 9 9
-1 7 5 5 3
-2 3 4 2 5
-1
-6
-0 1 2 3 4 5
-
-*/

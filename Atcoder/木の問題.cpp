@@ -51,85 +51,121 @@ const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const ll MAXN = 100003;
 
+
+
 ll n,q;
-vector<ll> edge[MAXN];
-
-bool vis[MAXN];
-ll cen,bal,son[MAXN];
-
-vector<ll> cg[MAXN];
-vector<pii> child[MAXN];
-ll fat[MAXN],fatd[MAXN];
-
-void centroid(ll nd,ll par,ll size) {
-    ll mx_son = 0;
-    son[nd] = 1;
-    for (auto v : edge[nd]) {
-        if (v != par && !vis[v]) {
-            centroid(v,nd,size);
-            son[nd] += son[v];
-            mx_son = max(mx_son,son[v]);
-        }
-    }
-    mx_son = max(mx_son,size-son[nd]);
-
-    if (mx_son < bal) {
-        bal = mx_son;
-        cen = nd;
-    }
-}
-
-void decomposition(ll nd,ll size) {
-    bal = INF;
-    centroid(nd,-1,size);
-    ll cur = cen;
-    if (nd != cur) {
-        centroid(cur,-1,size);
-    }
-
-    vis[cur] = true;
-    debug(cur);
-
-    for (auto v : edge[cur]) {
-        if (!vis[v]) {
-
-
-            cg[nd].eb(v);
-            fat[v] = nd;
-            debug(v,son[v]);
-            decomposition(v,son[v]);
-        }
-    }
-}
-
-void dfs(ll nd,ll par) {
-    for (auto v : cg[nd]) {
-        if (v != par) {
-            dfs(nd,par);
-            for (auto p : child[v]) {
-                child[nd].eb(p.X+fatd[v],p.Y);
+ll OneCentroid(ll root, const vector<vector<ll>> &edge, const vector<bool> &dead) {
+    static vector<ll> sz(n);
+    function<void (ll, ll)> get_sz = [&](ll nd,ll par) {
+        sz[nd] = 1;
+        for (auto v : edge[nd]) {
+            if (v != par && !dead[v]) {
+                get_sz(v,nd);
+                sz[nd] += sz[v];
             }
         }
-    }
-
+    };
+    get_sz(root,root);
+    ll rsz = sz[root];
+    function<ll (ll, ll)> dfs = [&](ll nd,ll par) {
+        for (auto v : edge[nd]) {
+            if (v != par && !dead[v]) {
+                if (sz[v] > rsz/2) {
+                    return dfs(v,nd);
+                }
+            }
+        }
+        return nd;
+    };
+    return dfs(root,root);
 }
+vector<ll> CentroidDecomposition(const vector<vector<ll>> &edge,const vector<vector<pii>> &query) {
+    vector<ll> ans(q);
+    vector<bool> dead(n,false);
+    function <void (ll)> rec = [&](ll start) {
+        ll c = OneCentroid(start,edge,dead);
+        dead[c] = true;
+        for (auto v : edge[c]) {
+            if (!dead[v]) {
+                rec(v);
+            }
+        }
 
-void query(ll nd) {
+        map<ll,ll> dist;
+        function<void (ll,ll,ll,bool)> add_dist = [&](ll nd,ll par,ll d,bool add) {
+            dist[d] += (add ? 1 : -1);
+            for (auto v : edge[nd]) {
+                if (v != par && !dead[v]) {
+                    add_dist(v,nd,d+1,add);
+                }
+            }
+        };
 
+        function<void (ll,ll,ll)> push = [&](ll nd,ll par,ll d) {
+            for (auto it : query[nd]) {
+                ll dd, qid;
+                tie(dd,qid) =  it;
+                if (dd - d >= 0 && dist.count(dd-d)) {
+                    ans[qid] += dist[dd-d];
+                }
+            }
+            for (auto v : edge[nd]) {
+                if (v != par && !dead[v]) {
+                    push(v,nd,d+1);
+                }
+            }
+        };
+
+
+        add_dist(c,c,0,true);
+        for (auto it : query[c]) {
+            ll dd, qid;
+            tie(dd,qid) = it;
+            ans[qid] += dist[dd];
+        }
+
+        for (auto v : edge[c]) {
+            if (!dead[v]) {
+                add_dist(v,c,1,false);
+                push(v,c,1);
+                add_dist(v,c,1,true);
+            }
+        }
+        dead[c] = false;
+    };
+
+    rec(0); 
+    return ans;
 }
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
     cin >> n >> q;
+
+    vector<vector<ll>> edge(n);
     REP (i,n-1) {
         ll u,v;
         cin >> u >> v;
+        u--,v--;
         edge[u].emplace_back(v);
         edge[v].emplace_back(u);
     }
+    
 
-    decomposition(1,n);
+    vector<vector<pii>> query(n);
+    REP (i,q) {
+        ll u,v;
+        cin >> u >> v;
+        u--;
+        query[u].emplace_back(v,i);
+    }
+
+    auto ans = CentroidDecomposition(edge,query);
+
+    for (auto el : ans) {
+        cout << el << endl;
+    }
 
     return 0;
 }
