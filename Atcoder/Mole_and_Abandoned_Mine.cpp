@@ -1,12 +1,12 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
-typedef pair<int, int> pii;
+typedef pair<ll, ll> pii;
 typedef pair<double,double> pdd;
 #define MEM(a, b) memset(a, (b), sizeof(a))
 #define SZ(i) ll(i.size())
-#define FOR(i, j, k, in) for (ll i=j ; i<k ; i+=in)
-#define RFOR(i, j, k, in) for (ll i=j ; i>=k ; i-=in)
+#define FOR(i, j, k, in) for (ll i=j ; i<(k) ; i+=in)
+#define RFOR(i, j, k, in) for (ll i=j ; i>=(k) ; i-=in)
 #define REP(i, j) FOR(i, 0, j, 1)
 #define REP1(i,j) FOR(i, 1, j+1, 1)
 #define RREP(i, j) RFOR(i, j, 0, 1)
@@ -49,28 +49,66 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
-const ll MAXN = 501;
+const ll N = 16;
 
-pii mrg(pii p1,pii p2) {
-    return {max(p1.X,p2.X),min(p1.Y,p2.Y)};
-}
-struct SegmentTree2D {
-    int mx[MAXN][MAXN],mn[MAXN][MAXN];
-    int xo,xleaf,x1,y1,x2,y2,x,y,v,vmax,vmin;
-    void query1D(int o,int L,int R) {
-        if (y1 <= L && y2 >= R) {
-            vmax = max(vmax,mx[xo][o]);
-            vmin = min(vmin,mn[xo][o]);
-        } else {
-            int mid = (L + R) >> 1
-        }
-    }
-};
-
+ll n,m;
+ll dp[1<<N][N],sum[1<<N],dis[N][N];
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
+    cin >> n >> m;
+    MEM(dis,-1);
+    REP (i,m) {
+        ll u,v,w;
+        cin >> u >> v >> w;
+        u--,v--;
+        dis[u][v] = w;
+        dis[v][u] = w;
+    }
 
+    sum[0] = 0;
+    REP (st,1<<n) {
+        REP (i,n) {
+            if ((st>>i) & 1) {
+                ll tmp = 0;
+                REP (j,n) {
+                    if (dis[i][j] != -1 && (st&(1<<j))) {
+                        tmp += dis[i][j];
+                    }
+                }
+                sum[st] = tmp + sum[st-(1<<i)];
+                break;
+            }
+        }
+    }
+
+
+    ll ans = INF;
+
+    MEM(dp,-INF);
+    dp[1][0] = 0;
+    REP (st,1<<n) {
+        REP (t,n) {
+            if (st&(1<<t)) {
+                // new bridge
+                REP (np,n) {
+                    if (t != np && (st&(1<<np)) == 0 && dis[t][np] != -1) {
+                        dp[st+(1<<np)][np] = max(dp[st+(1<<np)][np],dp[st][t] + dis[t][np]);
+                    }
+                }
+
+                // new set
+
+                ll rev = (1<<n) - st - 1;
+                for (ll sub=rev;sub>0;sub=(sub-1)&rev) {
+                    dp[st+sub][t] = max(dp[st+sub][t],dp[st][t] + sum[sub+(1<<t)]);
+                }
+            }
+        }
+        ans = min(ans,sum[(1<<n)-1]-dp[st][n-1]);
+    }
+    debug(sum[(1<<n)-1]);
+    cout << ans << endl;
     return 0;
 }

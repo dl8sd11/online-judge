@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
-typedef pair<int, int> pii;
+typedef pair<ll, ll> pii;
 typedef pair<double,double> pdd;
 #define MEM(a, b) memset(a, (b), sizeof(a))
 #define SZ(i) ll(i.size())
@@ -49,28 +49,85 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
-const ll MAXN = 501;
+const ll MAXN = 30000;
 
-pii mrg(pii p1,pii p2) {
-    return {max(p1.X,p2.X),min(p1.Y,p2.Y)};
-}
-struct SegmentTree2D {
-    int mx[MAXN][MAXN],mn[MAXN][MAXN];
-    int xo,xleaf,x1,y1,x2,y2,x,y,v,vmax,vmin;
-    void query1D(int o,int L,int R) {
-        if (y1 <= L && y2 >= R) {
-            vmax = max(vmax,mx[xo][o]);
-            vmin = min(vmin,mn[xo][o]);
-        } else {
-            int mid = (L + R) >> 1
-        }
+ll n;
+struct Event {
+    ll x,y,z,type,id;
+}event[MAXN*2];
+#ifdef tmd
+ostream& operator << (ostream &_s,const Event &q){return _s<<"("<<q.x<<","<<q.y<<","<<q.z<<")"<<q.type<<","<<q.id;}
+#endif
+ll ans[MAXN],bit[MAXN];
+void add(ll pos,ll val) {
+    for (;pos<MAXN;pos+=-pos&pos) {
+        bit[pos] += val;
     }
-};
+}
 
+ll qry(ll pos) {
+    ll ret = 0;
+    for (;pos>=1;pos-=-pos&pos) {
+        ret += bit[pos];
+    }
+    return ret;
+}
+
+void solve(vector<ll> V,ll L,ll R) {
+    if (L < R - 1) {
+        vector<ll> lV,rV;
+        ll mid = (L + R) >> 1;
+        for (auto v : V) {
+            if (event[v].x < mid) {
+                lV.eb(v);
+            } else {
+                rV.eb(v);
+            }
+        }
+        ll rptr = 0;
+        for (auto l : lV) {
+            while (rptr < SZ(rV) && event[rV[rptr]].z > event[l].z) {
+                if (event[rV[rptr]].type == 1) {
+                    add(event[rV[rptr]].y,1);
+                }
+                rptr++;
+            }
+            if (event[l].type == 0) {
+                ans[event[l].id] += qry(MAXN-1) - qry(event[l].y);
+            }
+        }
+
+        REP (i,rptr) {
+            if (event[rV[i]].type == 1) {
+                add(event[rV[i]].y,-1);
+            }
+        }
+        solve(lV,L,mid);
+        solve(rV,mid,R);
+    }
+}
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
+    cin >> n;
+    REP (i,n) {
+        ll x,y,z;
+        cin >> x >> y >> z;
+        event[i*2] = {x,y,z,1,i};
+        event[i*2+1] = {x,y,z,0,i};
+    }
 
+    sort(event,event+n*2,[&](Event e1,Event e2){return e1.z > e2.z;});
+
+    vector<ll> id;
+    REP (i,n*2) {
+        id.eb(i);
+    }
+    solve(id,0,MAXN+1);
+
+    REP (i,n) {
+        cout << ans[i] << endl;
+    }
     return 0;
 }

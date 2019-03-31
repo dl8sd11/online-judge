@@ -1,11 +1,12 @@
 #include <bits/stdc++.h>
 using namespace std;
-typedef pair<int, int> pii;
+typedef long long ll;
+typedef pair<ll, ll> pii;
 typedef pair<double,double> pdd;
 #define MEM(a, b) memset(a, (b), sizeof(a))
-#define SZ(i) int(i.size())
-#define FOR(i, j, k, in) for (int i=j ; i<k ; i+=in)
-#define RFOR(i, j, k, in) for (int i=j ; i>=k ; i-=in)
+#define SZ(i) ll(i.size())
+#define FOR(i, j, k, in) for (ll i=j ; i<k ; i+=in)
+#define RFOR(i, j, k, in) for (ll i=j ; i>=k ; i-=in)
 #define REP(i, j) FOR(i, 0, j, 1)
 #define REP1(i,j) FOR(i, 1, j+1, 1)
 #define RREP(i, j) RFOR(i, j, 0, 1)
@@ -46,149 +47,132 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
 #endif
 
-const int MOD = 1000000007;
-const int INF = 0x3f3f3f3f3f3f3f3f;
-const int MAXN = 200002;
+const ll MOD = 1000000007;
+const ll INF = 0x3f3f3f3f3f3f3f3f;
+const ll MAXN = 800002;
 
-
-int n,q,cnt;
-int a[MAXN];
-vector<int> val;
-vector<pair<int,pii> > event;
-const int k = 2048;
-int bl[MAXN];
-struct Query {
-    int l,r,md,id;
-    bool operator < (const Query & b) const {
-        if (md/k != b.md) {
-            return md/k < b.md/k;
-        } else if (l != b.l) {
-            return l/k < b.l/k;
-        } else { // } if (r != b.r) {
-            return r/k < b.r/k;
+ll n,p,a[MAXN],ans[MAXN];
+struct BIT {
+    ll bit[MAXN];
+    void add(ll pos,ll val) {
+        pos++;
+        for (;pos<MAXN;pos+=-pos&pos) {
+            bit[pos] += val;
         }
-        // return bl[l] == bl[b.l] ? (bl[r] == bl[b.r] ? (bl[r] & 1 ? md < b.md : md > b.md) : (bl[l] & 1 ? r < b.r : r > b.r)) : l < b.l;
     }
-}query[MAXN];
+    ll query(ll pos) {
+        ll ret = 0;
+        pos++;
+        for (;pos>=1;pos-=-pos&pos) {
+            ret += bit[pos];
+        }
+        return ret;
+    }
+};
+namespace MIN {
+    BIT left,right;
+    vector<ll> l,r;
+    vector<ll> lv,rv;
+    void solve() {
+        REP (i,n) {
+            lv.eb(a[i]+i);
+        }
+        sort(ALL(lv));
+        lv.resize(unique(ALL(lv))-lv.begin());
+        REP (i,n) {
+            l.eb(lower_bound(ALL(lv),a[i]+i)-lv.begin());
+        }
 
-int c[MAXN*2];
-int oc[MAXN*2];
+        REP (i,n) {
+            rv.eb((n-i-1)+a[i]);
+        }
+        sort(ALL(rv));
+        rv.resize(unique(ALL(rv))-rv.begin());
+        REP (i,n) {
+            r.eb(lower_bound(ALL(rv),(n-i-1)+a[i])-rv.begin());
+        }
+        debug(l);
+        debug(r);
 
-inline void add(int x) {
-    assert(c[x] >= 0);
-    oc[c[x]]--;
-    c[x]++;
-    oc[c[x]]++;
-}
+        REP (i,n) {
+            right.add(l[i],1);
+        }   
+        REP (i,n) {
+            right.add(l[i],-1);
+            debug(right.query(l[i]-1));
+            ans[i] = right.query(l[i]-1) + left.query(r[i]-1)+1;
+            left.add(r[i],1);
+        }
+    }
+};
 
-inline void dec(int x) {
-    assert(c[x] >= 1);
-    oc[c[x]]--;
-    c[x]--;
-    oc[c[x]]++;
-}
+namespace MAX {
+    void solve() {
+        vector<ll> tmp;
+        REP (i,n) {
+            tmp.eb(a[i]);
+        }
+        sort(ALL(tmp));
 
-int ans[MAXN];
+        REP (i,n) {
+            ans[i] = lower_bound(ALL(tmp),a[i])-tmp.begin()+1;
+            for (ll j=1;i-j>=0 || i+j<n;j++) {
+                debug(i);
+                vector<ll> v,id;
+                for (ll k=0;k<=i-j;k++) {
+                    v.eb(a[k]);
+                }
+                for (ll k=max(0LL,i-j+1);k<min(n,i+j);k++) {
+                    ll cur = INF;
+                    if (i+j < n) {
+                        // debug(abs(k-(i+j)));
+                        ll tp = abs(k-(i+j))+a[k];
+                        cur = min(cur,tp);
+                    }
+                    if (i-j >= 0) {
+                        ll tp = abs(k-(i-j))+a[k];
+                        cur = min(cur,tp);
+                    }
+                    debug(cur,a[k],i+j);
+                    assert(cur != INF);
+                    v.eb(cur);
+                    // v.eb(min(abs(k-(i-j)),abs(k-(i+j)))+a[k]);
+                }
+                for (ll k=i+j;k<n;k++) {
+                    v.eb(a[k]);
+                }
+                sort(ALL(v));
+                debug(v);
+                ll mid = j + a[i];
+                ll rk = lower_bound(ALL(v),mid)-v.begin()+1;
+                ans[i] = max(ans[i],rk);
+            }
+        }
+    }
+};
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> n >> q;
+    cin >> n >> p;
 
-
+    vector<ll> val;
     REP (i,n) {
         cin >> a[i];
-        val.eb(a[i]);
     }
 
+  
 
-    REP (qq,q) {
-        int t;
-        cin >> t;
-        if (t == 1) {
-            int l,r;
-            cin >> l >> r;
-            l--,r--;
-            query[cnt]= {l,r,SZ(event),cnt};
-            cnt++;
-        } else {
-            int p,x;
-            cin >> p >> x;
-            p--;
-            event.eb(p,pii(-1,x));
-            val.eb(x);
+    if (p == 1) {
+        MIN::solve();
+        REP (i,n) {
+            cout << ans[i] << endl;
         }
-    }
-
-    sort(ALL(val));
-    val.resize(unique(ALL(val))-val.begin());
-    REP (i,n) {
-        a[i] = lower_bound(ALL(val),a[i])-val.begin();
-    }
-    for (auto &E : event) {
-        E.Y.Y = lower_bound(ALL(val),E.Y.Y)-val.begin();
-    }
-
-
-
-    sort(query,query+cnt);
-
-    int L = 0,R = -1,T = 0;
-    REP (i,cnt) {
-        while (T < query[i].md) {
-            int p = event[T].X;
-            event[T].Y.X = a[p];
-            if (p >= L && p <= R) {
-                dec(a[p]);
-                a[p] = event[T].Y.Y;
-                add(a[p]);
-            } else {
-                a[p] = event[T].Y.Y;
-            }
-            T++;
+    } else {
+        MAX::solve();
+        REP (i,n) {
+            cout << ans[i] << endl;
         }
-
-        while (T > query[i].md) {
-            T--;
-            int p = event[T].X;
-            if (p >= L && p <= R) {
-                dec(a[p]);
-                a[p] = event[T].Y.X;
-                add(a[p]);
-            } else {
-                a[p] = event[T].Y.X;
-            }
-        }
-
-        while (R < query[i].r) {
-            R++;
-            add(a[R]);
-        }
-
-        while (L > query[i].l) {
-            L--;
-            add(a[L]);
-        }
-
-        while (R > query[i].r) {
-            dec(a[R]);
-            R--;
-        }
-        
-        while (L < query[i].l) {
-            dec(a[L]);
-            L++;
-        }
-        REP1 (j,MAXN-1) {
-            if (oc[j] <= 0) {
-                ans[query[i].id] = j;
-                break;
-            }
-        }
-    }
-    
-    REP (i,cnt) {
-        cout << ans[i] << endl;
     }
     return 0;
 }

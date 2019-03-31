@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
-typedef pair<int, int> pii;
+typedef pair<ll, ll> pii;
 typedef pair<double,double> pdd;
 #define MEM(a, b) memset(a, (b), sizeof(a))
 #define SZ(i) ll(i.size())
@@ -49,28 +49,75 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
-const ll MAXN = 501;
+const ll MAXN = 3001;
 
-pii mrg(pii p1,pii p2) {
-    return {max(p1.X,p2.X),min(p1.Y,p2.Y)};
-}
-struct SegmentTree2D {
-    int mx[MAXN][MAXN],mn[MAXN][MAXN];
-    int xo,xleaf,x1,y1,x2,y2,x,y,v,vmax,vmin;
-    void query1D(int o,int L,int R) {
-        if (y1 <= L && y2 >= R) {
-            vmax = max(vmax,mx[xo][o]);
-            vmin = min(vmin,mn[xo][o]);
-        } else {
-            int mid = (L + R) >> 1
+ll n,a[MAXN];
+
+vector<pii> ans;
+void solve() {
+    vector<pii> op;
+    RREP (i,n-1) {
+        REP (j,i) {
+            if (a[j] > a[j+1]) {
+                op.eb(j+1,j+2);
+                swap(a[j],a[j+1]);
+            }
         }
     }
-};
 
+    if (SZ(op) < SZ(ans)) {
+        ans = op;
+    }
+}
+
+void solve2() {
+    vector<pii> op;
+    op.eb(1,n);
+    vector<ll> o,e,a2;
+    REP (i,n) {
+        if (i&1) {
+            o.eb(a[i]);
+        } else {
+            e.eb(a[i]);
+        }
+    }
+
+    for (auto v : o) {
+        a2.eb(v);
+    } 
+    for (auto v : e) {
+        a2.eb(v);
+    }
+    debug(a2);
+
+    RREP (i,n-1) {
+        REP (j,i) {
+            if (a2[j] > a2[j+1]) {
+                op.eb(j+1,j+2);
+                swap(a2[j],a2[j+1]);
+            }
+        }
+    }
+
+    debug(a2);
+    ans = op;
+}
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
+    cin >> n;
+    REP (i,n) {
+        cin >> a[i];
+    }
 
+    
+    pary(a,a+n);
+    solve2();
+    solve();
+    cout << SZ(ans) << endl;
+    for (auto p : ans) {
+        cout << p.X << " " << p.Y << endl;
+    }
     return 0;
 }

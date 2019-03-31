@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
-typedef pair<int, int> pii;
+typedef pair<ll, ll> pii;
 typedef pair<double,double> pdd;
 #define MEM(a, b) memset(a, (b), sizeof(a))
 #define SZ(i) ll(i.size())
@@ -49,28 +49,39 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
-const ll MAXN = 501;
+const ll MAXN = 51;
 
-pii mrg(pii p1,pii p2) {
-    return {max(p1.X,p2.X),min(p1.Y,p2.Y)};
-}
-struct SegmentTree2D {
-    int mx[MAXN][MAXN],mn[MAXN][MAXN];
-    int xo,xleaf,x1,y1,x2,y2,x,y,v,vmax,vmin;
-    void query1D(int o,int L,int R) {
-        if (y1 <= L && y2 >= R) {
-            vmax = max(vmax,mx[xo][o]);
-            vmin = min(vmin,mn[xo][o]);
-        } else {
-            int mid = (L + R) >> 1
-        }
-    }
-};
-
+ll n,s[MAXN];
+ll dp[2000001];
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
+    cin >> n;
+    REP (i,n) {
+        cin >> s[i];
+    }
 
+    dp[0] = false;
+    REP (i,2000001) {
+        dp[i] = false;
+        REP (j,n) {
+            if (i >= s[j] && !dp[i-s[j]]) {
+                dp[i] = true;
+            }
+        }
+    }
+
+    ll q;
+    cin >> q;
+    while (q--) {
+        ll m;
+        cin >> m;
+        if (dp[m]) {
+            cout << "Win!" << endl;
+        } else {
+            cout << "Lose" << endl;
+        }
+    }
     return 0;
 }

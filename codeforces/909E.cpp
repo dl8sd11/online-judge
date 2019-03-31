@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
-typedef pair<int, int> pii;
+typedef pair<ll, ll> pii;
 typedef pair<double,double> pdd;
 #define MEM(a, b) memset(a, (b), sizeof(a))
 #define SZ(i) ll(i.size())
@@ -49,28 +49,67 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
-const ll MAXN = 501;
+const ll MAXN = 100002;
+bool e[MAXN];
+ll n,m,deg[MAXN];
+vector<ll> edge[MAXN];
 
-pii mrg(pii p1,pii p2) {
-    return {max(p1.X,p2.X),min(p1.Y,p2.Y)};
-}
-struct SegmentTree2D {
-    int mx[MAXN][MAXN],mn[MAXN][MAXN];
-    int xo,xleaf,x1,y1,x2,y2,x,y,v,vmax,vmin;
-    void query1D(int o,int L,int R) {
-        if (y1 <= L && y2 >= R) {
-            vmax = max(vmax,mx[xo][o]);
-            vmin = min(vmin,mn[xo][o]);
-        } else {
-            int mid = (L + R) >> 1
+ll solve() {
+    queue<ll> que[2];
+    bool call = false;
+    REP (i,n) {
+        if (deg[i] == 0) {
+            que[e[i]].emplace(i);
         }
     }
-};
 
+    ll ret = 0;
+    debug(SZ(que[0]),SZ(que[1]));
+    while (SZ(que[0]) + SZ(que[1]) > 0) {
+        if (call) {
+            ret += !que[1].empty();
+            while (!que[1].empty()) {
+                ll cur = que[1].front();
+                que[1].pop();
+                for (auto v : edge[cur]) {
+                    if (--deg[v] == 0) {
+                        que[e[v]].emplace(v);
+                    }
+                }
+            }
+        } else {
+            while (!que[0].empty()) {
+                ll cur = que[0].front();
+                que[0].pop();
+
+                for (auto v : edge[cur]) {
+                    if (--deg[v] == 0) {
+                        que[e[v]].emplace(v);
+                    }
+                }
+            }
+        }
+        call = !call;
+    }
+
+    return ret;
+}
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
+    cin >> n >> m;
+    REP (i,n) {
+        cin >> e[i];
+    }
 
+    REP (i,m) {
+        ll t,f;
+        cin >> t >> f;
+        edge[f].eb(t);
+        deg[t]++;
+    }
+
+    cout << solve() << endl;
     return 0;
 }

@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
-typedef pair<int, int> pii;
+typedef pair<ll, ll> pii;
 typedef pair<double,double> pdd;
 #define MEM(a, b) memset(a, (b), sizeof(a))
 #define SZ(i) ll(i.size())
@@ -49,28 +49,61 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
-const ll MAXN = 501;
+// const ll MAXN = 
 
-pii mrg(pii p1,pii p2) {
-    return {max(p1.X,p2.X),min(p1.Y,p2.Y)};
-}
-struct SegmentTree2D {
-    int mx[MAXN][MAXN],mn[MAXN][MAXN];
-    int xo,xleaf,x1,y1,x2,y2,x,y,v,vmax,vmin;
-    void query1D(int o,int L,int R) {
-        if (y1 <= L && y2 >= R) {
-            vmax = max(vmax,mx[xo][o]);
-            vmin = min(vmin,mn[xo][o]);
-        } else {
-            int mid = (L + R) >> 1
+ll n,k;
+vector<pii> edge[100002];
+
+ll sz[100002];
+void dfs_sz(ll nd,ll par) {
+    sz[nd] = 1;
+    for (auto v : edge[nd]) {
+        if (v.X != par) {
+            dfs_sz(v.X,nd);
+            sz[nd] += sz[v.X];
         }
     }
-};
+}
 
+vector<ll> rmv;
+void dfs(ll nd,ll par) {
+    for (auto v : edge[nd]) {
+        if (v.X != par) {
+            if (v.Y == 1) {
+                rmv.eb(sz[v.X]);
+            } else {
+                dfs(v.X,nd);
+            }
+        }
+    }
+}
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
+    cin >> n >> k;
+    REP (i,n-1) {
+        ll u,v,type;
+        cin >> u >> v >> type;
+        edge[u].eb(v,type);
+        edge[v].eb(u,type);
+    }
 
+    dfs_sz(1,1);
+
+    dfs(1,1);
+    sort(ALL(rmv),[&](ll i,ll j){return i > j;});
+    debug(rmv);
+    ll cnt = 0,sum = 0;
+    while (cnt < SZ(rmv) && n-sum > k) {
+        sum += rmv[cnt];
+        cnt++;
+    }
+
+    if (n - sum > k) {
+        cout << -1 << endl;
+    } else {
+        cout << cnt << endl;;
+    }
     return 0;
 }

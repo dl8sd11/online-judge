@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
-typedef pair<int, int> pii;
+typedef pair<ll, ll> pii;
 typedef pair<double,double> pdd;
 #define MEM(a, b) memset(a, (b), sizeof(a))
 #define SZ(i) ll(i.size())
@@ -49,28 +49,63 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
-const ll MAXN = 501;
+const ll MAXN = 151;
 
-pii mrg(pii p1,pii p2) {
-    return {max(p1.X,p2.X),min(p1.Y,p2.Y)};
+ll l,w,h,cnt;
+bool fre[MAXN][MAXN][MAXN];
+bool vis[MAXN][MAXN][MAXN];
+
+ll dx[] = {-1,0,1,0,0,0};
+ll dy[] = {0,-1,0,1,0,0};
+ll dz[] = {0,0,0,0,1,-1};
+
+bool valid(ll i,ll j,ll k) {
+    return (i >= 0 && i < l) && (j >= 0 && j < w) && (k >= 0 && k < h);
 }
-struct SegmentTree2D {
-    int mx[MAXN][MAXN],mn[MAXN][MAXN];
-    int xo,xleaf,x1,y1,x2,y2,x,y,v,vmax,vmin;
-    void query1D(int o,int L,int R) {
-        if (y1 <= L && y2 >= R) {
-            vmax = max(vmax,mx[xo][o]);
-            vmin = min(vmin,mn[xo][o]);
-        } else {
-            int mid = (L + R) >> 1
+void dfs(ll i,ll j,ll k) {
+    debug(i,j,k);
+    vis[i][j][k] = true;
+    cnt++;
+    REP (d,6) {
+        ll cx = i + dx[d];
+        ll cy = j + dy[d];
+        ll cz = k + dz[d];
+        if (valid(cx,cy,cz) && !vis[cx][cy][cz] && fre[cx][cy][cz]) {
+            dfs(cx,cy,cz);
         }
     }
-};
-
+}
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
+    cin >> l >> w >> h;
+    REP (i,l) {
+        REP (k,h) {
+            REP (j,w) {
+                char c;
+                cin >> c;
+                fre[i][j][k] = (c == '0');
+            }
+        }
+    }
+    debug(fre[0][0][0]);
+    ll ans = 0;
+    REP (i,l) {
+        REP (k,h) {
+            REP (j,w) {
+                if (!vis[i][j][k] && fre[i][j][k]) {
+                    cnt = 0;
+                    dfs(i,j,k);
+                    ans = max(ans,cnt);
+                    debug(cnt);
+                }
+            }
+        }
+    }
+
+    cout << ans << endl;
+
 
     return 0;
 }

@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
-typedef pair<int, int> pii;
+typedef pair<ll, ll> pii;
 typedef pair<double,double> pdd;
 #define MEM(a, b) memset(a, (b), sizeof(a))
 #define SZ(i) ll(i.size())
@@ -49,28 +49,72 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
-const ll MAXN = 501;
+const ll MAXN = 100002;
 
-pii mrg(pii p1,pii p2) {
-    return {max(p1.X,p2.X),min(p1.Y,p2.Y)};
-}
-struct SegmentTree2D {
-    int mx[MAXN][MAXN],mn[MAXN][MAXN];
-    int xo,xleaf,x1,y1,x2,y2,x,y,v,vmax,vmin;
-    void query1D(int o,int L,int R) {
-        if (y1 <= L && y2 >= R) {
-            vmax = max(vmax,mx[xo][o]);
-            vmin = min(vmin,mn[xo][o]);
-        } else {
-            int mid = (L + R) >> 1
+int n,k;
+vector<ll> edge[MAXN];
+ll deg[MAXN];
+
+ll center() {
+    queue<ll> que;
+    REP1 (i,n) {
+        if (deg[i] == 1) {
+            que.emplace(i);
         }
     }
-};
 
+    ll lst = -1;
+    while (que.size()) {
+        ll sz = SZ(que);
+        REP (i,sz) {
+            ll cur = que.front();
+            lst = cur;
+            que.pop();
+            for (auto v : edge[cur]) {
+                if (--deg[v] == 1) {
+                    que.emplace(v);
+                }
+            }
+        }
+    }
+    return lst;
+}
+
+bool is_dog(ll nd,ll par,ll lev) {
+    bool ret = true;
+    if (SZ(edge[nd]) == 1){
+        return lev == 0;
+    }
+    for (auto v : edge[nd]) {
+        if (v != par) {
+            ret &= is_dog(v,nd,lev-1);
+        }
+    }
+    debug(nd,par,ret);
+    return ret && SZ(edge[nd]) >= 4 - (nd == par);
+}
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
+    cin >> n >> k;
+    REP (i,n-1) {
+        ll u,v;
+        cin >> u >> v;
+        edge[u].eb(v);
+        edge[v].eb(u);
+        deg[u]++;
+        deg[v]++;
+    }
 
+    ll cen = center();
+    debug(cen);
+    
+    bool ans = is_dog(cen,cen,k);
+    if (ans) {
+        cout << "Yes" << endl;
+    } else {
+        cout << "No" << endl;
+    }
     return 0;
 }

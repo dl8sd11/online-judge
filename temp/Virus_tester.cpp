@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
-typedef pair<int, int> pii;
+typedef pair<ll, ll> pii;
 typedef pair<double,double> pdd;
 #define MEM(a, b) memset(a, (b), sizeof(a))
 #define SZ(i) ll(i.size())
@@ -49,28 +49,107 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
-const ll MAXN = 501;
+const ll MAXN = 400002;
+const ll MAXLG = __lg(MAXN) + 2;
 
-pii mrg(pii p1,pii p2) {
-    return {max(p1.X,p2.X),min(p1.Y,p2.Y)};
-}
-struct SegmentTree2D {
-    int mx[MAXN][MAXN],mn[MAXN][MAXN];
-    int xo,xleaf,x1,y1,x2,y2,x,y,v,vmax,vmin;
-    void query1D(int o,int L,int R) {
-        if (y1 <= L && y2 >= R) {
-            vmax = max(vmax,mx[xo][o]);
-            vmin = min(vmin,mn[xo][o]);
-        } else {
-            int mid = (L + R) >> 1
+ll n,f[MAXN],q,mx[MAXN][MAXLG],anc[MAXN][MAXLG];
+vector<ll> edge[MAXN];
+
+void dfs(ll nd,ll par) {
+    anc[nd][0] = par;
+    mx[nd][0] = f[par];
+    for (auto v : edge[nd]) {
+        if (v != par) {
+            dfs(v,nd);
         }
     }
-};
+}
 
+void build() {
+    REP1 (i,MAXLG-1) {
+        REP1 (j,n) {
+            anc[j][i] = anc[anc[j][i-1]][i-1];
+            mx[j][i] = max(mx[j][i-1],mx[anc[j][i-1]][i-1]);
+        }
+    }
+}
+
+ll dp[MAXN],ans;
+void solve(ll nd,ll par) {
+    ll p = nd;
+    for (ll i=MAXLG-1;i>=0;i--) {
+        if (mx[p][i] <= f[nd]) {
+            p = anc[p][i];
+        }
+    }
+    p = anc[p][0];
+    dp[nd] = dp[p] + 1;
+    ans += dp[nd];
+
+    for (auto v : edge[nd]) {
+        if (v != par) {
+            solve(v,nd);
+        }
+    }
+}
+
+ll deg[MAXN];
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
+    cin >> n;
+    REP (i,n) {
+        cin >> f[i];
+    }
 
+    REP (i,n-1) {
+        ll u,v;
+        cin >> u >> v;
+        deg[u]++;
+        edge[u].eb(v);
+        edge[v].eb(u);
+    }
+    f[MAXN-1] = INF;
+    anc[MAXN-1][0] = MAXN-1;
+
+    ll rt = -1;
+    REP (i,n) {
+        if (deg[i] == 0) {
+            rt = i;
+        }
+    }
+
+    dfs(rt,MAXN-1);
+    build();
+
+    solve(rt,rt);
+
+    cout << ans << endl;
+
+    cin >> q;
+    REP (i,q) {
+        ll P;
+        cin >> P >> f[i+n];
+        anc[n+i][0] = P;
+        mx[n+i][0] = f[P];
+        REP1 (k,MAXLG-1) {
+            anc[i+n][k] = anc[anc[i+n][k-1]][k-1];
+            mx[i+n][k] = max(mx[i+n][k-1],mx[anc[i+n][k-1]][k-1]);
+        }
+
+        ll p = i+n;
+        for (ll j=MAXLG-1;j>=0;j--) {
+            if (mx[p][j] <= f[i+n]) {
+                p = anc[p][j];
+            }
+        }
+        p = anc[p][0];
+        dp[i+n] = dp[p] + 1;
+        ans += dp[i+n];
+        cout << ans << endl;
+    }
+    
     return 0;
 }
+

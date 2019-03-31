@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
-typedef pair<int, int> pii;
+typedef pair<ll, ll> pii;
 typedef pair<double,double> pdd;
 #define MEM(a, b) memset(a, (b), sizeof(a))
 #define SZ(i) ll(i.size())
@@ -49,28 +49,101 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
-const ll MAXN = 501;
+const ll MAXN = 300001;
 
-pii mrg(pii p1,pii p2) {
-    return {max(p1.X,p2.X),min(p1.Y,p2.Y)};
-}
-struct SegmentTree2D {
-    int mx[MAXN][MAXN],mn[MAXN][MAXN];
-    int xo,xleaf,x1,y1,x2,y2,x,y,v,vmax,vmin;
-    void query1D(int o,int L,int R) {
-        if (y1 <= L && y2 >= R) {
-            vmax = max(vmax,mx[xo][o]);
-            vmin = min(vmin,mn[xo][o]);
-        } else {
-            int mid = (L + R) >> 1
+
+ll n,a[MAXN];
+namespace MIN {
+    ll seg[MAXN*2];
+    void build() {
+        for (ll i=n-1;i>=1;i--) {
+            seg[i] = min(seg[i<<1],seg[i<<1|1]);
         }
+    }
+
+    ll query(ll l,ll r) {
+        ll ret = INF;
+        for (l+=n,r+=n;l<r;l>>=1,r>>=1) {
+            if (l & 1) {
+                ret = min(ret,seg[l++]);
+            }
+            if (r & 1) {
+                ret = min(ret,seg[--r]);
+            }
+        }
+        return ret;
     }
 };
 
+namespace MAX {
+    ll seg[MAXN*2];
+    void build() {
+        for (ll i=n-1;i>=1;i--) {
+            seg[i] = max(seg[i<<1],seg[i<<1|1]);
+        }
+    }
+
+    ll query(ll l,ll r) {
+        ll ret = -1;
+        for (l+=n,r+=n;l<r;l>>=1,r>>=1) {
+            if (l & 1) {
+                ret = max(ret,seg[l++]);
+            }
+            if (r & 1) {
+                ret = max(ret,seg[--r]);
+            }
+        }
+        return ret;
+    }
+};
+vector<ll> val;
+
+ll find_right(ll idx) {
+    ll L = idx,R = n;
+    while (L < R - 1) {
+        ll mid = (L + R) >> 1;
+        if (MIN::query(idx,mid+1) < a[idx]) {
+            R = mid;
+        } else {
+            L = mid;
+        }
+    }
+    return R;
+}
+
+vector<ll> pos[MAXN];
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
+    cin >> n;
+    REP (i,n) {
+        cin >> a[i];
+        val.eb(a[i]);
+    }
 
+    sort(ALL(val));
+    val.resize(unique(ALL(val))-val.begin());
+    REP (i,n) {
+        a[i] = lower_bound(ALL(val),a[i])-val.begin();
+        pos[a[i]].eb(i);
+        MIN::seg[i+n] = MAX::seg[i+n] = a[i];
+    }
+
+    MIN::build();
+    MAX::build();
+
+    ll ptr = 0,ans = 0;
+    while (ptr < n) {
+        ll rgt = find_right(ptr);
+        ll mval = MAX::query(ptr,rgt);
+        debug(ptr,rgt,mval);
+        ptr = *prev(lower_bound(ALL(pos[mval]),rgt));
+        ptr++;
+        debug(ptr,n);
+        ans++;
+    }
+
+    cout << ans << endl;
     return 0;
 }

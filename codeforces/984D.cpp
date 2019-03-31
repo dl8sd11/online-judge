@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
-typedef pair<int, int> pii;
+typedef pair<ll, ll> pii;
 typedef pair<double,double> pdd;
 #define MEM(a, b) memset(a, (b), sizeof(a))
 #define SZ(i) ll(i.size())
@@ -49,28 +49,41 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
-const ll MAXN = 501;
+const ll MAXN = 5001;
 
-pii mrg(pii p1,pii p2) {
-    return {max(p1.X,p2.X),min(p1.Y,p2.Y)};
-}
-struct SegmentTree2D {
-    int mx[MAXN][MAXN],mn[MAXN][MAXN];
-    int xo,xleaf,x1,y1,x2,y2,x,y,v,vmax,vmin;
-    void query1D(int o,int L,int R) {
-        if (y1 <= L && y2 >= R) {
-            vmax = max(vmax,mx[xo][o]);
-            vmin = min(vmin,mn[xo][o]);
-        } else {
-            int mid = (L + R) >> 1
-        }
-    }
-};
-
+ll n,f[MAXN][MAXN],q,ans[MAXN][MAXN];
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
+    cin >> n;
+    REP (i,n) {
+        cin >> f[i][i];
+    }
 
+    REP1 (len,n-1) {
+        REP (l,n-len) {
+            f[l][l+len] = f[l][l+len-1] ^ f[l+1][l+len];
+        }
+    }
+
+
+    REP (i,n) {
+        ans[i][i] = f[i][i];
+    }
+    REP1 (len,n-1) {
+        REP (l,n-len) {
+            ll r = l + len;
+            ans[l][r] = max({ans[l][r-1],ans[l+1][r],f[l][r]});
+        }
+    }
+
+
+    cin >> q;
+    while (q--) {
+        ll l,r;
+        cin >> l >> r;
+        cout << ans[l-1][r-1] << endl;
+    }
     return 0;
 }
