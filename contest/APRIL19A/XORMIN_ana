@@ -1,0 +1,21 @@
+pre + sort: https://www.codechef.com/viewsolution/23833042
+pre + seg: https://www.codechef.com/viewsolution/23832359
+pure sort: https://www.codechef.com/viewsolution/23831368
+pure map: https://www.codechef.com/viewsolution/23825678
+pure seg: https://www.codechef.com/viewsolution/23815993
+pre: https://www.codechef.com/viewsolution/23832116
+pre sort: https://www.codechef.com/viewsolution/23832081
+io: https://www.codechef.com/viewsolution/23832174
+
+pre
+io: 0.31
+sort: 0.3
+pre: 0.5
+
+
+sort seg  pre
+0.17 1    0.95
+0.17 0.69 1
+0.26 
+
+
