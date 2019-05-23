@@ -48,57 +48,44 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #endif
 
 const ll MOD = 1000000007;
-const ll INF = 0x3f3f3f3f;
+const ll INF = 0x3f3f3f3f3f3f3f3f;
 // const ll MAXN = 
 
-
-ll t,n;
-pii m[20];
-
-ll solve(ll x) {
-    ll mn = INF;
-    REP1 (y,100010) {
-        bool fail = false;
-        REP1 (i,n-1) {
-            if (m[i-1].X*x+m[i-1].Y*y >= m[i].X*x+m[i].Y*y) {
-                fail = true;
-                break;
-            }
-        }
-        if (!fail) {
-            mn = y;
-            break;
-        }
-    }
-    return mn;
-}
+ll q,a,b,m;
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> t;
-    REP1 (test,t) {
-        cin >> n;
-        REP (i,n) {
-            cin >> m[i].X >> m[i].Y;
-        }
-        ll L = 0, R = INF;
-        while (L < R - 1) {
-            ll mid = (L + R) >> 1;
-            
-            if (solve(mid) != INF) {
-                R = mid;
-            } else {
-                L = mid;
+    cin >> q;
+    while (q--) {
+        cin >> a >> b >> m;
+        REP (i,50) {
+            ll gap = b-a;
+            if (i > 0) {
+                gap = b - (a<<i-1) - (1LL<<i-1);
+            }
+            if (gap < 0) {
+                cout << -1 << endl;
+                break;
+            }
+            vector<ll> ans;
+            for (ll j=i-2;j>=-1;j--) {
+                ll quo = min(gap / (1LL<<(j>=0?j:0)),m-1);
+                gap -= (1LL<<(j>=0?j:0)) * quo;
+                ans.eb(quo);
+            }
+
+            if (gap == 0) {
+                cout << i + 1 << " " << a;
+                ll sum = a;
+                REP (j,i) {
+                    cout << " " << sum + ans[j] + 1;
+                    sum += sum + ans[j] + 1;
+                }
+                cout << endl;
+                break;
             }
         }
-
-        if (R > INF - 10) {
-            cout << "Case #" << test << ": IMPOSSIBLE" << endl;
-        } else {
-            cout << "Case #" << test << ": " << R << " " << solve(R) << endl;
-        }
-
     }
     return 0;
 }

@@ -50,29 +50,9 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f;
 // const ll MAXN = 
-
 ll t,n;
-pii m[20];
-ll ud(ll a,ll b) {
-    if (b == 0) {
-        return INF;
-    }
-    ll ret = (a+b-1)/b;
-    if (ret * b == a) {
-        ret++;
-    }
-    return ret;
-}
-ll dd(ll a,ll b) {
-    if (b == 0) {
-        return INF;
-    }
-    ll ret = (a)/b;
-    if (ret * b == a) {
-        ret--;
-    }
-    return ret;
-}
+pii m[301];
+
 /********** Good Luck :) **********/
 int main()
 {
@@ -80,67 +60,51 @@ int main()
     cin >> t;
     REP1 (test,t) {
         cin >> n;
-        pii mn = {0,1},mx = {INF,1};
-        bool imp = false;
+        ll ans = 0;
         REP (i,n) {
             cin >> m[i].X >> m[i].Y;
-            if (i > 0) {
-                ll a = m[i-1].X - m[i].X;
-                ll b = m[i].Y - m[i-1].Y;
-                debug(a,b);
-                if (a > 0) { // ax < by
-                    if (b > 0 && mn.X*b < mn.Y*a) {
-                        mn = {a,b};
-                    }
-                } else if (a == 0) {
-                    if (b < 0) {
-                        imp = true;
-                    }
-                } else { // ax > by
-                    a *= -1;
-                    b *= -1;
-                    if (b < 0) {
-                        imp = true;
-                    } else {
-                        ll gcd = __gcd(a,abs(b));
-                        a /= gcd, b /= gcd;
-                        if (mx.X == INF || mx.X*b > mx.Y*a) {
-                            mx = {a,b};
-                        }
-                    }
-                }
-
-            }
         }
 
-        debug(mn,mx);
-
-        if (imp) {
-            cout << "Case #" << test << ": IMPOSSIBLE" << endl;
-        } else {
-            ll L = 0, R = INF;
-            while (L < R - 1) {
-                ll mid = (L + R) >> 1;
-                ll l = ud(mn.X*mid,mn.Y),r = dd(mx.X*mid,mx.Y);
-                
-                if (l <= r) {
-                    R = mid;
-                } else {
-                    L = mid;
-                }
-            }
-
-            ll aR = 0;
-            for (ll i=max(1LL,R-10000000);i<min(INF,R+10000000LL);i++) {
-                ll l = ud(mn.X*i,mn.Y),r = dd(mx.X*i,mx.Y);
-                if (l <= r) {
-                    cout << "Case #" << test << ": " << i << " " << ud(mn.X*i,mn.Y) << endl;
-                    break;
-                }
-            }
+        vector<ll> p;
+        REP (i,n) {
+            p.eb(i);
         }
 
+        do {
+            bool imp = false;
+            pii mx = {INF,1},mn = {1,INF};
+            REP1 (i,n-1) {
+                ll dx = m[p[i-1]].X - m[p[i]].X;
+                ll dy = m[p[i]].Y - m[p[i-1]].Y;
+                if (dx == 0) {
+                    if (dy < 0) {
+                        imp = true;
+                    }
+                } else if (dy == 0) {
+                    if (dx > 0) {
+                        imp = true;
+                    }
+                } else if (dx > 0 && dy > 0) {
+                    if (mx.X*dx > mx.Y*dy) {
+                        mx = {dy,dx};
+                    }
+                } else if (dx > 0 && dy < 0) {
+                    imp = true;
+                } else if (dx < 0 && dy < 0) {
+                    dx *= -1, dy *= -1;
+                    if (mn.X*dx < mn.Y*dy) {
+                        mn = {dy,dx};
+                    }
+                }
+            }
+            if (!imp && mn.X * mx.Y < mn.Y * mx.X) {
+                debug(p,mx,mn);
+                ans++;
+            }
 
+        } while(next_permutation(ALL(p)));
+        
+        cout << "Case #" << test << ": " << ans << endl;
     }
     return 0;
 }

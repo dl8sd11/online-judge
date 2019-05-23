@@ -48,57 +48,51 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #endif
 
 const ll MOD = 1000000007;
-const ll INF = 0x3f3f3f3f;
-// const ll MAXN = 
+const ll INF = 0x3f3f3f3f3f3f3f3f;
+const ll MAXN = 1000003; 
 
-
-ll t,n;
-pii m[20];
-
-ll solve(ll x) {
-    ll mn = INF;
-    REP1 (y,100010) {
-        bool fail = false;
-        REP1 (i,n-1) {
-            if (m[i-1].X*x+m[i-1].Y*y >= m[i].X*x+m[i].Y*y) {
-                fail = true;
-                break;
-            }
-        }
-        if (!fail) {
-            mn = y;
-            break;
-        }
-    }
-    return mn;
-}
+ll n,m,k,p,r[MAXN],c[MAXN],rs[1003],cs[1003];
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> t;
-    REP1 (test,t) {
-        cin >> n;
-        REP (i,n) {
-            cin >> m[i].X >> m[i].Y;
-        }
-        ll L = 0, R = INF;
-        while (L < R - 1) {
-            ll mid = (L + R) >> 1;
-            
-            if (solve(mid) != INF) {
-                R = mid;
-            } else {
-                L = mid;
-            }
-        }
 
-        if (R > INF - 10) {
-            cout << "Case #" << test << ": IMPOSSIBLE" << endl;
-        } else {
-            cout << "Case #" << test << ": " << R << " " << solve(R) << endl;
+    cin >> n >> m >> k >> p;
+    REP (i,n) {
+        REP (j,m) {
+            ll d;
+            cin >> d;
+            rs[i] += d;
+            cs[j] += d;
         }
-
     }
+    priority_queue<ll> pr,pc;
+    REP (i,n) {
+        pr.emplace(rs[i]);
+    }
+    REP1 (i,k) {
+        ll cur = pr.top();
+        pr.pop();
+        r[i] = r[i-1] + cur;
+        pr.emplace(cur-p*m);
+    }
+
+    REP (i,m) {
+        pc.emplace(cs[i]);
+    }
+    REP1 (i,k) {
+        ll cur = pc.top();
+        pc.pop();
+        c[i] = c[i-1] + cur;
+        pc.emplace(cur-p*n);
+    }
+
+
+    ll ans = -INF;
+    REP (i,k+1) {
+        ans = max(ans,r[i]+c[k-i]-i*(k-i)*p);
+    }
+
+    cout << ans << endl;
     return 0;
 }

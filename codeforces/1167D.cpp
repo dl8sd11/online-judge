@@ -48,57 +48,43 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #endif
 
 const ll MOD = 1000000007;
-const ll INF = 0x3f3f3f3f;
-// const ll MAXN = 
+const ll INF = 0x3f3f3f3f3f3f3f3f;
+const ll MAXN = 200003;
 
+ll n,ptr;
+string str;
+ll dep[MAXN];
 
-ll t,n;
-pii m[20];
-
-ll solve(ll x) {
-    ll mn = INF;
-    REP1 (y,100010) {
-        bool fail = false;
-        REP1 (i,n-1) {
-            if (m[i-1].X*x+m[i-1].Y*y >= m[i].X*x+m[i].Y*y) {
-                fail = true;
-                break;
-            }
-        }
-        if (!fail) {
-            mn = y;
-            break;
-        }
+ll solve() {
+    ll hd = ptr;
+    ptr++;
+    ll mx = 0;
+    while (str[ptr] == '(') {
+        mx = max(mx,solve());
     }
-    return mn;
+    dep[hd] = mx + 1;
+    dep[ptr] = mx + 1;
+    ptr++;
+    return dep[hd];
 }
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> t;
-    REP1 (test,t) {
-        cin >> n;
-        REP (i,n) {
-            cin >> m[i].X >> m[i].Y;
-        }
-        ll L = 0, R = INF;
-        while (L < R - 1) {
-            ll mid = (L + R) >> 1;
-            
-            if (solve(mid) != INF) {
-                R = mid;
-            } else {
-                L = mid;
-            }
-        }
-
-        if (R > INF - 10) {
-            cout << "Case #" << test << ": IMPOSSIBLE" << endl;
-        } else {
-            cout << "Case #" << test << ": " << R << " " << solve(R) << endl;
-        }
-
+    cin >> n >> str;
+    while (ptr < n) {
+        solve();
     }
+    pary(dep,dep+n);
+
+    ll mx = *max_element(dep,dep+n);
+    REP (i,n) {
+        if (dep[i] > mx/2) {
+            cout << 0;
+        } else {
+            cout << 1;
+        }
+    }
+    cout << endl;
     return 0;
 }

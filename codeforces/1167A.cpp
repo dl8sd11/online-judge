@@ -48,57 +48,30 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #endif
 
 const ll MOD = 1000000007;
-const ll INF = 0x3f3f3f3f;
+const ll INF = 0x3f3f3f3f3f3f3f3f;
 // const ll MAXN = 
 
-
 ll t,n;
-pii m[20];
-
-ll solve(ll x) {
-    ll mn = INF;
-    REP1 (y,100010) {
-        bool fail = false;
-        REP1 (i,n-1) {
-            if (m[i-1].X*x+m[i-1].Y*y >= m[i].X*x+m[i].Y*y) {
-                fail = true;
-                break;
-            }
-        }
-        if (!fail) {
-            mn = y;
-            break;
-        }
-    }
-    return mn;
-}
+char c;
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
     cin >> t;
-    REP1 (test,t) {
+    while (t--) {
         cin >> n;
+        ll mn = n + 1;
         REP (i,n) {
-            cin >> m[i].X >> m[i].Y;
-        }
-        ll L = 0, R = INF;
-        while (L < R - 1) {
-            ll mid = (L + R) >> 1;
-            
-            if (solve(mid) != INF) {
-                R = mid;
-            } else {
-                L = mid;
+            cin >> c;
+            if (c == '8') {
+                mn = min(mn,i);
             }
         }
-
-        if (R > INF - 10) {
-            cout << "Case #" << test << ": IMPOSSIBLE" << endl;
+        if (n-mn >= 11) {
+            cout << "YES" << endl;
         } else {
-            cout << "Case #" << test << ": " << R << " " << solve(R) << endl;
+            cout << "NO" << endl;
         }
-
     }
     return 0;
 }

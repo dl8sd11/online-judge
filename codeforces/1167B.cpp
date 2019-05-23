@@ -43,62 +43,46 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #else
 #define debug(...)
 #define pary(...)
-#define endl '\n'
 #define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
 #endif
 
 const ll MOD = 1000000007;
-const ll INF = 0x3f3f3f3f;
+const ll INF = 0x3f3f3f3f3f3f3f3f;
 // const ll MAXN = 
 
+vector<ll> vec = {4,8,15,16,23,42},ans,query;
 
-ll t,n;
-pii m[20];
-
-ll solve(ll x) {
-    ll mn = INF;
-    REP1 (y,100010) {
-        bool fail = false;
-        REP1 (i,n-1) {
-            if (m[i-1].X*x+m[i-1].Y*y >= m[i].X*x+m[i].Y*y) {
-                fail = true;
-                break;
-            }
-        }
-        if (!fail) {
-            mn = y;
-            break;
-        }
-    }
-    return mn;
+void qry(ll i,ll j) {
+    cout << "? " << i+1 << " " << j+1 << endl;
+    ll ret;
+    cin >> ret;
+    query.eb(ret);
 }
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> t;
-    REP1 (test,t) {
-        cin >> n;
-        REP (i,n) {
-            cin >> m[i].X >> m[i].Y;
-        }
-        ll L = 0, R = INF;
-        while (L < R - 1) {
-            ll mid = (L + R) >> 1;
-            
-            if (solve(mid) != INF) {
-                R = mid;
-            } else {
-                L = mid;
+    REP (i,4) {
+        qry(i,i+1);
+    }
+
+    do {
+        bool flag = true;
+        REP (i,4) {
+            if (query[i] != vec[i]*vec[i+1]) {
+                flag = false;
             }
         }
-
-        if (R > INF - 10) {
-            cout << "Case #" << test << ": IMPOSSIBLE" << endl;
-        } else {
-            cout << "Case #" << test << ": " << R << " " << solve(R) << endl;
+        if (flag) {
+            assert(ans.empty());
+            ans = vec;
         }
+    } while(next_permutation(ALL(vec)));
 
+    cout << "!";
+    for (auto v : ans) {
+        cout << " " << v;
     }
+    cout << endl;
     return 0;
 }

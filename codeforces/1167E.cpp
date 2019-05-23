@@ -48,57 +48,67 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #endif
 
 const ll MOD = 1000000007;
-const ll INF = 0x3f3f3f3f;
-// const ll MAXN = 
+const ll INF = 0x3f3f3f3f3f3f3f3f;
+const ll MAXN = 1000003;
 
-
-ll t,n;
-pii m[20];
-
-ll solve(ll x) {
-    ll mn = INF;
-    REP1 (y,100010) {
-        bool fail = false;
-        REP1 (i,n-1) {
-            if (m[i-1].X*x+m[i-1].Y*y >= m[i].X*x+m[i].Y*y) {
-                fail = true;
-                break;
-            }
-        }
-        if (!fail) {
-            mn = y;
-            break;
-        }
-    }
-    return mn;
-}
+ll n,x,a[MAXN];
+ll lft[MAXN],l;
+vector<ll> pos[MAXN];
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> t;
-    REP1 (test,t) {
-        cin >> n;
-        REP (i,n) {
-            cin >> m[i].X >> m[i].Y;
-        }
-        ll L = 0, R = INF;
-        while (L < R - 1) {
-            ll mid = (L + R) >> 1;
-            
-            if (solve(mid) != INF) {
-                R = mid;
-            } else {
-                L = mid;
-            }
-        }
+    cin >> n >> x;
 
-        if (R > INF - 10) {
-            cout << "Case #" << test << ": IMPOSSIBLE" << endl;
-        } else {
-            cout << "Case #" << test << ": " << R << " " << solve(R) << endl;
-        }
-
+    REP (i,n) {
+        cin >> a[i];
+        pos[a[i]].eb(i);
     }
+
+    // calc suffix left border
+    l = n;
+    for (ll i=x;i>=1;i--) {
+        bool flag = true;
+        ll nl = n;
+        for (auto v : pos[i]) {
+            if (v > l) {
+                flag = false;
+                break;
+            }
+            nl = min(nl,v);
+        }
+        if (flag) {
+            l = min(l,nl);
+        } else {
+            l = -1;
+        }
+        lft[i] = l;
+    }
+    pary(lft+1,lft+1+x);
+
+    // count ans of each prefix with the suffix border
+    ll ans = min(ll(lft+1+x-lower_bound(lft+1,lft+1+x,0)+1),x);
+    ll r = -1;
+    REP1 (i,x-1) {
+        bool flag = true;
+        ll nr = -1;
+        for (auto v : pos[i]) {
+            if (v < r) {
+                flag = false;
+                break;
+            }
+            nr = max(nr,v);
+        }
+        if (flag) {
+            r = max(r,nr);
+            debug(i,r,ans);
+            ans += min(ll(lft+1+x-lower_bound(lft+1,lft+x+1,r+1)+1),x-i);
+            debug(ans);
+        } else {
+            break;
+        }
+    }
+
+    cout << ans << endl;
     return 0;
 }

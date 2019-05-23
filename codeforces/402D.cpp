@@ -1,6 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
-typedef long long ll;
+typedef int ll;
 typedef pair<ll, ll> pii;
 typedef pair<double,double> pdd;
 #define MEM(a, b) memset(a, (b), sizeof(a))
@@ -48,57 +48,72 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #endif
 
 const ll MOD = 1000000007;
-const ll INF = 0x3f3f3f3f;
-// const ll MAXN = 
-
-
-ll t,n;
-pii m[20];
-
-ll solve(ll x) {
-    ll mn = INF;
-    REP1 (y,100010) {
-        bool fail = false;
-        REP1 (i,n-1) {
-            if (m[i-1].X*x+m[i-1].Y*y >= m[i].X*x+m[i].Y*y) {
-                fail = true;
+const ll INF = 0x3f3f3f3f3f3f3f3f;
+const ll MAXN = 5003;
+ll n,m,a[MAXN],dp[MAXN],g[MAXN],df[MAXN],f[MAXN];
+unordered_set<ll> b;
+vector<ll> prime;
+bool sieve[40003];
+void generate_prime() {
+    for (ll i=2;i*i<MOD;i++) {
+        if (!sieve[i]) {
+            prime.eb(i);
+        }
+        for (ll j=0;j<SZ(prime)&&i*prime[j]<40003;j++) {
+            sieve[i*prime[j]] = true;
+            if (i % prime[j] == 0) {
                 break;
             }
         }
-        if (!fail) {
-            mn = y;
-            break;
+    }
+}
+
+ll calf(ll num) {
+    ll ret = 0;
+    for (auto p : prime) {
+        bool is_b = b.count(p);
+        while (num % p == 0) {
+            ret += is_b ? -1 : 1;
+            num /= p;
         }
     }
-    return mn;
+    ret += (b.count(num) ? -1 : 1)*(num != 1);
+    return ret;
 }
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> t;
-    REP1 (test,t) {
-        cin >> n;
-        REP (i,n) {
-            cin >> m[i].X >> m[i].Y;
-        }
-        ll L = 0, R = INF;
-        while (L < R - 1) {
-            ll mid = (L + R) >> 1;
-            
-            if (solve(mid) != INF) {
-                R = mid;
-            } else {
-                L = mid;
-            }
-        }
+    b.reserve(5003);
+    b.max_load_factor(0.25);
+    
+    generate_prime();
+    cin >> n >> m;
 
-        if (R > INF - 10) {
-            cout << "Case #" << test << ": IMPOSSIBLE" << endl;
-        } else {
-            cout << "Case #" << test << ": " << R << " " << solve(R) << endl;
-        }
-
+    ll mx = 0,sum = 0;
+    REP1 (i,n) {
+        cin >> a[i];
+        g[i] = __gcd(g[i-1],a[i]);
     }
+    REP (i,m) {
+        ll tmp;
+        cin >> tmp;
+        b.insert(tmp);
+    }
+    REP1 (i,n) {
+        f[i] = calf(a[i]);
+        sum += f[i];
+        df[i] = calf(g[i]);
+    }
+
+    for (ll i=n;i>=1;i--) {
+        dp[i] = -(df[i] * i);
+        for (ll j=i+1;j<=n;j++) {
+            dp[i] = max(dp[i],dp[j]-(df[i]-df[j])*i);
+        }
+        mx = max(mx,dp[i]);
+    }
+
+    cout << sum + mx << endl;
     return 0;
 }

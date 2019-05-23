@@ -48,57 +48,53 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #endif
 
 const ll MOD = 1000000007;
-const ll INF = 0x3f3f3f3f;
-// const ll MAXN = 
+const ll INF = 0x3f3f3f3f3f3f3f3f;
+const ll MAXN = 500004;
 
-
-ll t,n;
-pii m[20];
-
-ll solve(ll x) {
-    ll mn = INF;
-    REP1 (y,100010) {
-        bool fail = false;
-        REP1 (i,n-1) {
-            if (m[i-1].X*x+m[i-1].Y*y >= m[i].X*x+m[i].Y*y) {
-                fail = true;
-                break;
-            }
-        }
-        if (!fail) {
-            mn = y;
-            break;
-        }
+ll n,m;
+ll djs[MAXN],sz[MAXN];
+void init() {
+    REP (i,MAXN) {
+        djs[i] = i;
+        sz[i] = 1;
     }
-    return mn;
+}
+
+ll fnd(ll x) {
+    return x == djs[x] ? x : (djs[x] = fnd(djs[x]));
+}
+
+void uni(ll x,ll y) {
+    if (sz[x=fnd(x)] > sz[y=fnd(y)]) {
+        swap(x,y);
+    }
+    if (x == y) {
+        return;
+    }
+    djs[x] = y;
+    sz[y] += sz[x];
 }
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> t;
-    REP1 (test,t) {
-        cin >> n;
-        REP (i,n) {
-            cin >> m[i].X >> m[i].Y;
-        }
-        ll L = 0, R = INF;
-        while (L < R - 1) {
-            ll mid = (L + R) >> 1;
-            
-            if (solve(mid) != INF) {
-                R = mid;
-            } else {
-                L = mid;
+    cin >> n >> m;
+    init();
+    while (m--) {
+        ll gs,fst,cur;
+        cin >> gs;
+        REP (i,gs) {
+            cin >> cur;
+            if (i == 0) {
+                fst = cur;
             }
+            uni(cur,fst);
         }
-
-        if (R > INF - 10) {
-            cout << "Case #" << test << ": IMPOSSIBLE" << endl;
-        } else {
-            cout << "Case #" << test << ": " << R << " " << solve(R) << endl;
-        }
-
     }
+
+    REP1 (i,n) {
+        cout << sz[fnd(i)] << " \n"[i==n];
+    }
+
     return 0;
 }
