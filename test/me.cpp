@@ -47,100 +47,48 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
 #endif
 
-const ll MOD = 1000000007;
-const ll INF = 0x3f3f3f3f;
-// const ll MAXN = 
+const ll MOD = 1000003;
+const ll INF = 0x3f3f3f3f3f3f3f3f;
+const ll MAXN = 1000006;
 
-ll t,n;
-pii m[20];
-ll ud(ll a,ll b) {
-    if (b == 0) {
-        return INF;
+ll q,x,d,n;
+ll mpow(ll base,ll ep) {
+    if (ep == 0) {
+        return 1;
     }
-    ll ret = (a+b-1)/b;
-    if (ret * b == a) {
-        ret++;
-    }
-    return ret;
+    ll hf = mpow(base,ep>>1);
+    hf = hf * hf % MOD;
+    return ep & 1 ? hf * base % MOD : hf;
 }
-ll dd(ll a,ll b) {
-    if (b == 0) {
-        return INF;
+
+ll fc[MAXN],ifc[MAXN];
+void build() {
+    fc[0] = ifc[0] = 1;
+    REP1 (i,MAXN-1) {
+        fc[i] = fc[i-1] * i % MOD;
+        ifc[i] = mpow(fc[i],MOD-2);
     }
-    ll ret = (a)/b;
-    if (ret * b == a) {
-        ret--;
-    }
-    return ret;
 }
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> t;
-    REP1 (test,t) {
-        cin >> n;
-        pii mn = {0,1},mx = {INF,1};
-        bool imp = false;
-        REP (i,n) {
-            cin >> m[i].X >> m[i].Y;
-            if (i > 0) {
-                ll a = m[i-1].X - m[i].X;
-                ll b = m[i].Y - m[i-1].Y;
-                debug(a,b);
-                if (a > 0) { // ax < by
-                    if (b > 0 && mn.X*b < mn.Y*a) {
-                        mn = {a,b};
-                    }
-                } else if (a == 0) {
-                    if (b < 0) {
-                        imp = true;
-                    }
-                } else { // ax > by
-                    a *= -1;
-                    b *= -1;
-                    if (b < 0) {
-                        imp = true;
-                    } else {
-                        ll gcd = __gcd(a,abs(b));
-                        a /= gcd, b /= gcd;
-                        if (mx.X == INF || mx.X*b > mx.Y*a) {
-                            mx = {a,b};
-                        }
-                    }
-                }
-
-            }
+    build();
+    cin >> q;
+    while (q--) {
+        cin >> x >> d >> n;
+        ll f = x * mpow(d,MOD-2) % MOD;
+        ll m = (1+(MOD-x) * mpow(d,MOD-2)) % MOD;
+        if (d == 0) {
+            cout << mpow(x,n) << endl;
+            continue;
         }
-
-        debug(mn,mx);
-
-        if (imp) {
-            cout << "Case #" << test << ": IMPOSSIBLE" << endl;
+        debug(m);
+        if (n >= m) {
+            cout << 0 << endl;
         } else {
-            ll L = 0, R = INF;
-            while (L < R - 1) {
-                ll mid = (L + R) >> 1;
-                ll l = ud(mn.X*mid,mn.Y),r = dd(mx.X*mid,mx.Y);
-                
-                if (l <= r) {
-                    R = mid;
-                } else {
-                    L = mid;
-                }
-            }
-
-            ll aR = 0;
-            for (ll i=max(1LL,R-10000000);i<min(INF,R+10000000LL);i++) {
-                ll l = ud(mn.X*i,mn.Y),r = dd(mx.X*i,mx.Y);
-                if (l <= r) {
-                    cout << "Case #" << test << ": " << i << " " << ud(mn.X*i,mn.Y) << endl;
-                    break;
-                }
-            }
+            cout << mpow(d,n) * fc[(f+n-1)%MOD] % MOD * ifc[(f-1+MOD)%MOD] % MOD << endl;
         }
-
-
     }
     return 0;
 }

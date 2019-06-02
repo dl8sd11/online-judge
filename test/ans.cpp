@@ -47,58 +47,42 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
 #endif
 
-const ll MOD = 1000000007;
-const ll INF = 0x3f3f3f3f;
-// const ll MAXN = 
+const ll MOD = 1000003;
+const ll INF = 0x3f3f3f3f3f3f3f3f;
+const ll MAXN = 1000006;
 
-
-ll t,n;
-pii m[20];
-
-ll solve(ll x) {
-    ll mn = INF;
-    REP1 (y,100010) {
-        bool fail = false;
-        REP1 (i,n-1) {
-            if (m[i-1].X*x+m[i-1].Y*y >= m[i].X*x+m[i].Y*y) {
-                fail = true;
-                break;
-            }
-        }
-        if (!fail) {
-            mn = y;
-            break;
-        }
+ll q,x,d,n;
+ll mpow(ll base,ll ep) {
+    if (ep == 0) {
+        return 1;
     }
-    return mn;
+    ll hf = mpow(base,ep>>1);
+    hf = hf * hf % MOD;
+    return ep & 1 ? hf * base % MOD : hf;
+}
+
+ll fc[MAXN],ifc[MAXN];
+void build() {
+    fc[0] = ifc[0] = 1;
+    REP1 (i,MAXN-1) {
+        fc[i] = fc[i-1] * i % MOD;
+        ifc[i] = mpow(fc[i],MOD-2);
+    }
 }
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> t;
-    REP1 (test,t) {
-        cin >> n;
+    build();
+    cin >> q;
+    while (q--) {
+        cin >> x >> d >> n;
+        ll pdt = 1;
         REP (i,n) {
-            cin >> m[i].X >> m[i].Y;
+            pdt = pdt * x % MOD;
+            x = (x + d) % MOD;
         }
-        ll L = 0, R = INF;
-        while (L < R - 1) {
-            ll mid = (L + R) >> 1;
-            
-            if (solve(mid) != INF) {
-                R = mid;
-            } else {
-                L = mid;
-            }
-        }
-
-        if (R > INF - 10) {
-            cout << "Case #" << test << ": IMPOSSIBLE" << endl;
-        } else {
-            cout << "Case #" << test << ": " << R << " " << solve(R) << endl;
-        }
-
+        cout << pdt << endl;
     }
     return 0;
 }
