@@ -49,40 +49,75 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
+const ll MAXN = 100005;
 
-string str;
-ll lp,qu,ans;
+ll n,k;
+
+bool gt(ll num) {
+    ll sum = (num + num + k - 1) * k / 2;
+    return sum > n;
+
+}
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> str;
-    ll n = SZ(str);
-    REP (l,n) {
-        lp = qu = 0;
-        for (ll r=l;r<n;r++) {
-            if (str[r] == '(') {
-                lp++;
-            } else if (str[r] == '?') {
-                qu++;
-            } else {
-                lp--;
-            }
-
-            while (qu > 0 && qu > lp) {
-                qu--;
-                lp++;
-            }
-            if (lp < 0) {
-                break;
-            }
-            if (lp == qu && ((r - l + 1) & 1 ^ 1)) {
-                ans++;
-                debug(l,r,lp , qu);
-            }
-        }
+    cin >> n >> k;
+    if (k == 1) {
+        cout << "YES" << endl;
+        cout << n << endl;
+        return 0;
+    }
+    if (n < (k + 1) * k / 2) {
+        cout << "NO" << endl;
+        return 0;
     }
 
-    cout << ans << endl;
+    if (k == 2) {
+        if (n == 4) {
+            cout << "NO" << endl;
+        } else {
+            cout << "YES" << endl;
+            cout << (n-1)/2 << " " << n - (n-1)/2 << endl;
+        }
+        return 0;
+    }
+
+    if (n == 8 && k == 3) {
+        cout << "NO" << endl;
+        return 0;
+    }
+
+    cout << "YES" << endl;
+    ll l = -1, r = n;
+    while (l < r - 1) {
+        ll mid = (l + r) >> 1;
+        if (gt(mid)) {
+            r = mid;
+        } else {
+            l = mid;
+        }
+    }
+    debug(r);
+
+    ll sum = 0;
+    vector<ll> ans;
+    REP (i, k - 2) {
+        ans.eb(l + i);
+        sum += l + i;
+    }
+
+    if (sum + (l + k - 2)*3 < n) {
+        ans.eb(l + k - 1);
+        ans.eb(n - (sum + l + k - 1));
+    } else {
+        ans.eb(l + k - 2);
+        ans.eb(n - sum - (l + k - 2));
+    }
+
+    for (auto v : ans) {
+        cout << v << " ";
+    }
+    cout << endl;
     return 0;
 }

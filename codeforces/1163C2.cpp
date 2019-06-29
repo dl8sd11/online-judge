@@ -1,6 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
+typedef long double lf;
 typedef pair<ll, ll> pii;
 typedef pair<double,double> pdd;
 #define MEM(a, b) memset(a, (b), sizeof(a))
@@ -49,40 +50,63 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
+// const ll MAXN = 
 
-string str;
-ll lp,qu,ans;
+ll n;
+pii pos[1003];
+vector<pair<pii,pii> > line;
+
+pii make_fract(ll a,ll b) {
+    if (a < 0) {
+        a *= -1;
+        b *= -1;
+    }
+    ll gcd = __gcd(a,b);
+    return pii(a/gcd, b/gcd);
+}
+
+bool cmp (pii &a, pii &b) {
+    return a.X == b.X && a.Y == b.Y;
+}
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> str;
-    ll n = SZ(str);
-    REP (l,n) {
-        lp = qu = 0;
-        for (ll r=l;r<n;r++) {
-            if (str[r] == '(') {
-                lp++;
-            } else if (str[r] == '?') {
-                qu++;
-            } else {
-                lp--;
-            }
+    cin >> n;
+    REP (i,n) {
+        cin >> pos[i].X >> pos[i].Y;
+    }
 
-            while (qu > 0 && qu > lp) {
-                qu--;
-                lp++;
-            }
-            if (lp < 0) {
-                break;
-            }
-            if (lp == qu && ((r - l + 1) & 1 ^ 1)) {
-                ans++;
-                debug(l,r,lp , qu);
+    REP (i,n) {
+        REP (j,i) {
+            if (pos[i].X == pos[j].X) {
+                line.eb(pii(INF,INF),pii(pos[i].X,1));
+            } else {
+                pii m = make_fract(pos[i].Y - pos[j].Y,pos[i].X - pos[j].X);
+                pii f = make_fract((pos[i].X - pos[j].X)*pos[i].Y - (pos[i].Y - pos[j].Y)*pos[i].X,pos[i].X - pos[j].X);
+                line.eb(m,f);
             }
         }
     }
 
+    sort(ALL(line));
+    line.resize(unique(ALL(line),[&](pair<pii,pii> a,pair<pii,pii> b) {
+        return cmp(a.X,b.X) && cmp(a.Y,b.Y);
+    })-line.begin());
+
+    debug(line);
+    ll ans = SZ(line) * (SZ(line)-1) / 2;
+
+
+    ll cnt = 1;
+    REP1 (i,SZ(line)) {
+        if (i == SZ(line) || !cmp(line[i].X,line[i-1].X)) {
+            ans -= cnt * (cnt - 1) / 2;
+            cnt = 1;
+        } else {
+            cnt++;
+        }
+    }
     cout << ans << endl;
     return 0;
 }

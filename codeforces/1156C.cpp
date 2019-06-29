@@ -49,40 +49,33 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
+const ll MAXN = 200005;
 
-string str;
-ll lp,qu,ans;
+ll n, z, x[MAXN];
+bool vis[MAXN];
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> str;
-    ll n = SZ(str);
-    REP (l,n) {
-        lp = qu = 0;
-        for (ll r=l;r<n;r++) {
-            if (str[r] == '(') {
-                lp++;
-            } else if (str[r] == '?') {
-                qu++;
-            } else {
-                lp--;
-            }
+    cin >> n >> z;
+    REP (i,n) {
+        cin >> x[i];
+    }
+    sort(x, x+n);
 
-            while (qu > 0 && qu > lp) {
-                qu--;
-                lp++;
-            }
-            if (lp < 0) {
-                break;
-            }
-            if (lp == qu && ((r - l + 1) & 1 ^ 1)) {
-                ans++;
-                debug(l,r,lp , qu);
-            }
+    ll lft = n/2, ans = 0;
+    REP (i,n/2) {
+        while (lft < n && x[lft] - x[i] < z) {
+            lft++;
+        }
+        if (lft < n) {
+            ans++;
+            lft++;
         }
     }
 
     cout << ans << endl;
+
+
     return 0;
 }

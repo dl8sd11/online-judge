@@ -49,40 +49,39 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
+const ll MAXN = 100005;
 
-string str;
-ll lp,qu,ans;
+ll n,a[MAXN];
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> str;
-    ll n = SZ(str);
-    REP (l,n) {
-        lp = qu = 0;
-        for (ll r=l;r<n;r++) {
-            if (str[r] == '(') {
-                lp++;
-            } else if (str[r] == '?') {
-                qu++;
-            } else {
-                lp--;
-            }
+    cin >> n;
+    REP (i,n) {
+        cin >> a[i];
+        if (a[i] > 0) {
+            a[i] = -a[i] - 1;
+        } else if (a[i] == 0) {
+            a[i] = INF;
+        }
+    }
+    
 
-            while (qu > 0 && qu > lp) {
-                qu--;
-                lp++;
+    if (n & 1) {
+        if (all_of(a,a+n,[](ll x) {
+            return x == INF;
+        })) {
+            REP (i,n) {
+                a[i] = 0;
             }
-            if (lp < 0) {
-                break;
-            }
-            if (lp == qu && ((r - l + 1) & 1 ^ 1)) {
-                ans++;
-                debug(l,r,lp , qu);
-            }
+        } else {
+            ll id = min_element(a,a+n) - a;
+            a[id] = -a[id] - 1;
         }
     }
 
-    cout << ans << endl;
+    REP (i,n) {
+        cout << (a[i] == INF ? -1 : a[i]) << " \n"[i==n-1];
+    }
     return 0;
 }

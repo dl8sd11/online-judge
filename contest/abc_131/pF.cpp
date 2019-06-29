@@ -49,38 +49,65 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
+const ll MAXN = 100005;
 
-string str;
-ll lp,qu,ans;
+
+ll n;
+pii pos[MAXN];
+ll djs[MAXN];
+
+ll fnd(ll x) {
+    return x == djs[x] ? x : (djs[x] = fnd(djs[x]));
+}
+
+void mrg(ll x,ll y) {
+    x = fnd(x), y = fnd(y);
+    if (x != y) {
+        djs[x] = y;
+    }
+}
+
+vector<ll> x[MAXN*2], y[MAXN*2];
+vector<ll> g[MAXN];
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> str;
-    ll n = SZ(str);
-    REP (l,n) {
-        lp = qu = 0;
-        for (ll r=l;r<n;r++) {
-            if (str[r] == '(') {
-                lp++;
-            } else if (str[r] == '?') {
-                qu++;
-            } else {
-                lp--;
-            }
+    cin >> n;
+    REP (i,MAXN) {
+        djs[i] = i;
+    }
 
-            while (qu > 0 && qu > lp) {
-                qu--;
-                lp++;
-            }
-            if (lp < 0) {
-                break;
-            }
-            if (lp == qu && ((r - l + 1) & 1 ^ 1)) {
-                ans++;
-                debug(l,r,lp , qu);
-            }
+
+    REP (i,n) {
+        cin >> pos[i].X >> pos[i].Y;
+        x[pos[i].X + MAXN].eb(i);
+        y[pos[i].Y + MAXN].eb(i);
+    }
+
+    REP (i,MAXN*2) {
+        REP (j,SZ(x[i])-1) {
+            mrg(x[i][j],x[i][j+1]);
         }
+        REP (j,SZ(y[i])-1) {
+            mrg(y[i][j],y[i][j+1]);
+        }
+    }
+
+    REP (i,n) {
+        g[fnd(i)].eb(i);
+    }
+
+    ll ans = 0;
+    REP (i,n) {
+        vector<ll> xv,yv;
+        for (auto id : g[i]) {
+            xv.eb(pos[id].X);
+            yv.eb(pos[id].Y);
+        }
+        sort(ALL(xv));
+        sort(ALL(yv));
+        ans += (unique(ALL(xv))-xv.begin()) * (unique(ALL(yv))-yv.begin()) - SZ(g[i]);
     }
 
     cout << ans << endl;

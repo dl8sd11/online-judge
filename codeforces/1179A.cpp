@@ -49,40 +49,42 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
+const ll MAXN = 100005;
 
-string str;
-ll lp,qu,ans;
+ll n,q;
+deque<ll> deq;
+pii ans[MAXN];
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> str;
-    ll n = SZ(str);
-    REP (l,n) {
-        lp = qu = 0;
-        for (ll r=l;r<n;r++) {
-            if (str[r] == '(') {
-                lp++;
-            } else if (str[r] == '?') {
-                qu++;
-            } else {
-                lp--;
-            }
-
-            while (qu > 0 && qu > lp) {
-                qu--;
-                lp++;
-            }
-            if (lp < 0) {
-                break;
-            }
-            if (lp == qu && ((r - l + 1) & 1 ^ 1)) {
-                ans++;
-                debug(l,r,lp , qu);
-            }
-        }
+    cin >> n >> q;
+    REP (i,n) {
+        ll d;
+        cin >> d;
+        deq.push_back(d);
     }
 
-    cout << ans << endl;
+    ll mx = max_element(ALL(deq)) - deq.begin();
+    REP1 (i,mx) {
+        pii cur = {deq.front(), -1};
+        deq.pop_front();
+        cur.Y = deq.front();
+        deq.pop_front();
+
+        ans[i] = cur;
+        deq.push_front(max(cur.X, cur.Y));
+        deq.push_back(min(cur.X, cur.Y));
+    }
+
+    while (q--) {
+        ll m;
+        cin >> m;
+        if (m <= mx) {
+            cout << ans[m].X << " " << ans[m].Y << endl;
+        } else {
+            cout << deq.front() << " " << deq[(m - mx - 1) % (n - 1) + 1] << endl;
+        }
+    }
     return 0;
 }

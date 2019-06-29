@@ -36,7 +36,6 @@ template<typename It> ostream& _OUTC(ostream &_s,It _ita,It _itb)
 }
 template<typename _a> ostream &operator << (ostream &_s,vector<_a> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _a> ostream &operator << (ostream &_s,set<_a> &_c){return _OUTC(_s,ALL(_c));}
-template<typename _a> ostream &operator << (ostream &_s,deque<_a> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _a,typename _b> ostream &operator << (ostream &_s,map<_a,_b> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS()
@@ -47,42 +46,55 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
 #endif
 
-const ll MOD = 1000000007;
-const ll INF = 0x3f3f3f3f3f3f3f3f;
+template<class T> inline bool cmax(T &a, const T &b) { return b > a ? a = b, true : false; }
+template<class T> inline bool cmin(T &a, const T &b) { return b < a ? a = b, true : false; }
+template<class T> using MaxHeap = priority_queue<T>;
+template<class T> using MinHeap = priority_queue<T, vector<T>, greater<T>>;
 
-string str;
-ll lp,qu,ans;
-/********** Good Luck :) **********/
+const ll MOD=1000000007;
+const ll INF=0x3f3f3f3f3f3f3f3f;
+const ll MAXN=2e5+5;
+const ll MAXLG=__lg(MAXN)+2;
+
+ll n, a[MAXN], w[MAXN], init;
+vector<ll> edge[MAXN];
+void pre(ll nd, ll par) {
+    w[nd] = a[nd];
+    for (auto v : edge[nd]) {
+        if (v != par) {
+            pre(v, nd);
+            w[nd] += w[v];
+            init += w[v];
+        }
+    }
+}
+
+void dfs(ll nd, ll par, ll sum) {
+    init = max(init, sum);
+    for (auto v : edge[nd]) {
+        if (v != par) {
+            dfs(v, nd, sum - w[v] + (w[1] - w[v]));
+        }
+    }
+}
+/********** Main()  function **********/
 int main()
 {
     IOS();
-    cin >> str;
-    ll n = SZ(str);
-    REP (l,n) {
-        lp = qu = 0;
-        for (ll r=l;r<n;r++) {
-            if (str[r] == '(') {
-                lp++;
-            } else if (str[r] == '?') {
-                qu++;
-            } else {
-                lp--;
-            }
-
-            while (qu > 0 && qu > lp) {
-                qu--;
-                lp++;
-            }
-            if (lp < 0) {
-                break;
-            }
-            if (lp == qu && ((r - l + 1) & 1 ^ 1)) {
-                ans++;
-                debug(l,r,lp , qu);
-            }
-        }
+    cin >> n;
+    REP1 (i,n) {
+        cin >> a[i];
+    }
+    REP (i,n - 1) {
+        ll u, v;
+        cin >> u >> v;
+        edge[u].eb(v);
+        edge[v].eb(u);
     }
 
-    cout << ans << endl;
-    return 0;
+    pre(1,1);
+    dfs(1,1,init);
+
+    cout << init << endl;
+	return 0;
 }

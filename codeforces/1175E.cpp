@@ -49,40 +49,54 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
+const ll MAXN = 500005;
+const ll MAXLG = __lg(MAXN) + 3;
 
-string str;
-ll lp,qu,ans;
+int n,m;
+pair<int,int> query[MAXN], interval[MAXN];
+int cover[MAXLG][MAXN];
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> str;
-    ll n = SZ(str);
-    REP (l,n) {
-        lp = qu = 0;
-        for (ll r=l;r<n;r++) {
-            if (str[r] == '(') {
-                lp++;
-            } else if (str[r] == '?') {
-                qu++;
-            } else {
-                lp--;
-            }
-
-            while (qu > 0 && qu > lp) {
-                qu--;
-                lp++;
-            }
-            if (lp < 0) {
-                break;
-            }
-            if (lp == qu && ((r - l + 1) & 1 ^ 1)) {
-                ans++;
-                debug(l,r,lp , qu);
-            }
-        }
+    cin >> n >> m;
+    REP (i,n) {
+        cin >> interval[i].X >> interval[i].Y;
+    }
+    REP (i,m) {
+        cin >> query[i].X >> query[i].Y;
     }
 
-    cout << ans << endl;
+    sort(interval, interval+n);
+    int idx = -1, rgt = -1;
+
+    REP (i,MAXN) {
+        while (idx < n && interval[idx+1].X <= i) {
+            idx++;
+            rgt = max(interval[idx].Y, rgt);
+        }
+        cover[0][i] = rgt;
+    }
+
+    REP1 (i, MAXLG-1) {
+        REP (j, MAXN) {
+            cover[i][j] = cover[i-1][cover[i-1][j]];
+        } 
+    }
+
+    REP (q, m) {
+        ll cur = query[q].X, ret = 0; 
+        RREP (i, MAXLG-1) {
+            if (cover[i][cur] < query[q].Y) {
+                ret += 1 << i;
+                cur = cover[i][cur];
+            }
+        }
+        if (cover[0][cur] >= query[q].Y) {
+            cout << ret + 1 << endl;
+        } else {
+            cout << -1 << endl;
+        }
+    }
     return 0;
 }

@@ -49,40 +49,50 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
+const ll MAXN = 2003;
 
-string str;
-ll lp,qu,ans;
+ll n, dp[MAXN][MAXN][2];
+
+bool valid(ll idx, ll lf) {
+    return lf >= 0 && n*2 - idx >= lf;
+}
+
+ll normal(ll x) {
+    return (x % MOD + MOD) % MOD;
+}
+
+ll solve(ll idx, ll lf, bool mat) {
+    if (dp[idx][lf][mat] != -1) {
+        return dp[idx][lf][mat];
+    } else if (idx == n * 2) {
+        return dp[idx][lf][mat] = 0;
+    }
+    ll sum = 0, mn = INF;
+    if (valid(idx+1, lf+1)) {
+        ll ret = max(solve(idx+1, lf+1, 0), solve(idx+1, lf+1, 1));
+        sum += ret;
+        mn = min(mn, ret - solve(idx+1, lf+1, 0));
+    } 
+    if (valid(idx+1, lf-1)) {
+        ll ret = max(solve(idx+1, lf-1, 0), solve(idx+1, lf-1, 1));
+        sum += ret;
+        mn = min(mn, ret - solve(idx+1, lf-1, 0));
+    }
+    debug(idx,lf,mat,sum,mn);
+
+    if (mat) {
+        return dp[idx][lf][mat] = normal(sum - mn + 1); 
+    } else {
+        return dp[idx][lf][mat] = normal(sum);
+    }
+}
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> str;
-    ll n = SZ(str);
-    REP (l,n) {
-        lp = qu = 0;
-        for (ll r=l;r<n;r++) {
-            if (str[r] == '(') {
-                lp++;
-            } else if (str[r] == '?') {
-                qu++;
-            } else {
-                lp--;
-            }
+    MEM(dp,-1);
+    cin >> n;
+    cout << max(solve(0,0,0),solve(0,0,1)) << endl;
 
-            while (qu > 0 && qu > lp) {
-                qu--;
-                lp++;
-            }
-            if (lp < 0) {
-                break;
-            }
-            if (lp == qu && ((r - l + 1) & 1 ^ 1)) {
-                ans++;
-                debug(l,r,lp , qu);
-            }
-        }
-    }
-
-    cout << ans << endl;
     return 0;
 }

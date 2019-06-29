@@ -4,9 +4,9 @@ typedef long long ll;
 typedef pair<ll, ll> pii;
 typedef pair<double,double> pdd;
 #define MEM(a, b) memset(a, (b), sizeof(a))
-#define SZ(i) ll(i.size())
-#define FOR(i, j, k, in) for (ll i=j ; i<k ; i+=in)
-#define RFOR(i, j, k, in) for (ll i=j ; i>=k ; i-=in)
+#define SZ(i) int(i.size())
+#define FOR(i, j, k, in) for (int i=j ; i<k ; i+=in)
+#define RFOR(i, j, k, in) for (int i=j ; i>=k ; i-=in)
 #define REP(i, j) FOR(i, 0, j, 1)
 #define REP1(i,j) FOR(i, 1, j+1, 1)
 #define RREP(i, j) RFOR(i, j, 0, 1)
@@ -48,41 +48,50 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #endif
 
 const ll MOD = 1000000007;
-const ll INF = 0x3f3f3f3f3f3f3f3f;
+const int INF = 0x3f3f3f3f;
+const int MAXN = 300005; 
 
-string str;
-ll lp,qu,ans;
+int n, q, a[MAXN], dp[MAXN][21], lst[21];
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> str;
-    ll n = SZ(str);
-    REP (l,n) {
-        lp = qu = 0;
-        for (ll r=l;r<n;r++) {
-            if (str[r] == '(') {
-                lp++;
-            } else if (str[r] == '?') {
-                qu++;
-            } else {
-                lp--;
-            }
+    cin >> n >> q;
+    REP (i,n) {
+        cin >> a[i];
+    }
 
-            while (qu > 0 && qu > lp) {
-                qu--;
-                lp++;
-            }
-            if (lp < 0) {
-                break;
-            }
-            if (lp == qu && ((r - l + 1) & 1 ^ 1)) {
-                ans++;
-                debug(l,r,lp , qu);
+    MEM(lst,-1);
+    MEM(dp, INF);
+    RREP (i,n-1) {
+        REP (j,21) {
+            if ((a[i] & (1<<j))) {
+                dp[i][j] = i;
+                if (lst[j] != -1) {
+                    REP (k,21) {
+                        dp[i][k] = min(dp[i][k], dp[lst[j]][k]);
+                    }
+                }
+                lst[j] = i;
             }
         }
     }
 
-    cout << ans << endl;
+    while (q--) {
+        ll l, r;
+        cin >> l >> r;
+        l--, r--;
+        bool ans = false;
+        REP (i,21) {
+            if ((a[r]>>i) & 1 && dp[l][i] <= r) {
+                ans = true;
+            }
+        }
+        if (ans) {
+            cout << "Shi" << endl;
+        } else {
+            cout << "Fou" << endl;
+        }
+    }
     return 0;
 }

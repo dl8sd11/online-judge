@@ -49,40 +49,34 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
+// const ll MAXN = 
 
-string str;
-ll lp,qu,ans;
+ll n;
+pii work[200005];
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> str;
-    ll n = SZ(str);
-    REP (l,n) {
-        lp = qu = 0;
-        for (ll r=l;r<n;r++) {
-            if (str[r] == '(') {
-                lp++;
-            } else if (str[r] == '?') {
-                qu++;
-            } else {
-                lp--;
-            }
+    cin >> n;
+    REP (i,n) {
+        cin >> work[i].X >> work[i].Y;
+    }
 
-            while (qu > 0 && qu > lp) {
-                qu--;
-                lp++;
-            }
-            if (lp < 0) {
-                break;
-            }
-            if (lp == qu && ((r - l + 1) & 1 ^ 1)) {
-                ans++;
-                debug(l,r,lp , qu);
-            }
+    sort(work,work+n,[&](pii a,pii b) {
+        return a.Y < b.Y;
+    });
+
+    ll cur = 0;
+    REP (i,n) {
+        cur += work[i].X;
+        if (cur > work[i].Y) {
+            cout << "No" << endl;
+            return 0;
         }
     }
 
-    cout << ans << endl;
+    cout << "Yes" << endl;
+
+
     return 0;
 }

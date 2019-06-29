@@ -43,46 +43,76 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #else
 #define debug(...)
 #define pary(...)
-#define endl '\n'
+// #define endl '\n'
 #define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
 #endif
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
+// const ll MAXN = 
 
-string str;
-ll lp,qu,ans;
+ll n,cnt;
+vector<pii> ans;
+ll Q(pii f,pii s) {
+    cout << "? " << f.X << " " << f.Y << " " << s.X << " " << s.Y << endl;
+    cin >> cnt;
+    return cnt;
+}
+
+void solve(pii f,pii s) {
+    if (f == s) {
+        ans.eb(f);
+    } else {
+        if (f.X != s.X) {
+            ll mid = (f.X + s.X) / 2;
+            if (Q(f,pii(mid,s.Y)) & 1) {
+                solve(f,pii(mid,s.Y));
+            } else {
+                solve(pii(mid+1,f.Y),s);
+            }
+        } else {
+            ll mid = (f.Y + s.Y) / 2;
+            if (Q(f,pii(s.X,mid)) & 1) {
+                solve(f,pii(s.X,mid));
+            } else {
+                solve(pii(f.X,mid+1),s);
+            }
+
+        }
+    }
+}
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> str;
-    ll n = SZ(str);
-    REP (l,n) {
-        lp = qu = 0;
-        for (ll r=l;r<n;r++) {
-            if (str[r] == '(') {
-                lp++;
-            } else if (str[r] == '?') {
-                qu++;
-            } else {
-                lp--;
-            }
+    srand(time(0));
 
-            while (qu > 0 && qu > lp) {
-                qu--;
-                lp++;
-            }
-            if (lp < 0) {
-                break;
-            }
-            if (lp == qu && ((r - l + 1) & 1 ^ 1)) {
-                ans++;
-                debug(l,r,lp , qu);
-            }
+    cin >> n;
+    vector<pii> query;
+    REP1 (i,n - 1) {
+        query.eb(n,i);
+        query.eb(i,n);
+    }
+    random_shuffle(ALL(query));
+
+    pii fnd = {INF,INF};
+    for (auto q : query) {
+        if (Q(pii(1,1),q) & 1) {
+            fnd = q;
+            break;
         }
     }
 
-    cout << ans << endl;
+    assert(fnd.X != INF);
+
+    if (fnd.X == n) {
+        solve(pii(1,1),fnd);
+        solve(pii(1,fnd.Y+1),pii(n,n));
+    } else {
+        solve(pii(1,1),fnd);
+        solve(pii(fnd.X+1,1),pii(n,n));
+    }
+
+    cout << "! " << ans[0].X << " " << ans[0].Y << " " << ans[1].X << " " << ans[1].Y << endl;
     return 0;
 }

@@ -49,38 +49,61 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
+const ll MAXN = 100005;
 
-string str;
-ll lp,qu,ans;
+ll n, a[MAXN],ans;
+
+ll solve3(ll pos) {
+    ll l = a[pos - 1], r = a[pos + 1], c = a[pos];
+    if (l > c && r > c) {
+        return (n - c + 1) * c;
+    } else if (l < c && r > c) {
+        return (n - c + 1) * (c - l);
+    } else if (l > c && r < c) {
+        return (n - c + 1) * (c - r);
+    } else if (l < c && r < c) {
+        return (n - c + 1) * (c - max(l,r)) - min(l,r) * (n - c + 1);
+    }
+    assert(false);
+    return 0;
+}
+
+ll solve2(ll cur,ll nei) {
+    if (cur > nei) {
+        return (n - cur + 1) * (cur - nei);
+    } else {
+        return (n - cur + 1) * cur;
+    }
+}
+vector<ll> uni;
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> str;
-    ll n = SZ(str);
-    REP (l,n) {
-        lp = qu = 0;
-        for (ll r=l;r<n;r++) {
-            if (str[r] == '(') {
-                lp++;
-            } else if (str[r] == '?') {
-                qu++;
-            } else {
-                lp--;
-            }
-
-            while (qu > 0 && qu > lp) {
-                qu--;
-                lp++;
-            }
-            if (lp < 0) {
-                break;
-            }
-            if (lp == qu && ((r - l + 1) & 1 ^ 1)) {
-                ans++;
-                debug(l,r,lp , qu);
-            }
+    cin >> n;
+    REP (i,n) {
+        cin >> a[i];
+        if (i == 0 || a[i] != a[i-1]) {
+            uni.eb(a[i]);
         }
+    }
+    if (n == 1) {
+        cout << 1 << endl;
+        return 0;
+    }
+    ll m = SZ(uni);
+    REP (i,m) {
+        a[i] = uni[i];
+    }
+    pary(a,a+m);
+
+    ans += solve2(a[0],a[1]);
+    ans += solve2(a[m-1],a[m-2]);
+    debug(solve2(a[0],a[1]));
+    debug(solve2(a[m-1],a[m-2]));
+    for (ll i=1;i<m-1;i++) {
+        ans += solve3(i);
+        debug(solve3(i));
     }
 
     cout << ans << endl;
