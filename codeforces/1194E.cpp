@@ -1,8 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
-typedef long double ld;
-typedef pair<ll, ll> pii;
+typedef pair<int, int> pii;
 typedef pair<double,double> pdd;
 #define MEM(a, b) memset(a, (b), sizeof(a))
 #define SZ(i) int(i.size())
@@ -48,88 +47,83 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
 #endif
 
-const ll iNF = 10000000010;
-const ll MAXN = 1024;
+const ll MOD = 1000000007;
+const ll INF = 0x3f3f3f3f3f3f3f3f;
+const int iNF = 0x3f3f3f3f;
+const int MAXN = 5003;
 
-ll t, n, z, a[MAXN], dp[MAXN][MAXN];
-deque<ll> hull;
-pair<ll,ll> line[MAXN];
+int n, bit[MAXN*2];
+vector<pair<int,pii> > h, v;
 
-pii getX(ll l1, ll l2) {
-    return pii((line[l2].Y - line[l1].Y), (line[l1].X - line[l2].X));
-}
-
-bool geq(pii A, pii B) {
-    if (A.Y < 0) {
-        A.X *= -1, A.Y *= -1;
+void add(int x) {
+    for (;x < MAXN*2; x+=-x&x) {
+        bit[x]++;
     }
-    if (B.Y < 0) {
-        B.Y *= -1, B.X *= -1;
-    }
-    return A.X * B.Y >= B.X * A.Y;
 }
 
-ll getY(ll l, ll x) {
-    return line[l].X * x + line[l].Y;
+int qry(int x) {
+    int ret = 0;
+    for (; x > 0; x-=-x&x) {
+        ret += bit[x];
+    }
+    return ret;
 }
 
-void addLine(ll id) {
-    while (SZ(hull)>=2 && geq(getX(id, hull[SZ(hull)-2]),getX(hull[SZ(hull)-1],hull[SZ(hull)-2]))) {
-        hull.pop_back();
+int qry(int l, int r) {
+    if (l > r) {
+        return 0;
     }
-    hull.emplace_back(id);
+    return qry(r) - qry(l-1);
 }
-
-ll solve(ll v) {
-    while (SZ(hull)>=2 && getY(hull[SZ(hull)-1],v)>=getY(hull[SZ(hull)-2],v)) {
-        hull.pop_back();
-    }
-    return getY(hull.back(), v);
-}
-/*
-    dp[i][j] = min(i*a[k] + dp[k][j-1] - a[k]*(k+1) + a[i])
- */
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> t;
-    while (t--) {
-        cin >> n >> z;
-        REP1 (i, n) {
-            cin >> a[i];
-        }
-        sort(a+1, a+n+1);
-
-        REP (i, n+1) {
-            REP (j, z+1) {
-                dp[i][j] = iNF;
+    cin >> n;
+    REP (i, n) {
+        int xf, xs, yf, ys;
+        cin >> xf >> yf >> xs >> ys;
+        xf += MAXN, xs += MAXN;
+        if (xf == xs) {
+            if (yf > ys) {
+                swap(yf, ys);
             }
-        }
-        dp[0][0] = 0;
-
-        REP1 (j, z) {
-            hull.clear();
-            line[0] = pii(0, dp[0][j-1]);
-            hull.emplace_back(0);
-            for (ll i=max(1,j-1);i<=n;i++) {
-            // REP1 (i, n) {
-                if (j == z) {
-                    debug(hull);
-                }
-                dp[i][j] = solve(i) + a[i];
-                line[i] = pii(a[i], dp[i][j-1]-a[i]*(i+1));
-                addLine(i);
+            v.eb(xf, pii(yf, ys));
+        } else {
+            if (xf > xs) {
+                swap(xf, xs);
             }
-            pary(line, line+n);
+            h.eb(yf, pii(xf, xs));
         }
-
-        debug(dp[2][2]);
-        ll ans = iNF;
-        REP1 (i, n) {
-            ans = min(ans, dp[i][z] + a[i]*(n-i));
-        }
-        cout << ans << endl;
     }
+    sort(ALL(h), [&](pair<int,pii> p1, pair<int,pii> p2) {
+        return p1.X < p2.X;
+    });
+
+    sort(ALL(v), [&](pair<int,pii> p1, pair<int,pii> p2) {
+        return p1.Y.Y > p2.Y.Y;
+    });
+    debug(h);
+    debug(v);
+
+    ll ans = 0;
+    REP (i, SZ(h)) {
+        int ptr = 0;
+        MEM(bit, 0);
+        for (int j=SZ(h)-1; j > i; j--) {
+            while (ptr < SZ(v) && v[ptr].Y.Y >= h[j].X) {
+                if (v[ptr].Y.X <= h[i].X) {
+                    add(v[ptr].X);
+                }
+                ptr++;
+            }
+            debug(i, j, max(h[i].Y.X, h[j].Y.X), min(h[i].Y.Y, h[j].Y.Y));
+            int cnt = qry(max(h[i].Y.X, h[j].Y.X), min(h[i].Y.Y, h[j].Y.Y));
+            ans += ll(cnt) * (cnt - 1) / 2;
+            debug(cnt);
+        }
+    }
+ 
+    cout << ans << endl;
     return 0;
 }

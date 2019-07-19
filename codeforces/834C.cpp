@@ -1,134 +1,79 @@
-#include <iostream>
-#include <string>
-#include <vector>
-#include <algorithm>
-#include <sstream>
-#include <queue>
-#include <deque>
-#include <bitset>
-#include <iterator>
-#include <list>
-#include <stack>
-#include <map>
-#include <set>
-#include <functional>
-#include <numeric>
-#include <utility>
-#include <limits>
-#include <time.h>
-#include <math.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <assert.h>
-
+#include <bits/stdc++.h>
 using namespace std;
-
-/*******  All Required define Pre-Processors and typedef Constants *******/
-
+typedef long long ll;
+typedef pair<ll, ll> pii;
+typedef pair<double,double> pdd;
 #define MEM(a, b) memset(a, (b), sizeof(a))
+#define SZ(i) int(i.size())
 #define FOR(i, j, k, in) for (int i=j ; i<k ; i+=in)
 #define RFOR(i, j, k, in) for (int i=j ; i>=k ; i-=in)
 #define REP(i, j) FOR(i, 0, j, 1)
-#define REP1(i,j) FOR(i, 1, j, 1)
+#define REP1(i,j) FOR(i, 1, j+1, 1)
 #define RREP(i, j) RFOR(i, j, 0, 1)
-#define all(cont) cont.begin(), cont.end()
-#define rall(cont) cont.end(), cont.begin()
-#define FOREACH(it, l) for (auto it = l.begin(); it != l.end(); it++)
-#define IN(A, B, C) assert( B <= A && A <= C)
-#define MP make_pair
+#define ALL(_a) _a.begin(),_a.end()
+#define mp make_pair
 #define pb push_back
-#define INF (int)1e9
-#define EPS 1e-9
-#define PI 3.1415926535897932384626433832795
-#define MOD 1000000007
+#define eb emplace_back
 #define X first
 #define Y second
-const double pi=acos(-1.0);
-typedef pair<int, int> PII;
-typedef vector<int> VI;
-typedef vector<string> VS;
-typedef vector<PII> VII;
-typedef vector<VI> VVI;
-typedef map<int,int> MPII;
-typedef set<int> SETI;
-typedef multiset<int> MSETI;
-typedef long int int32;
-typedef unsigned long int uint32;
-typedef long long ll;
-typedef pair<ll,ll> ii;
-typedef unsigned long long int  uint64;
-
-/****** Template of some basic operations *****/
-template<typename T, typename U> inline void amin(T &x, U y) { if(y < x) x = y; }
-template<typename T, typename U> inline void amax(T &x, U y) { if(x < y) x = y; }
-/**********************************************/
-
-const int N = 31623;
-bool sieve[N];
-vector<int> prime;
-
-
-
-void factorization(int n,vector<ii> &a){
-  int ntmp = n;
-    int idx = 0;
-    while(1){
-      int thisprime = prime[idx];
-      int ct=0;
-      while(n%thisprime==0){
-        n/=thisprime;
-        ct++;
-      }
-      if(ct!=0){
-        a.pb(ii(thisprime,ct));
-      }
-      idx++;
-      if(prime[idx]>sqrt(ntmp))
-        break;
-    }
-}
-
-
-void linear_sieve()
+#ifdef tmd
+#define debug(...) do{\
+    fprintf(stderr,"%s - %d (%s) = ",__PRETTY_FUNCTION__,__LINE__,#__VA_ARGS__);\
+    _do(__VA_ARGS__);\
+}while(0)
+template<typename T>void _do(T &&_x){cerr<<_x<<endl;}
+template<typename T,typename ...S> void _do(T &&_x,S &&..._t){cerr<<_x<<" ,";_do(_t...);}
+template<typename _a,typename _b> ostream& operator << (ostream &_s,const pair<_a,_b> &_p){return _s<<"("<<_p.X<<","<<_p.Y<<")";}
+template<typename It> ostream& _OUTC(ostream &_s,It _ita,It _itb)
 {
-
-    for (int i=2; i<N; i++)
+    _s<<"{";
+    for(It _it=_ita;_it!=_itb;_it++)
     {
-        if (!sieve[i]) prime.push_back(i);
-        for (int j=0; i*prime[j]<N; j++)
-        {
-            sieve[i*prime[j]] = true;
-            if (i % prime[j] == 0) break;
-        }
+        _s<<(_it==_ita?"":",")<<*_it;
     }
+    _s<<"}";
+    return _s;
 }
-/********** Main()  function **********/
+template<typename _a> ostream &operator << (ostream &_s,vector<_a> &_c){return _OUTC(_s,ALL(_c));}
+template<typename _a> ostream &operator << (ostream &_s,set<_a> &_c){return _OUTC(_s,ALL(_c));}
+template<typename _a> ostream &operator << (ostream &_s,deque<_a> &_c){return _OUTC(_s,ALL(_c));}
+template<typename _a,typename _b> ostream &operator << (ostream &_s,map<_a,_b> &_c){return _OUTC(_s,ALL(_c));}
+template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
+#define IOS()
+#else
+#define debug(...)
+#define pary(...)
+#define endl '\n'
+#define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
+#endif
+
+ll n, a, b;
+
+/********** Good Luck :) **********/
 int main()
 {
-	int n;cin>>n;
-	linear_sieve();
+    IOS();
 
-	REP(i,n){
+    cin >> n;
+    while (n--) {
+        cin >> a >> b;
+        ll ab = a * b;
 
-		int  a,b;
-		cin>>a>>b;
-		int gcd = __gcd(a,b);
+        ll l = 0, r = 1000006;
+        while (l < r - 1) {
+            ll m = (l + r) >> 1;
+            if (m * m * m <= ab) {
+                l = m;
+            } else {
+                r = m;
+            }
+        }
 
-		int gcdtmp = gcd;
-		a/=gcd;
-		b/=gcd;
-
-    vector<ii> x;
-    factorization(gcd,x);
-    vector<ii> a;
-    vector<ii> b;
-    factorization(a,x);
-    factorization(b,x);
-
-
-
-
-	}
-	return 0;
+        if (l * l * l == ab && a % l == 0 && b % l == 0) {
+            cout << "Yes" << endl;
+        } else {
+            cout << "No" << endl;
+        }
+    }
+    return 0;
 }

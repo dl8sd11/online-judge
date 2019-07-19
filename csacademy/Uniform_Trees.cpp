@@ -1,7 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
-typedef long double ld;
 typedef pair<ll, ll> pii;
 typedef pair<double,double> pdd;
 #define MEM(a, b) memset(a, (b), sizeof(a))
@@ -48,88 +47,56 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
 #endif
 
-const ll iNF = 10000000010;
-const ll MAXN = 1024;
+const ll MOD = 1000000007;
+const ll INF = 0x3f3f3f3f3f3f3f3f;
+const int iNF = 0x3f3f3f3f;
+const ll MAXN = 200005;
 
-ll t, n, z, a[MAXN], dp[MAXN][MAXN];
-deque<ll> hull;
-pair<ll,ll> line[MAXN];
+ll n, val[MAXN], sum[MAXN], ans;
+map<int,ll> dp[MAXN];
+vector<ll> edge[MAXN];
 
-pii getX(ll l1, ll l2) {
-    return pii((line[l2].Y - line[l1].Y), (line[l1].X - line[l2].X));
+void add (ll &x, ll y) {
+    x = (x + y) % MOD;
 }
 
-bool geq(pii A, pii B) {
-    if (A.Y < 0) {
-        A.X *= -1, A.Y *= -1;
+void mrg(ll f, ll t) {
+    if (SZ(dp[t]) < SZ(dp[f])) {
+        swap(dp[t],dp[f]);
+        swap(sum[t], sum[f]);
     }
-    if (B.Y < 0) {
-        B.Y *= -1, B.X *= -1;
+    for (auto p : dp[f]) {
+        sum[t] = (sum[t] - dp[t][p.X] + MOD) % MOD;
+        dp[t][p.X] = ((dp[t][p.X] + 1) * (p.Y + 1) - 1) % MOD;
+        add(sum[t], dp[t][p.X]);
     }
-    return A.X * B.Y >= B.X * A.Y;
 }
 
-ll getY(ll l, ll x) {
-    return line[l].X * x + line[l].Y;
+void dfs(ll nd) {
+    for (auto c : edge[nd]) {
+        dfs(c);
+        mrg(c, nd);
+    }
+    ll cur = (sum[nd] + 1) % MOD;
+    add(ans, cur);
+    add(dp[nd][val[nd]], cur);
+    add(sum[nd], cur); 
 }
 
-void addLine(ll id) {
-    while (SZ(hull)>=2 && geq(getX(id, hull[SZ(hull)-2]),getX(hull[SZ(hull)-1],hull[SZ(hull)-2]))) {
-        hull.pop_back();
-    }
-    hull.emplace_back(id);
-}
-
-ll solve(ll v) {
-    while (SZ(hull)>=2 && getY(hull[SZ(hull)-1],v)>=getY(hull[SZ(hull)-2],v)) {
-        hull.pop_back();
-    }
-    return getY(hull.back(), v);
-}
-/*
-    dp[i][j] = min(i*a[k] + dp[k][j-1] - a[k]*(k+1) + a[i])
- */
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> t;
-    while (t--) {
-        cin >> n >> z;
-        REP1 (i, n) {
-            cin >> a[i];
+    cin >> n;
+    REP1 (i,n) {
+        ll p;
+        cin >> p >> val[i];
+        if (p > 0) {
+            edge[p].eb(i);
         }
-        sort(a+1, a+n+1);
-
-        REP (i, n+1) {
-            REP (j, z+1) {
-                dp[i][j] = iNF;
-            }
-        }
-        dp[0][0] = 0;
-
-        REP1 (j, z) {
-            hull.clear();
-            line[0] = pii(0, dp[0][j-1]);
-            hull.emplace_back(0);
-            for (ll i=max(1,j-1);i<=n;i++) {
-            // REP1 (i, n) {
-                if (j == z) {
-                    debug(hull);
-                }
-                dp[i][j] = solve(i) + a[i];
-                line[i] = pii(a[i], dp[i][j-1]-a[i]*(i+1));
-                addLine(i);
-            }
-            pary(line, line+n);
-        }
-
-        debug(dp[2][2]);
-        ll ans = iNF;
-        REP1 (i, n) {
-            ans = min(ans, dp[i][z] + a[i]*(n-i));
-        }
-        cout << ans << endl;
     }
+
+    dfs(1);
+    cout << ans << endl;
     return 0;
 }

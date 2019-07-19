@@ -1,7 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
-typedef long double ld;
 typedef pair<ll, ll> pii;
 typedef pair<double,double> pdd;
 #define MEM(a, b) memset(a, (b), sizeof(a))
@@ -17,6 +16,7 @@ typedef pair<double,double> pdd;
 #define eb emplace_back
 #define X first
 #define Y second
+#define ever (;;)
 #ifdef tmd
 #define debug(...) do{\
     fprintf(stderr,"%s - %d (%s) = ",__PRETTY_FUNCTION__,__LINE__,#__VA_ARGS__);\
@@ -48,88 +48,67 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
 #endif
 
-const ll iNF = 10000000010;
-const ll MAXN = 1024;
+const ll MOD = 1000000007;
+const ll INF = 0x3f3f3f3f3f3f3f3f;
+const int iNF = 0x3f3f3f3f;
+const ll MAXN = 100005;
 
-ll t, n, z, a[MAXN], dp[MAXN][MAXN];
-deque<ll> hull;
-pair<ll,ll> line[MAXN];
+int n, m, s, t, dis[3][MAXN];
+bool vis[3][MAXN];
+vector<int> edge[MAXN];
 
-pii getX(ll l1, ll l2) {
-    return pii((line[l2].Y - line[l1].Y), (line[l1].X - line[l2].X));
-}
-
-bool geq(pii A, pii B) {
-    if (A.Y < 0) {
-        A.X *= -1, A.Y *= -1;
+struct State {
+    int nd, md, dd;
+    bool operator < (const State & st) const{
+        return dd > st.dd;
     }
-    if (B.Y < 0) {
-        B.Y *= -1, B.X *= -1;
-    }
-    return A.X * B.Y >= B.X * A.Y;
-}
-
-ll getY(ll l, ll x) {
-    return line[l].X * x + line[l].Y;
-}
-
-void addLine(ll id) {
-    while (SZ(hull)>=2 && geq(getX(id, hull[SZ(hull)-2]),getX(hull[SZ(hull)-1],hull[SZ(hull)-2]))) {
-        hull.pop_back();
-    }
-    hull.emplace_back(id);
-}
-
-ll solve(ll v) {
-    while (SZ(hull)>=2 && getY(hull[SZ(hull)-1],v)>=getY(hull[SZ(hull)-2],v)) {
-        hull.pop_back();
-    }
-    return getY(hull.back(), v);
-}
-/*
-    dp[i][j] = min(i*a[k] + dp[k][j-1] - a[k]*(k+1) + a[i])
- */
+};
+priority_queue<State> pq;
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> t;
-    while (t--) {
-        cin >> n >> z;
-        REP1 (i, n) {
-            cin >> a[i];
-        }
-        sort(a+1, a+n+1);
+    cin >> n >> m;
+    REP (i, m) {
+        int u, v;
+        cin >> u >> v;
+        edge[u].eb(v);
+    }
+    cin >> s >> t;
 
-        REP (i, n+1) {
-            REP (j, z+1) {
-                dp[i][j] = iNF;
+    MEM(dis, iNF);
+    dis[0][s] = 0;
+    pq.push({s, 0, 0});
+
+    for ever {
+        State fnd = {-1, -1, -1};
+        while (!pq.empty()) {
+            fnd = pq.top();
+            if (vis[fnd.md][fnd.nd]) {
+                pq.pop();
+            } else {
+                break;
             }
         }
-        dp[0][0] = 0;
+        if (fnd.nd == -1) {
+            break;
+        }
+        debug(fnd.nd, fnd.md, fnd.dd);
+        vis[fnd.md][fnd.nd] = true;
 
-        REP1 (j, z) {
-            hull.clear();
-            line[0] = pii(0, dp[0][j-1]);
-            hull.emplace_back(0);
-            for (ll i=max(1,j-1);i<=n;i++) {
-            // REP1 (i, n) {
-                if (j == z) {
-                    debug(hull);
-                }
-                dp[i][j] = solve(i) + a[i];
-                line[i] = pii(a[i], dp[i][j-1]-a[i]*(i+1));
-                addLine(i);
+        for (auto v : edge[fnd.nd]) {
+            debug(fnd.nd, v);
+            if (dis[(fnd.md+1)%3][v] > dis[fnd.md][fnd.nd] + 1) {
+                dis[(fnd.md+1)%3][v] = dis[fnd.md][fnd.nd] + 1;
+                pq.push({v, (fnd.md+1)%3, dis[(fnd.md+1)%3][v]});
             }
-            pary(line, line+n);
         }
-
-        debug(dp[2][2]);
-        ll ans = iNF;
-        REP1 (i, n) {
-            ans = min(ans, dp[i][z] + a[i]*(n-i));
-        }
-        cout << ans << endl;
+    }
+    
+    if (dis[0][t] == iNF) {
+        cout << -1 << endl;
+    } else {
+        cout << dis[0][t]/3 << endl;
     }
     return 0;
 }

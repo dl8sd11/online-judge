@@ -1,7 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
-typedef long double ld;
 typedef pair<ll, ll> pii;
 typedef pair<double,double> pdd;
 #define MEM(a, b) memset(a, (b), sizeof(a))
@@ -48,88 +47,94 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
 #endif
 
-const ll iNF = 10000000010;
-const ll MAXN = 1024;
+const ll MOD = 1000000007;
+const ll INF = 0x3f3f3f3f3f3f3f3f;
+const int iNF = 0x3f3f3f3f;
+// const ll MAXN = 
 
-ll t, n, z, a[MAXN], dp[MAXN][MAXN];
-deque<ll> hull;
-pair<ll,ll> line[MAXN];
-
-pii getX(ll l1, ll l2) {
-    return pii((line[l2].Y - line[l1].Y), (line[l1].X - line[l2].X));
+ll mpow(ll base,ll ep) {
+    ep = ep % (MOD - 1);
+    ll ret = 1;
+    while (ep > 0) {
+        if (ep & 1) {
+            ret = ret * base % MOD;
+        }
+        base = base * base % MOD;
+        ep >>= 1;
+    }
+    return ret;
 }
 
-bool geq(pii A, pii B) {
-    if (A.Y < 0) {
-        A.X *= -1, A.Y *= -1;
-    }
-    if (B.Y < 0) {
-        B.Y *= -1, B.X *= -1;
-    }
-    return A.X * B.Y >= B.X * A.Y;
-}
+ll n, k, dp[10004][51][51];
+vector<pii> frac;
 
-ll getY(ll l, ll x) {
-    return line[l].X * x + line[l].Y;
-}
-
-void addLine(ll id) {
-    while (SZ(hull)>=2 && geq(getX(id, hull[SZ(hull)-2]),getX(hull[SZ(hull)-1],hull[SZ(hull)-2]))) {
-        hull.pop_back();
-    }
-    hull.emplace_back(id);
-}
-
-ll solve(ll v) {
-    while (SZ(hull)>=2 && getY(hull[SZ(hull)-1],v)>=getY(hull[SZ(hull)-2],v)) {
-        hull.pop_back();
-    }
-    return getY(hull.back(), v);
+void norm(ll &x) {
+    x = x % MOD;
+    return;
 }
 /*
-    dp[i][j] = min(i*a[k] + dp[k][j-1] - a[k]*(k+1) + a[i])
+    dp[k][i][j] = sum {l=j~mx} dp[k-1][i][l] * (1/l)
  */
+
+ll pw[51], ans;
+void dfs(ll idx) {
+    if (idx == SZ(frac)) {
+        ll cur = 1;
+        REP (i, SZ(frac)) {
+            norm(cur *= mpow(frac[i].X, pw[i]));
+            norm(cur *= dp[k][i][pw[i]]);
+        }
+        norm(ans += cur);
+    } else {
+        REP (i, frac[idx].Y + 1) {
+            pw[idx] = i;
+            dfs(idx + 1);
+        }
+    }
+}
+
+ll inv[102];
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> t;
-    while (t--) {
-        cin >> n >> z;
-        REP1 (i, n) {
-            cin >> a[i];
-        }
-        sort(a+1, a+n+1);
-
-        REP (i, n+1) {
-            REP (j, z+1) {
-                dp[i][j] = iNF;
-            }
-        }
-        dp[0][0] = 0;
-
-        REP1 (j, z) {
-            hull.clear();
-            line[0] = pii(0, dp[0][j-1]);
-            hull.emplace_back(0);
-            for (ll i=max(1,j-1);i<=n;i++) {
-            // REP1 (i, n) {
-                if (j == z) {
-                    debug(hull);
-                }
-                dp[i][j] = solve(i) + a[i];
-                line[i] = pii(a[i], dp[i][j-1]-a[i]*(i+1));
-                addLine(i);
-            }
-            pary(line, line+n);
-        }
-
-        debug(dp[2][2]);
-        ll ans = iNF;
-        REP1 (i, n) {
-            ans = min(ans, dp[i][z] + a[i]*(n-i));
-        }
-        cout << ans << endl;
+    REP (i, 102) {
+        inv[i] = mpow(i, MOD - 2);
     }
+
+    cin >> n >> k;
+    ll tn = n;
+    for (ll i=2; i*i <= n;i++) {
+        ll cnt = 0;
+        while (tn % i == 0) {
+            tn /= i;
+            cnt++;
+        }
+        if (cnt) {
+            dp[0][SZ(frac)][cnt] = 1;
+            frac.eb(i, cnt);
+        }
+
+    }
+    if (tn > 1) {
+        dp[0][SZ(frac)][1] = 1;
+        frac.eb(tn, 1);
+    }
+    debug(frac);
+
+    for (int t=1; t<=k; t++) {
+        for (int i=0; i<SZ(frac); i++) {
+            for (int j=0; j<=frac[i].Y; j++) {
+                for (int l=j; l<=frac[i].Y; l++) {
+                    norm(dp[t][i][j] += dp[t-1][i][l] * inv[l+1]);
+                }
+            }
+        }
+    }
+    debug("dped");
+
+    dfs(0);
+
+    cout << ans << endl;
     return 0;
 }

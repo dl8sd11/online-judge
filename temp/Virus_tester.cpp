@@ -1,155 +1,67 @@
+/*input
+6
+2 1
+2 50
+4 2
+5 5
+42 48
+47 38
+*/
 #include <bits/stdc++.h>
+#include <ext/pb_ds/assoc_container.hpp>
 using namespace std;
-typedef long long ll;
-typedef pair<ll, ll> pii;
-typedef pair<double,double> pdd;
-#define MEM(a, b) memset(a, (b), sizeof(a))
-#define SZ(i) ll(i.size())
-#define FOR(i, j, k, in) for (ll i=j ; i<k ; i+=in)
-#define RFOR(i, j, k, in) for (ll i=j ; i>=k ; i-=in)
-#define REP(i, j) FOR(i, 0, j, 1)
-#define REP1(i,j) FOR(i, 1, j+1, 1)
-#define RREP(i, j) RFOR(i, j, 0, 1)
-#define ALL(_a) _a.begin(),_a.end()
-#define mp make_pair
-#define pb push_back
-#define eb emplace_back
-#define X first
-#define Y second
-#ifdef tmd
-#define debug(...) do{\
-    fprintf(stderr,"%s - %d (%s) = ",__PRETTY_FUNCTION__,__LINE__,#__VA_ARGS__);\
-    _do(__VA_ARGS__);\
-}while(0)
-template<typename T>void _do(T &&_x){cerr<<_x<<endl;}
-template<typename T,typename ...S> void _do(T &&_x,S &&..._t){cerr<<_x<<" ,";_do(_t...);}
-template<typename _a,typename _b> ostream& operator << (ostream &_s,const pair<_a,_b> &_p){return _s<<"("<<_p.X<<","<<_p.Y<<")";}
-template<typename It> ostream& _OUTC(ostream &_s,It _ita,It _itb)
-{
-    _s<<"{";
-    for(It _it=_ita;_it!=_itb;_it++)
-    {
-        _s<<(_it==_ita?"":",")<<*_it;
-    }
-    _s<<"}";
-    return _s;
-}
-template<typename _a> ostream &operator << (ostream &_s,vector<_a> &_c){return _OUTC(_s,ALL(_c));}
-template<typename _a> ostream &operator << (ostream &_s,set<_a> &_c){return _OUTC(_s,ALL(_c));}
-template<typename _a> ostream &operator << (ostream &_s,deque<_a> &_c){return _OUTC(_s,ALL(_c));}
-template<typename _a,typename _b> ostream &operator << (ostream &_s,map<_a,_b> &_c){return _OUTC(_s,ALL(_c));}
-template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
-#define IOS()
-#else
-#define debug(...)
-#define pary(...)
-#define endl '\n'
-#define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
-#endif
+using namespace __gnu_pbds;
+#define REP(i,j,k)     for(int i = j ; i < k ; ++i)
+#define RREP(i,j,k)    for(int i = j ; i >=k ; --i)
+#define A    first
+#define B    second
+#define mp   make_pair
+#define pb   emplace_back
+#define PII pair<int , int>
+#define MEM(i,j)   memset(i , j , sizeof i)
+#define ALL(i)     i.begin() , i.end()
+#define DBGG(i,j)     cout << i << " " << j << endl
+#define DB4(i,j,k,l)  cout << i << " " << j << " " << k << " " << l << endl
+#define IOS cin.tie(0) , cout.sync_with_stdio(0)
+#define endl "\n"
+///------------------------------------------------------------
+#define MAX 
+#define INF 0x3f3f3f3f
 
-const ll MOD = 1000000007;
-const ll INF = 0x3f3f3f3f3f3f3f3f;
-const ll MAXN = 400002;
-const ll MAXLG = __lg(MAXN) + 2;
-
-ll n,f[MAXN],q,mx[MAXN][MAXLG],anc[MAXN][MAXLG];
-vector<ll> edge[MAXN];
-
-void dfs(ll nd,ll par) {
-    anc[nd][0] = par;
-    mx[nd][0] = f[par];
-    for (auto v : edge[nd]) {
-        if (v != par) {
-            dfs(v,nd);
-        }
-    }
-}
-
-void build() {
-    REP1 (i,MAXLG-1) {
-        REP1 (j,n) {
-            anc[j][i] = anc[anc[j][i-1]][i-1];
-            mx[j][i] = max(mx[j][i-1],mx[anc[j][i-1]][i-1]);
-        }
-    }
-}
-
-ll dp[MAXN],ans;
-void solve(ll nd,ll par) {
-    ll p = nd;
-    for (ll i=MAXLG-1;i>=0;i--) {
-        if (mx[p][i] <= f[nd]) {
-            p = anc[p][i];
-        }
-    }
-    p = anc[p][0];
-    dp[nd] = dp[p] + 1;
-    ans += dp[nd];
-
-    for (auto v : edge[nd]) {
-        if (v != par) {
-            solve(v,nd);
-        }
-    }
-}
-
-ll deg[MAXN];
-/********** Good Luck :) **********/
-int main()
-{
-    IOS();
-    cin >> n;
-    REP (i,n) {
-        cin >> f[i];
-    }
-
-    REP (i,n-1) {
-        ll u,v;
-        cin >> u >> v;
-        deg[u]++;
-        edge[u].eb(v);
-        edge[v].eb(u);
-    }
-    f[MAXN-1] = INF;
-    anc[MAXN-1][0] = MAXN-1;
-
-    ll rt = -1;
-    REP (i,n) {
-        if (deg[i] == 0) {
-            rt = i;
-        }
-    }
-
-    dfs(rt,MAXN-1);
-    build();
-
-    solve(rt,rt);
-
-    cout << ans << endl;
-
-    cin >> q;
-    REP (i,q) {
-        ll P;
-        cin >> P >> f[i+n];
-        anc[n+i][0] = P;
-        mx[n+i][0] = f[P];
-        REP1 (k,MAXLG-1) {
-            anc[i+n][k] = anc[anc[i+n][k-1]][k-1];
-            mx[i+n][k] = max(mx[i+n][k-1],mx[anc[i+n][k-1]][k-1]);
-        }
-
-        ll p = i+n;
-        for (ll j=MAXLG-1;j>=0;j--) {
-            if (mx[p][j] <= f[i+n]) {
-                p = anc[p][j];
-            }
-        }
-        p = anc[p][0];
-        dp[i+n] = dp[p] + 1;
-        ans += dp[i+n];
-        cout << ans << endl;
-    }
-    
+int t , n , m;
+int32_t main(){
+	IOS;
+	cin >> t;
+	REP(times , 1 , t + 1){
+		cin >> n >> m;
+		cout << "Case #" << times << ": " ;
+		int final = n;
+		if(n > 2 && m > 2){
+			n = min(n , m);
+			int v1 = m , v2 = 0 , pos = m - 1;
+			REP(i , 2 , n + 1) v2 += pos , pos --;
+			if(v2 - v1 > 0){
+				cout << v2 - v1 << endl;
+				// cout << n << endl;
+				// pos = m - 1;
+				// REP(i , 2 , n + 1){
+				// 	int aa = i - 1 , bb = i;
+				// 	if(bb == n) bb = final;
+				// 	cout << aa << " " << bb << " " << pos << endl , pos --;
+				// }
+				// cout << 1 << " " << final << " " << m << endl;
+			}
+			else {
+				cout << 0 << endl;
+				cout << 1 << endl;
+				cout << 1 << " " << final << " " << 1 << endl;
+			}
+		}
+		else {
+			cout << 0 << endl;
+			cout << 1 << endl;
+			cout << 1 << " " << final << " " << 1 << endl;
+		}
+	}
     return 0;
 }
-

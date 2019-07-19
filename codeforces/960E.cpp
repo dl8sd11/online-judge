@@ -1,7 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
-typedef long double ld;
 typedef pair<ll, ll> pii;
 typedef pair<double,double> pdd;
 #define MEM(a, b) memset(a, (b), sizeof(a))
@@ -48,88 +47,72 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
 #endif
 
-const ll iNF = 10000000010;
-const ll MAXN = 1024;
+const ll MOD = 1000000007;
+const ll INF = 0x3f3f3f3f3f3f3f3f;
+const int iNF = 0x3f3f3f3f;
+const ll MAXN = 200005;
 
-ll t, n, z, a[MAXN], dp[MAXN][MAXN];
-deque<ll> hull;
-pair<ll,ll> line[MAXN];
+int n, siz[MAXN], sod[MAXN], sev[MAXN];
+ll V[MAXN], ans;
+vector<int> edge[MAXN];
 
-pii getX(ll l1, ll l2) {
-    return pii((line[l2].Y - line[l1].Y), (line[l1].X - line[l2].X));
-}
-
-bool geq(pii A, pii B) {
-    if (A.Y < 0) {
-        A.X *= -1, A.Y *= -1;
+void build(int nd, int par) {
+    siz[nd] = sev[nd] = 1;
+    for (auto v : edge[nd]) {
+        if (v != par) {
+            build(v, nd);
+            sev[nd] += sod[v];
+            sod[nd] += sev[v];
+            siz[nd] += siz[v];
+        }
     }
-    if (B.Y < 0) {
-        B.Y *= -1, B.X *= -1;
-    }
-    return A.X * B.Y >= B.X * A.Y;
 }
 
-ll getY(ll l, ll x) {
-    return line[l].X * x + line[l].Y;
-}
-
-void addLine(ll id) {
-    while (SZ(hull)>=2 && geq(getX(id, hull[SZ(hull)-2]),getX(hull[SZ(hull)-1],hull[SZ(hull)-2]))) {
-        hull.pop_back();
+void norm(ll &x) {
+    x = (x % MOD + MOD);
+    if (x >= MOD) {
+        x -= MOD;
     }
-    hull.emplace_back(id);
 }
+void dfs(int nd, int par,int odd, int eve) {
+    ll rate = ((eve - odd) * ll(siz[nd]) + siz[1]) % MOD;
+    
+    debug(nd, odd, eve);
+    for (auto v : edge[nd]) {
+        if (v != par) {
+            int uod = sod[nd] - sev[v] + odd;
+            int uev = sev[nd] - sod[v] + eve;
+            dfs(v, nd, uev, uod);
 
-ll solve(ll v) {
-    while (SZ(hull)>=2 && getY(hull[SZ(hull)-1],v)>=getY(hull[SZ(hull)-2],v)) {
-        hull.pop_back();
+            rate += sod[v] * ll(siz[1] - siz[v]);
+            norm(rate -= sev[v] * ll(siz[1] - siz[v]));
+        }
     }
-    return getY(hull.back(), v);
+    norm(ans += V[nd] * rate);
+    debug(nd, rate);
 }
-/*
-    dp[i][j] = min(i*a[k] + dp[k][j-1] - a[k]*(k+1) + a[i])
- */
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> t;
-    while (t--) {
-        cin >> n >> z;
-        REP1 (i, n) {
-            cin >> a[i];
-        }
-        sort(a+1, a+n+1);
-
-        REP (i, n+1) {
-            REP (j, z+1) {
-                dp[i][j] = iNF;
-            }
-        }
-        dp[0][0] = 0;
-
-        REP1 (j, z) {
-            hull.clear();
-            line[0] = pii(0, dp[0][j-1]);
-            hull.emplace_back(0);
-            for (ll i=max(1,j-1);i<=n;i++) {
-            // REP1 (i, n) {
-                if (j == z) {
-                    debug(hull);
-                }
-                dp[i][j] = solve(i) + a[i];
-                line[i] = pii(a[i], dp[i][j-1]-a[i]*(i+1));
-                addLine(i);
-            }
-            pary(line, line+n);
-        }
-
-        debug(dp[2][2]);
-        ll ans = iNF;
-        REP1 (i, n) {
-            ans = min(ans, dp[i][z] + a[i]*(n-i));
-        }
-        cout << ans << endl;
+    cin >> n;
+    REP1 (i, n) {
+        cin >> V[i];
     }
+
+    REP (i, n-1) {
+        int u, v;
+        cin >> u >> v;
+        edge[u].eb(v);
+        edge[v].eb(u);
+    }
+
+    build(1, 1);
+    pary(siz+1, siz+1+n);
+    pary(sod+1, sod+1+n);
+    pary(sev+1, sev+1+n);
+    dfs(1, 1, 0, 0);
+
+    cout << ans << endl;
     return 0;
 }

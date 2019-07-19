@@ -1,7 +1,13 @@
 #!/usr/bin/env python3
 from random import randint, shuffle
 
-print(1)
-print(6)
-for i in range(6):
-    print("{} {}".format(randint(1,1000000000),randint(1,1000000000)))
+t = 100
+print(t)
+
+for i in range(t):
+    n = randint(100,100)
+    z = randint(1,n)
+    print("{} {}".format(n, z))
+    for x in range(n):
+        print(randint(1,10), end=' ')
+    print()

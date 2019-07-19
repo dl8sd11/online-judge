@@ -48,88 +48,72 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
 #endif
 
-const ll iNF = 10000000010;
-const ll MAXN = 1024;
+const ll MOD = 1000000007;
+const ll INF = 0x3f3f3f3f3f3f3f3f;
+const int iNF = 0x3f3f3f3f;
+const ll MAXN = 200005;
 
-ll t, n, z, a[MAXN], dp[MAXN][MAXN];
-deque<ll> hull;
-pair<ll,ll> line[MAXN];
+ll n, a[MAXN], p1[MAXN], p2[MAXN], c[MAXN];
+pii line[MAXN];
+vector<ll> hull;
 
-pii getX(ll l1, ll l2) {
-    return pii((line[l2].Y - line[l1].Y), (line[l1].X - line[l2].X));
+ld getX(ll l1, ll l2) {
+    return (ld(line[l2].Y)-line[l1].Y)/(line[l1].X-line[l2].X);
 }
 
-bool geq(pii A, pii B) {
-    if (A.Y < 0) {
-        A.X *= -1, A.Y *= -1;
-    }
-    if (B.Y < 0) {
-        B.Y *= -1, B.X *= -1;
-    }
-    return A.X * B.Y >= B.X * A.Y;
+ll getY(pii l, ll x) {
+    return x * l.X + l.Y;
 }
 
-ll getY(ll l, ll x) {
-    return line[l].X * x + line[l].Y;
-}
-
-void addLine(ll id) {
-    while (SZ(hull)>=2 && geq(getX(id, hull[SZ(hull)-2]),getX(hull[SZ(hull)-1],hull[SZ(hull)-2]))) {
+void addLine(ll idx) {
+    while (hull.size()>=2 && getX(hull[SZ(hull)-1],hull[SZ(hull)-2]) > getX(hull[SZ(hull)-2],idx)) {
         hull.pop_back();
     }
-    hull.emplace_back(id);
+    hull.push_back(idx);
 }
 
-ll solve(ll v) {
-    while (SZ(hull)>=2 && getY(hull[SZ(hull)-1],v)>=getY(hull[SZ(hull)-2],v)) {
-        hull.pop_back();
+ll solve(ll x) {
+    ll L = 0, R = SZ(hull);
+    while (L < R-1) {
+        ll mid = (L + R) >> 1;
+        if (x <= getX(hull[mid],hull[mid-1])) {
+            R = mid;
+        } else {
+            L = mid;
+        }
     }
-    return getY(hull.back(), v);
+    return getY(line[hull[L]], x);
 }
+
 /*
-    dp[i][j] = min(i*a[k] + dp[k][j-1] - a[k]*(k+1) + a[i])
+    sum[l][r] = p1[l] + ... + p1[r] - (r-l+1) * p1[r+1]
+        = l*p1[r+1] + p2[l] - p2[r+1] - r*p1[r+1] - p1[r+1]
  */
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> t;
-    while (t--) {
-        cin >> n >> z;
-        REP1 (i, n) {
-            cin >> a[i];
-        }
-        sort(a+1, a+n+1);
-
-        REP (i, n+1) {
-            REP (j, z+1) {
-                dp[i][j] = iNF;
-            }
-        }
-        dp[0][0] = 0;
-
-        REP1 (j, z) {
-            hull.clear();
-            line[0] = pii(0, dp[0][j-1]);
-            hull.emplace_back(0);
-            for (ll i=max(1,j-1);i<=n;i++) {
-            // REP1 (i, n) {
-                if (j == z) {
-                    debug(hull);
-                }
-                dp[i][j] = solve(i) + a[i];
-                line[i] = pii(a[i], dp[i][j-1]-a[i]*(i+1));
-                addLine(i);
-            }
-            pary(line, line+n);
-        }
-
-        debug(dp[2][2]);
-        ll ans = iNF;
-        REP1 (i, n) {
-            ans = min(ans, dp[i][z] + a[i]*(n-i));
-        }
-        cout << ans << endl;
+    cin >> n;
+    REP (i,n) {
+        cin >> a[i];
     }
+
+    RREP (i, n-1) {
+        p1[i] = a[i] + p1[i+1];
+        p2[i] = p1[i] + p2[i+1];
+        c[i] = - p1[i+1] - i*p1[i+1] - p2[i+1];
+    }
+    pary(p1, p1 + n);
+    pary(p2, p2 + n);
+    pary(c, c + n);
+
+    ll ans = 0;
+    REP (i,n) {
+        line[i] = pii(i, p2[i]);
+        addLine(i);
+        ans = max(ans, solve(p1[i+1]) + c[i]);
+    }
+
+    cout << ans << endl;
     return 0;
 }

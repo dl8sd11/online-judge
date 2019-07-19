@@ -1,8 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
-typedef long double ld;
-typedef pair<ll, ll> pii;
+typedef pair<int, int> pii;
 typedef pair<double,double> pdd;
 #define MEM(a, b) memset(a, (b), sizeof(a))
 #define SZ(i) int(i.size())
@@ -48,88 +47,84 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
 #endif
 
-const ll iNF = 10000000010;
-const ll MAXN = 1024;
+const ll MOD = 0xdefaced;
+const ll INF = 0x3f3f3f3f3f3f3f3f;
+const int iNF = 0x3f3f3f3f;
+const ll MAXN = 5003;
+const int C[2] = {20020607, 880301};
 
-ll t, n, z, a[MAXN], dp[MAXN][MAXN];
-deque<ll> hull;
-pair<ll,ll> line[MAXN];
+vector<pair<pii, int>> rep;
+string str;
+int n, a, b, dp[MAXN];
+ll hpre[2][MAXN], inv[2][MAXN];
+bool tabl[MAXN][MAXN];
 
-pii getX(ll l1, ll l2) {
-    return pii((line[l2].Y - line[l1].Y), (line[l1].X - line[l2].X));
-}
-
-bool geq(pii A, pii B) {
-    if (A.Y < 0) {
-        A.X *= -1, A.Y *= -1;
+ll mpow(ll base,ll ep) {
+    ep = ep % (MOD - 1);
+    ll ret = 1;
+    while (ep > 0) {
+        if (ep & 1) {
+            ret = ret * base % MOD;
+        }
+        base = base * base % MOD;
+        ep >>= 1;
     }
-    if (B.Y < 0) {
-        B.Y *= -1, B.X *= -1;
-    }
-    return A.X * B.Y >= B.X * A.Y;
+    return ret;
 }
 
-ll getY(ll l, ll x) {
-    return line[l].X * x + line[l].Y;
+int hh(int l, int r, int id) {
+    return (hpre[id][r] - hpre[id][l-1] + MOD) * inv[id][l] % MOD;
 }
-
-void addLine(ll id) {
-    while (SZ(hull)>=2 && geq(getX(id, hull[SZ(hull)-2]),getX(hull[SZ(hull)-1],hull[SZ(hull)-2]))) {
-        hull.pop_back();
-    }
-    hull.emplace_back(id);
-}
-
-ll solve(ll v) {
-    while (SZ(hull)>=2 && getY(hull[SZ(hull)-1],v)>=getY(hull[SZ(hull)-2],v)) {
-        hull.pop_back();
-    }
-    return getY(hull.back(), v);
-}
-/*
-    dp[i][j] = min(i*a[k] + dp[k][j-1] - a[k]*(k+1) + a[i])
- */
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    cin >> t;
-    while (t--) {
-        cin >> n >> z;
+    cin >> n >> a >> b;
+    cin >> str;
+    inv[0][0] = 1;
+    inv[1][0] = 1;
+    REP (j, 2) {
         REP1 (i, n) {
-            cin >> a[i];
+            inv[j][i] = inv[j][i-1] * mpow(C[j], MOD-2) % MOD;
         }
-        sort(a+1, a+n+1);
-
-        REP (i, n+1) {
-            REP (j, z+1) {
-                dp[i][j] = iNF;
-            }
-        }
-        dp[0][0] = 0;
-
-        REP1 (j, z) {
-            hull.clear();
-            line[0] = pii(0, dp[0][j-1]);
-            hull.emplace_back(0);
-            for (ll i=max(1,j-1);i<=n;i++) {
-            // REP1 (i, n) {
-                if (j == z) {
-                    debug(hull);
-                }
-                dp[i][j] = solve(i) + a[i];
-                line[i] = pii(a[i], dp[i][j-1]-a[i]*(i+1));
-                addLine(i);
-            }
-            pary(line, line+n);
-        }
-
-        debug(dp[2][2]);
-        ll ans = iNF;
-        REP1 (i, n) {
-            ans = min(ans, dp[i][z] + a[i]*(n-i));
-        }
-        cout << ans << endl;
     }
+
+    REP (j, 2) {
+        ll hs = 0, r = C[j];
+        REP1 (i, n) {
+            hs = (hs + r * int(str[i-1])) % MOD;
+            hpre[j][i] = hs;
+            r = r * C[j] % MOD;
+        }
+    }
+
+    reverse(ALL(rep));
+    REP1 (i,n) {
+        rep.clear();
+        for (int j=1; j+i-1<=n; j++) {
+            rep.eb(pii(hh(j,j+i-1,0),hh(j,j+i-1,1)),j+i-1);
+        }
+        sort(ALL(rep));
+
+        for (int j=1; j+i-1<=n; j++) {
+            auto ptr = lower_bound(ALL(rep),pair<pii,int>(pii(hh(j,j+i-1,0),hh(j,j+i-1,1)),j));
+            if (ptr != rep.begin() && prev(ptr)->X == pii(hh(j,j+i-1,0),hh(j,j+i-1,1))) {
+                tabl[j][j+i-1] = true;
+            }
+        }
+    }
+    
+    MEM(dp, iNF);
+    dp[0] = 0;
+    for (int i=1; i<=n; i++) {
+        dp[i] = dp[i-1] + a;
+        for (int t=0; t<i; t++) {
+            if (tabl[t+1][i] && dp[t] + b < dp[i]) {
+                dp[i] = dp[t] + b;
+                debug(i, t);
+            }
+        }
+    }
+    cout << dp[n] << endl;
     return 0;
 }

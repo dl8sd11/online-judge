@@ -4,9 +4,9 @@ typedef long long ll;
 typedef pair<ll, ll> pii;
 typedef pair<double,double> pdd;
 #define MEM(a, b) memset(a, (b), sizeof(a))
-#define SZ(i) ll(i.size())
-#define FOR(i, j, k, in) for (ll i=j ; i<k ; i+=in)
-#define RFOR(i, j, k, in) for (ll i=j ; i>=k ; i-=in)
+#define SZ(i) int(i.size())
+#define FOR(i, j, k, in) for (int i=j ; i<k ; i+=in)
+#define RFOR(i, j, k, in) for (int i=j ; i>=k ; i-=in)
 #define REP(i, j) FOR(i, 0, j, 1)
 #define REP1(i,j) FOR(i, 1, j+1, 1)
 #define RREP(i, j) RFOR(i, j, 0, 1)
@@ -47,42 +47,46 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
 #endif
 
-const ll MOD = 1000003;
-const ll INF = 0x3f3f3f3f3f3f3f3f;
-const ll MAXN = 1000006;
+const int iNF = 0x3f3f3f3f;
+const int MAXN = 1024;
 
-ll q,x,d,n;
-ll mpow(ll base,ll ep) {
-    if (ep == 0) {
-        return 1;
-    }
-    ll hf = mpow(base,ep>>1);
-    hf = hf * hf % MOD;
-    return ep & 1 ? hf * base % MOD : hf;
-}
-
-ll fc[MAXN],ifc[MAXN];
-void build() {
-    fc[0] = ifc[0] = 1;
-    REP1 (i,MAXN-1) {
-        fc[i] = fc[i-1] * i % MOD;
-        ifc[i] = mpow(fc[i],MOD-2);
-    }
-}
+int t, n, z, a[MAXN], dp[MAXN][MAXN];
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    build();
-    cin >> q;
-    while (q--) {
-        cin >> x >> d >> n;
-        ll pdt = 1;
-        REP (i,n) {
-            pdt = pdt * x % MOD;
-            x = (x + d) % MOD;
+    cin >> t;
+    while (t--) {
+        cin >> n >> z;
+        REP1 (i, n) {
+            cin >> a[i];
         }
-        cout << pdt << endl;
+        sort(a+1, a+n+1);
+        pary(a,a+1+n);
+
+        REP (i, n+1) {
+            REP (j, z+1) {
+                dp[i][j] = iNF;
+            }
+        }
+        
+        dp[0][0] = 0;
+        REP1 (i, n) {
+            REP1 (j, min(i, z)) {
+                REP (k, i) {
+                    dp[i][j] = min(dp[i][j], dp[k][j-1] + a[k]*(i-k-1) + a[i]);
+                }
+            }
+        }
+
+        
+        int ans = iNF;
+        REP1 (i, n) {
+            debug(dp[i][z], a[i]*(n-i));
+            ans = min(ans, dp[i][z] + a[i]*(n-i));
+        }
+        assert(ans != iNF);
+        cout << ans << endl;
     }
     return 0;
 }
