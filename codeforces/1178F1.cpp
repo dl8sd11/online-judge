@@ -3,7 +3,6 @@ using namespace std;
 typedef long long ll;
 typedef pair<ll, ll> pii;
 typedef pair<double,double> pdd;
-#define SQ(i) ((i)*(i))
 #define MEM(a, b) memset(a, (b), sizeof(a))
 #define SZ(i) int(i.size())
 #define FOR(i, j, k, in) for (int i=j ; i<k ; i+=in)
@@ -48,15 +47,55 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
 #endif
 
-const ll MOD = 1000000007;
+const ll MOD = 998244353;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-// const ll MAXN = 
+const ll MAXN = 502;
 
+ll norm(ll &x) {
+    x = x % MOD;
+    return x;
+}
+
+int n, m;
+ll c[MAXN], dp[MAXN][MAXN];
+ll solve(int l, int r) {
+    if (dp[l][r] != 0) {
+        return dp[l][r];
+    } else if (r == l + 1) {
+        return dp[l][r] = 1;
+    } else if (r == l) {
+        return dp[l][r] = 1;
+    }
+    ll L = 0, R = 0;
+    int mnid = l;
+    for (int i=l; i<r; i++) {
+        if (c[i] < c[mnid]) {
+            mnid = i;
+        }
+    }
+
+    for (int i=l; i<=mnid; i++) {
+        norm(L += solve(l, i) * solve(i, mnid));
+    }
+
+    for (int i=mnid+1; i<=r;i++) {
+        norm(R += solve(mnid+1, i) * solve(i, r));
+    }
+    debug(l, r, L, R);
+
+    return dp[l][r] = L * R % MOD;
+
+}
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
+    cin >> n >> m;
+    REP (i, n) {
+        cin >> c[i];
+    }
 
+    cout << solve(0, n) << endl;
     return 0;
 }

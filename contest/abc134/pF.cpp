@@ -3,7 +3,6 @@ using namespace std;
 typedef long long ll;
 typedef pair<ll, ll> pii;
 typedef pair<double,double> pdd;
-#define SQ(i) ((i)*(i))
 #define MEM(a, b) memset(a, (b), sizeof(a))
 #define SZ(i) int(i.size())
 #define FOR(i, j, k, in) for (int i=j ; i<k ; i+=in)
@@ -51,12 +50,42 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-// const ll MAXN = 
+const ll MAXN = 51;
+const ll MAXN2 = 2603;
 
+ll n, K, dp[MAXN][MAXN*2][MAXN2*2];
+
+void norm(ll &x) {
+    x %= MOD;
+}
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
+    cin >> n >> K;
+    if (K&1) {
+        cout << 0 << endl;
+        return 0;
+    }
+    dp[0][0][MAXN2] = 1;
+    REP1 (i, n) {
+        REP (j, i*2+1) {
+            for (int k=-n*n; k<=n*n; k++) {
+                norm(dp[i][j][k+MAXN2] += dp[i-1][j+1][k+MAXN2-i]*(j+1));
+                if (j > 0) {
+                    norm(dp[i][j][k+MAXN2] += dp[i-1][j-1][k+MAXN2+i]);
+                }
+                norm(dp[i][j][k+MAXN2] += dp[i-1][j][k+MAXN2]*j);
+            }
+        }
+    }
+    debug(dp[1][0][MAXN2]);
+    debug(dp[1][2][MAXN2-2]);
+    debug(dp[2][2][MAXN2-2]);
+    debug(dp[2][0][MAXN2+2]);
 
+    cout << dp[n][0][K/2+MAXN2] << endl;
     return 0;
 }
+
+// NOT DONE

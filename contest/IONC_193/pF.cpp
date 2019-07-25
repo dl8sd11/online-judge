@@ -51,12 +51,97 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-// const ll MAXN = 
+const ll MAXN = 100005;
 
+ll n, q, dt[MAXN];
+
+struct Data {
+    ll mx, mn, ans;
+};
+
+struct Node {
+    int l, r;
+    Node *lc, *rc;
+    Data d;
+    void pull() {
+        if (lc && rc) {
+            d.ans = max({lc->d.ans,rc->d.ans,(lc->d.mx-rc->d.mn)});
+            d.mx = max(lc->d.mx, rc->d.mx);
+            d.mn = min(lc->d.mn, rc->d.mn);
+        }
+    }
+};
+
+Node *build(int l, int r) {
+    if (r == l + 1) {
+        return new Node{l, r, 0, 0, {dt[l],dt[l],-INF}};
+    } else {
+        int mid = (l + r) >> 1;
+        Node *ret = new Node{l, r, build(l, mid), build(mid, r),{-INF,INF,-INF}};
+        ret->pull();
+        return ret;
+    }
+}
+
+void upd(int pos, ll val, Node *nd) {
+    if (nd->r == nd->l + 1) {
+        nd->d.mx = nd->d.mn = val;
+    } else {
+        int mid = (nd->l + nd->r) >> 1;
+        if (pos >= mid) {
+            upd(pos, val, nd->rc);
+        } else {
+            upd(pos, val, nd->lc);
+        }
+        nd->pull();
+    }
+}
+
+Data qry(int l, int r, Node *nd) {
+    if (l == nd->l && r == nd->r) {
+        return nd->d;
+    } else {
+        int mid = (nd->l + nd->r) >> 1;
+        if (l >= mid) {
+            return qry(l, r, nd->rc);
+        } else if (r <= mid) {
+            return qry(l, r, nd->lc);
+        } else {
+            Data lD = qry(l, mid, nd->lc);
+            Data rD = qry(mid, r, nd->rc);
+            Data ret;
+            ret.ans = max({lD.ans,rD.ans,(lD.mx-rD.mn)});
+            ret.mx = max(lD.mx, rD.mx);
+            ret.mn = min(lD.mn, rD.mn);
+            return ret;
+        }
+    }
+}
+
+// void dfs(Node *nd) {
+//     debug(nd->d.ans,nd->d.ans,nd->d.ans)
+// }
+Node *root;
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-
+    cin >> n >> q;
+    REP (i, n) {
+        cin >> dt[i];
+    }
+    root = build(0, n);
+    debug(root->d.ans);
+    debug(root->d.mx);
+    debug(root->d.mn);
+    while (q--) {
+        int a, b, c;
+        cin >> a >> b >> c;
+        if (a == 1) {
+            upd(b-1, c, root);
+        } else {
+            cout << qry(b-1,c,root).ans << endl;
+        }
+    }
     return 0;
 }

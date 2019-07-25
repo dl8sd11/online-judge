@@ -3,7 +3,6 @@ using namespace std;
 typedef long long ll;
 typedef pair<ll, ll> pii;
 typedef pair<double,double> pdd;
-#define SQ(i) ((i)*(i))
 #define MEM(a, b) memset(a, (b), sizeof(a))
 #define SZ(i) int(i.size())
 #define FOR(i, j, k, in) for (int i=j ; i<k ; i+=in)
@@ -53,10 +52,35 @@ const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
 // const ll MAXN = 
 
+int n;
+
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
+    cin >> n;
+    int p = n;
+    while (true) {
+        bool isp = true;
+        for (int i=2; i*i <= p; i++) {
+            if (p % i == 0) {
+                isp = false;
+                break;
+            }
+        }
+        if (isp) {
+            break;
+        }
+        p++;
+    }
 
+    int tr = p-n;
+    cout << p << endl;
+    REP1 (i, n) {
+        cout << i << " " << i%n+1 << endl;
+    }
+    REP1 (i, tr) {
+        cout << i << " " << i + n/2 << endl;
+    }
     return 0;
 }

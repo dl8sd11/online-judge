@@ -3,7 +3,6 @@ using namespace std;
 typedef long long ll;
 typedef pair<ll, ll> pii;
 typedef pair<double,double> pdd;
-#define SQ(i) ((i)*(i))
 #define MEM(a, b) memset(a, (b), sizeof(a))
 #define SZ(i) int(i.size())
 #define FOR(i, j, k, in) for (int i=j ; i<k ; i+=in)
@@ -53,10 +52,62 @@ const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
 // const ll MAXN = 
 
+ll a, b, c, k, md;
+
+void mgcd(ll A, ll B, ll &x, ll &y) {
+    if (A == 0) {
+        x = 0, y = 1;
+        return;
+    }
+    ll nx, ny;
+    mgcd(B%A, A, nx, ny);
+    y = nx;
+    x = ny - nx*(B/A);
+    debug(A, B, x, y);
+}
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
+    int t;
+    cin >> t;
+    while (t--) {
 
+        cin >> a >> b >> c >> k;
+        ll C = c;
+        md = 1LL << k;
+        debug(md);
+        ll x = (b - a) % md;
+        if (x < 0) {
+            x += md;
+        }
+        if (x == 0) {
+            cout << 0 << endl;
+            continue;
+        }
+        if (c == 0) {
+            cout << "FOREVER" << endl;
+            continue;
+        }
+
+        ll cd = __gcd(c,__gcd(x, md));
+        debug(cd, c, x, md);
+        c /= cd, x /= cd, md /= cd;
+
+        debug(c, x, md);
+        if (__gcd(c, md) != 1) {
+            cout << "FOREVER" << endl;
+        } else {
+            ll p, q;
+            mgcd(c, md, p, q);
+            p %= md;
+            if (p < 0) {
+                p += md;
+            }
+            cout << x * p % md << endl;
+            debug(a,b,c);
+            // assert((a + C*(x * p % md)) % md == b);
+        }
+    }
     return 0;
 }

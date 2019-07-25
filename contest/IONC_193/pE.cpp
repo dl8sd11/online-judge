@@ -51,12 +51,45 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-// const ll MAXN = 
+const ll MAXN = 1003;
 
+
+int n, m;
+bool st[MAXN];
+vector<int> edge[MAXN];
+
+int dfs(int nd, int par) {
+    int ret = 1;
+    for (auto v : edge[nd]) {
+        if (v != par && st[v] == st[nd]) {
+            ret += dfs(v, nd);
+        }
+    }
+    return ret;
+}
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
+    cin >> n;
+    REP (i, n-1) {
+        int u, v;
+        cin >> u >> v;
+        edge[u].eb(v);
+        edge[v].eb(u);
+    }
 
+    cin >> m;
+
+    while (m--) {
+        int cmd;
+        int u;
+        cin >> cmd >> u;
+        if (cmd == 1) {
+            st[u] ^= 1;
+        } else {
+            cout << dfs(u, u) << endl;
+        }
+    }
     return 0;
 }

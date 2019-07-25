@@ -3,7 +3,6 @@ using namespace std;
 typedef long long ll;
 typedef pair<ll, ll> pii;
 typedef pair<double,double> pdd;
-#define SQ(i) ((i)*(i))
 #define MEM(a, b) memset(a, (b), sizeof(a))
 #define SZ(i) int(i.size())
 #define FOR(i, j, k, in) for (int i=j ; i<k ; i+=in)
@@ -51,12 +50,108 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-// const ll MAXN = 
+const ll MAXN = 50004;
 
+
+int n, cmd, p, c, v, d, cur;
+struct Node {
+    Node *l, *r;
+    int pri, sz;
+    char c;
+    Node (char cc) {
+        l = r = nullptr;
+        pri = rand();
+        sz = 1;
+        c = cc;
+    }
+
+    void pull() {
+        sz = 1;
+        if (l) {
+            sz += l->sz;
+        }
+        if (r) {
+            sz += r->sz;
+        }
+    }
+};
+Node *root[MAXN];
+
+void copy(Node *&a, Node *b) {
+    if (b) {
+        a = new Node(*b);
+    } else {
+        a = nullptr;
+    }
+}
+
+Node *merge(Node *a, Node *b) {
+    Node *ret;
+    if (!a) {
+        copy(ret, b);
+    } else if (!b) {
+        copy(ret, a);
+    } else if (a->pri < b->pri) {
+        copy(ret, a);
+        ret->r = merge(ret->r, b);
+        ret->pull();
+    } else {
+        copy(ret, b);
+        ret->l = merge(a, ret->l);
+        ret->pull();
+    }
+    return ret;
+}
+
+int SIZ(Node *o) {
+    return o ? o->sz : 0;
+}
+
+void split(Node *o, Node *&a, Node *&b, int k) {
+    if (!o) {
+        a = b = nullptr;
+    } else if (SIZ(o->l) >= k) {
+        copy(b, o);
+        split(b->l, a, b->l, k);
+        b->pull();
+    } else {
+        copy(a, o);
+        split(a->r, a->r, b, k-SIZ(a->l)-1);
+        a->pull();
+    }
+}
+
+Node *insert(Node *nd, int p, string str) {
+
+}
+
+Node *remove(Node *nd, int p, int c) {
+
+}
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-
+    cin >> n;
+    while (n--) {
+        cin >> cmd;
+        if (cmd == 1) {
+            string str;
+            cin >> p >> str;
+            p -= d;
+            insert(p, str);
+        } else if (cmd == 2) {
+            cin >> p >> c;
+            p -= d;
+            c -= d;
+            remove(p, c);
+        } else {
+            cin >> v >> p >> c;
+            v -= d;
+            p -= d;
+            c -= d;
+            output(v, p, c);
+        }
+    }
     return 0;
 }

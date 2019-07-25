@@ -3,7 +3,6 @@ using namespace std;
 typedef long long ll;
 typedef pair<ll, ll> pii;
 typedef pair<double,double> pdd;
-#define SQ(i) ((i)*(i))
 #define MEM(a, b) memset(a, (b), sizeof(a))
 #define SZ(i) int(i.size())
 #define FOR(i, j, k, in) for (int i=j ; i<k ; i+=in)
@@ -51,12 +50,52 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-// const ll MAXN = 
+const ll MAXN = 51;
 
+int n, k, sg[MAXN];
+bool exi[4] = {};
+
+void upd(int x) {
+    if (x >= 0) {
+        exi[sg[x]] = true;
+    }
+}
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
+    int t;
+    cin >> t;
+    while (t--) {
+        cin >> n >> k;
+        if (k % 3 == 0) {
+            n %= (k+1);
+            if (n % 3 == 0 && n != k) {
+                cout << "Bob" << endl;
+            } else {
+                cout << "Alice" << endl;
+            }
+        } else {
+            if (n % 3 == 0) {
+                cout << "Bob" << endl;
+            } else {
+                cout << "Alice" << endl;
+            }
+        }
+        // sg[0] = 0;
+        // REP1 (i, MAXN-1) {
+        //     MEM(exi, 0);
+        //     upd(i-1), upd(i-2), upd(i-k);
+        //     int mn = iNF;
+        //     REP (i, 4) {
+        //         if (!exi[i]) {
+        //             mn = min(mn, i);
+        //         }
+        //     }
+        //     sg[i] = mn;
+        // }
+        // pary(sg, sg+MAXN);
+    }
 
     return 0;
 }

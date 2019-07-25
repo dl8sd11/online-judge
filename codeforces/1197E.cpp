@@ -3,7 +3,6 @@ using namespace std;
 typedef long long ll;
 typedef pair<ll, ll> pii;
 typedef pair<double,double> pdd;
-#define SQ(i) ((i)*(i))
 #define MEM(a, b) memset(a, (b), sizeof(a))
 #define SZ(i) int(i.size())
 #define FOR(i, j, k, in) for (int i=j ; i<k ; i+=in)
@@ -51,12 +50,58 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-// const ll MAXN = 
+const ll MAXN = 200005;
 
+ll n, dp[MAXN], cnt[MAXN];
+vector<pii> doll;
+ll ans, mn, bst;
+map<ll,ll> cob;
+vector<ll> inn;
+
+void norm(ll &x) {
+    x %= MOD;
+}
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
+    cin >> n;
+    REP (i, n) {
+        ll in, out;
+        cin >> out >> in;
+        doll.eb(in, out);
+    }
+    sort(ALL(doll));
+    debug(doll);
 
+    int ptr = 0;
+    bst = INF;
+    REP (i, n) {
+        while (ptr < n && doll[ptr].Y <= doll[i].X) {
+            norm(cob[dp[ptr]-doll[ptr].Y] += cnt[ptr]);
+            mn = min(mn, dp[ptr] - doll[ptr].Y);
+            ptr++;
+        }
+        dp[i] = doll[i].X + mn;
+        if (cob.count(mn) == 0) {
+            cnt[i] = 1; 
+        } else {
+            cnt[i] = cob[mn];
+        }
+
+        if (doll[i].Y > doll.back().X) {
+            if (bst > dp[i]) {
+                bst = dp[i];
+                ans = cnt[i];
+            } else if (bst == dp[i]) {
+                norm(ans += cnt[i]);
+            }
+        }
+    }
+    debug(bst);
+    pary(dp, dp+n);
+    pary(cnt, cnt+n);
+
+    cout << ans << endl;
     return 0;
 }

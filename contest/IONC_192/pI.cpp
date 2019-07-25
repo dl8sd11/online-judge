@@ -51,12 +51,73 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-// const ll MAXN = 
+const ll MAXN = 100005; 
 
+int n, W, k, w[21], dp[21][MAXN];
+vector<int> p[21], pre[21];
+deque<int> deq[MAXN];
+
+ll tran(int did, int kid,int cw) {
+    int pos = deq[cw%w[kid]][did];
+    if (cw == pos) {
+        return dp[kid-1][pos];
+    }
+    return dp[kid-1][pos] + pre[kid][(cw-pos-1)/w[kid]];
+}
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
+    cin >> n >> W >> k;
+    REP1 (i, k) {
+        cin >> w[i];
+    }
+
+    REP1 (i, n) {
+        int pc, tp;
+        cin >> pc >> tp;
+        p[tp].eb(pc);
+    }
+
+    REP1 (i,k) {
+        sort(ALL(p[i]));
+        reverse(ALL(p[i]));
+        int sum = 0;
+        for (auto v : p[i]) {
+            sum += v;
+            pre[i].eb(sum);
+        }
+    }
+
+// dp[k][w] = dp[k-1][w - c[i]*j] + p[i]*j
+    REP1 (i, k) {
+        if (SZ(p[i]) == 0) {
+            REP (j, W+1) {
+                dp[i][j] = dp[i-1][j];
+            }
+            continue;
+        }
+        REP (j, MAXN) {
+            deq[j].clear();
+        }
+        REP (j, W+1) {
+            int pr = dp[k-1][j];
+            while (SZ(deq[j%w[i]]) && pr >= dp[k-1][deq[j%w[i]].back()] + p[i][0]) {
+                deq[j%w[i]].pop_back();
+            }
+            deq[j%w[i]].eb(j);
+            while (SZ(deq[j%w[i]]) && j-deq[j%w[i]].front() > w[i]*SZ(p[i])) {
+                deq[j%w[i]].pop_front();
+            }
+            while (SZ(deq[j%w[i]]) >= 2 && tran(0,i,j) <= tran(1,i,j)) {
+                deq[j%w[i]].pop_front();
+            }
+            dp[i][j] = tran(0,i,j);
+        }
+    }
+
+    cout << dp[k][W] << endl;
+
 
     return 0;
 }

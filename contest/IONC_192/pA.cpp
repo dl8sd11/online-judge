@@ -53,10 +53,31 @@ const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
 // const ll MAXN = 
 
+ll n, k;
+map<ll, vector<string>> name;
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
+    cin >> n >> k;
+    REP (i, n) {
+        string str;
+        ll num;
+        cin >> str >> num;
+        name[num].eb(str);
+    }
 
+    int idx = 0;
+    for (auto &p : name) {
+        if (idx == SZ(name) - k) {
+            auto tmp = p.Y;
+            sort(ALL(tmp));
+            for (auto g : tmp) {
+                cout << g  << endl;
+            }
+            return 0;
+        }
+        idx++;
+    }
     return 0;
 }

@@ -51,12 +51,46 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-// const ll MAXN = 
+const ll MAXN = 102;
 
+ll n, m, dis[MAXN];
+vector<pii> edge[MAXN];
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
+    cin >> n >> m;
+    REP (i, m) {
+        ll u, v, w;
+        cin >> u >> v >> w;
+        edge[u].eb(v, w);
+    }
+
+    MEM(dis, INF);
+    dis[0] = 0;
+
+    REP (i, n+1) {
+        REP (j, n) {
+            if (dis[j] != INF) {
+                for (auto p : edge[j]) {
+                    dis[p.X] = min(dis[p.X], dis[j] + p.Y);
+                }
+            }
+        }
+    }
+
+    REP (j, n) {
+        for (auto p : edge[j]) {
+            if (dis[j] != INF) {
+                if (dis[p.X] > dis[j] + p.Y) {
+                    cout << "GG" << endl;
+                    return 0;
+                }
+            }
+        }
+    }
+
+    cout << "PPAP" <<endl;
 
     return 0;
 }

@@ -106,6 +106,7 @@ int main()
   }
   ll sum = 1;
   REP1(i,f)if(bcc_deg[i]==1)sum++;
-  cout<<sum/2<<endl;
+  debug(sum);
+  cout<<(sum+1)/2<<endl;
 	return 0;
 }

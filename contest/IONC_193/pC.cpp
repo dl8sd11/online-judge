@@ -1,6 +1,7 @@
 #include <bits/stdc++.h>
+#pragma optimize("O3")
 using namespace std;
-typedef long long ll;
+typedef int ll;
 typedef pair<ll, ll> pii;
 typedef pair<double,double> pdd;
 #define SQ(i) ((i)*(i))
@@ -53,10 +54,49 @@ const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
 // const ll MAXN = 
 
+ll t, n, lst;
+set<pii> ms;
+vector<pii> stk;
+
+void upd() {
+    while (SZ(stk) && ms.find(stk.back()) == ms.end()) {
+        stk.pop_back();
+    }
+}
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-
+    cin >> t;
+    REP1 (test, t) {
+        cout << "Case #" << test << ":" << endl;
+        cin >> n;
+        ms.clear();
+        stk.clear();
+        REP (u, n) {
+            string cmd;
+            cin >> cmd;
+            if (cmd == "push") {
+                ll x;
+                cin >> x;
+                ms.insert({x,u});
+                stk.eb(x,u);
+            } else if (cmd == "top") {
+                cout << stk.back().X << endl;
+            } else if (cmd == "pop") {
+                ms.erase(ms.find(stk.back()));
+            } else if (cmd == "maxElement") {
+                cout << prev(ms.end())->X << endl;
+            } else if (cmd == "popMax") {
+                ms.erase(prev(ms.end()));
+             } else if (cmd == "minElement") {
+                 cout << ms.begin()->X << endl;
+             } else if (cmd == "popMin") {
+                 auto ptr = ms.lower_bound(pii(ms.begin()->X + 1,-iNF));
+                 ms.erase(prev(ptr));
+             }
+             upd();
+        }
+    }
     return 0;
 }

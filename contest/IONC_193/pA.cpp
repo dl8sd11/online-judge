@@ -51,12 +51,42 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-// const ll MAXN = 
+const int MAXN = 10004;
 
+int sz[MAXN],djs[MAXN];
+void init(int n) {
+    for (int i=0;i<=n;i++) {
+        djs[i] = i;
+        sz[i] = 1;
+    }    
+}
+int fnd(int x) {
+    return (x==djs[x])?x:djs[x]=fnd(djs[x]);
+}
+void uni(int x,int y) {
+    if (sz[y=fnd(y)]>sz[x=fnd(x)]) {
+        swap(x,y);
+    }
+    if (x == y) {
+        return;
+    }
+    djs[y] = x;
+    sz[x] = sz[x]+sz[y];
+}
+
+int n, m, k;
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
+    cin >> n >> m >> k;
+    init(n);
+    REP (i, m) {
+        int x, y;
+        cin >> x >> y;
+        uni(x, y);
+    }
 
+    cout << sz[fnd(k)] << endl;
     return 0;
 }

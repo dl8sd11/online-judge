@@ -3,6 +3,7 @@ using namespace std;
 typedef long long ll;
 typedef pair<ll, ll> pii;
 typedef pair<double,double> pdd;
+#define SQ(i) ((i)*(i))
 #define MEM(a, b) memset(a, (b), sizeof(a))
 #define SZ(i) int(i.size())
 #define FOR(i, j, k, in) for (int i=j ; i<k ; i+=in)
@@ -47,46 +48,48 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
 #endif
 
+const ll MOD = 1000000007;
+const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-const int MAXN = 1024;
+// const ll MAXN = 
 
-int t, n, z, a[MAXN], dp[MAXN][MAXN];
+ll t, n, q, s;
+ll val[1003];
+
+void chg(ll pos) {
+    val[pos] = 0;
+}
+
+ll qry(ll l, ll r) {
+    ll mx = 0;
+    for (int i=l; i<=r; i++) {
+        mx = max(mx,val[i]);
+    }
+    return mx;
+}
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
     cin >> t;
     while (t--) {
-        cin >> n >> z;
+        cin >> n >> q;
         REP1 (i, n) {
-            cin >> a[i];
+            val[i] = i;
         }
-        sort(a+1, a+n+1);
-        pary(a,a+1+n);
-
-        REP (i, n+1) {
-            REP (j, z+1) {
-                dp[i][j] = iNF;
+        while (q--) {
+            ll cmd, x, l, r;
+            cin >> cmd;
+            if (cmd == 1) {
+                cin >> x;
+                chg(x+s);
+            } else {
+                cin >> l >> r;
+                ll res = qry(l+s, r+s);
+                cout << res << endl;
+                s = (s + res) % n;
             }
         }
-        
-        dp[0][0] = 0;
-        REP1 (i, n) {
-            REP1 (j, min(i, z)) {
-                REP (k, i) {
-                    dp[i][j] = min(dp[i][j], dp[k][j-1] + a[k]*(i-k-1) + a[i]);
-                }
-            }
-        }
-
-        
-        int ans = iNF;
-        REP1 (i, n) {
-            debug(dp[i][z], a[i]*(n-i));
-            ans = min(ans, dp[i][z] + a[i]*(n-i));
-        }
-        assert(ans != iNF);
-        cout << ans << endl;
     }
     return 0;
 }

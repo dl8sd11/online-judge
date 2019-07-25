@@ -51,12 +51,37 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-// const ll MAXN = 
+const ll MAXN = 2003;
 
+int n, m, a[MAXN], b[MAXN], bst[MAXN];
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
+    cin >> n >> m;
+    REP (i, n) {
+        cin >> a[i];
+    }
+    REP (i, m) {
+        cin >> b[i];
+    }
 
+    REP (i, n) {
+        int cur = 0;
+        REP (j, m) {
+            if (a[i] == b[j]) {
+                bst[j] = cur + 1;
+            }
+            if (a[i] > b[j]) {
+                cur = max(cur, bst[j]);
+            }
+        }
+    }
+
+    int ans = 0;
+    REP (i, m) {
+        ans = max(ans, bst[i]);
+    }
+    cout << ans << endl;
     return 0;
 }

@@ -3,7 +3,6 @@ using namespace std;
 typedef long long ll;
 typedef pair<ll, ll> pii;
 typedef pair<double,double> pdd;
-#define SQ(i) ((i)*(i))
 #define MEM(a, b) memset(a, (b), sizeof(a))
 #define SZ(i) int(i.size())
 #define FOR(i, j, k, in) for (int i=j ; i<k ; i+=in)
@@ -51,12 +50,28 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-// const ll MAXN = 
+const ll MAXN = 100005;
 
+int n, a, ans;
+multiset<int> ed;
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
+    cin >> n;
+    REP (i, n) {
+        cin >> a;
+        auto ptr = ed.lower_bound(a);
+        if (ptr != ed.begin()) {
+            int x = *prev(ptr);
+            ed.erase(ed.find(x));
+            ed.insert(a);
+        } else {
+            ed.insert(a);
+            ans++;
+        }
+    }
 
+    cout << ans << endl;
     return 0;
 }

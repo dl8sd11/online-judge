@@ -53,10 +53,32 @@ const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
 // const ll MAXN = 
 
+int n, m, p, a[102], b[102];
+int dp[102][502][502];
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
+    cin >> n >> m >> p;
+    REP1 (i, n) {
+        cin >> a[i] >> b[i];
+    }
 
+// dp[i][j][k] = dp[i-1][j-a[i]][k] or dp[i-1][j][]
+    REP1 (i, n) {
+        REP (j, m + 1) {
+            REP (k, p+1) {
+                dp[i][j][k] = dp[i-1][j][k];
+                if (j >= a[i]) {
+                    dp[i][j][k] = max(dp[i][j][k], dp[i-1][j-a[i]][k] + b[i]);
+                }
+                if (k >= a[i]) {
+                    dp[i][j][k] = max(dp[i][j][k], dp[i-1][j][k-a[i]] + b[i]);
+                }
+            }
+        }
+    }
+
+    cout << dp[n][m][p] << endl;
     return 0;
 }

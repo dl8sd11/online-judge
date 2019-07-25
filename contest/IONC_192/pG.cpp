@@ -53,10 +53,53 @@ const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
 // const ll MAXN = 
 
+int n, a[1000006];
+set<vector<int> > seq;
+vector<int> vec;
+void dfs(int idx) {
+    if (idx == n) {
+        seq.insert(vec);
+    } else {
+        vec.eb(a[idx]);
+        dfs(idx+1);
+        vec.pop_back();
+        dfs(idx+1);
+    }
+}
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
+    while (cin >> n) {
+
+        REP (i, n) {
+            cin >> a[i];
+        }
+        dfs(0);
+
+        int ans = 0;
+        for (auto v : seq) {
+            v.eb(0);
+            bool flag = true;
+            REP (i, 26) {
+                v[SZ(v)-1] = i;
+                if (seq.count(v) == 1) {
+                    flag = false;
+                    break;
+                }
+            }
+
+            if (flag) {
+                for (auto it : v) {
+                    ans += it;
+                }
+                ans -= v.back();
+            }
+        
+        }
+
+        cout << ans << endl;
+    }
 
     return 0;
 }

@@ -3,7 +3,6 @@ using namespace std;
 typedef long long ll;
 typedef pair<ll, ll> pii;
 typedef pair<double,double> pdd;
-#define SQ(i) ((i)*(i))
 #define MEM(a, b) memset(a, (b), sizeof(a))
 #define SZ(i) int(i.size())
 #define FOR(i, j, k, in) for (int i=j ; i<k ; i+=in)
@@ -12,6 +11,7 @@ typedef pair<double,double> pdd;
 #define REP1(i,j) FOR(i, 1, j+1, 1)
 #define RREP(i, j) RFOR(i, j, 0, 1)
 #define ALL(_a) _a.begin(),_a.end()
+#define SQ(i) ((i)*(i))
 #define mp make_pair
 #define pb push_back
 #define eb emplace_back
@@ -53,6 +53,21 @@ const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
 // const ll MAXN = 
 
+struct Point {
+    double x, y;
+};
+
+double dis(Point &p1, Point &p2) {
+    return sqrt(SQ(p1.x-p2.x)+SQ(p1.y-p2.y));
+}
+
+double inCircle(Point &p1, Point &c, int r) {
+    return dis(p1, c) - r <= 1e-8;
+}
+
+Point getCenter(Point &p1, Point &p2, Point &p3) {
+    
+}
 /********** Good Luck :) **********/
 int main()
 {

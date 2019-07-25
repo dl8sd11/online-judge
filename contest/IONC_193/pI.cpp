@@ -51,12 +51,73 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-// const ll MAXN = 
+const int MAXN = 100005;
+const int K = 300; 
+int n, m, id[MAXN], cnt;
+vector<int> edge[MAXN];
+unordered_set<int> small[MAXN];
+bitset<MAXN> big[K], tmp, tmp2;
 
+int szidx[MAXN];
+vector<pii> sz;
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
+    cin >> n >> m;
+    REP (i, m) {
+        int u, v;
+        cin >> u >> v;
+        edge[u].eb(v);
+        edge[v].eb(u);
+    }
+    
 
+    REP1 (i, n) {
+        edge[i].resize(unique(ALL(edge[i]))-edge[i].begin());
+        sz.eb(SZ(edge[i]), i);
+        if (SZ(edge[i]) > K) {
+            id[i] = ++cnt;
+            for (auto v : edge[i]) {
+                big[cnt][v] = true;
+            }
+        } else {
+            for (auto v : edge[i]) {
+                small[i].insert(v);
+            }
+        }
+    }
+    sort(ALL(sz));
+    int idd = 0;
+    for (auto p : sz) {
+        szidx[p.Y] = idd++;
+    }
+
+    ll ans = 0;
+    REP1 (i, n) {
+        if (SZ(edge[i]) > K) {
+            for (auto v : edge[i]) {
+                if (szidx[v] > szidx[i]) {
+                    tmp = big[id[v]];
+                    tmp2 = big[id[i]];
+                    ans += (tmp & tmp2).count();
+                }
+            }
+        } else {
+            for (auto v : edge[i]) {
+                if (SZ(edge[v]) > K) {
+                    for (auto w : edge[i]) {
+                        ans += big[id[v]][w];
+                    }
+                } else if (szidx[v] > szidx[i]) {
+                    for (auto w : edge[i]) {
+                        ans += small[v].count(w);
+                    }
+                }
+            }
+        }
+    }
+
+    cout << ans/3 << endl;
     return 0;
 }
