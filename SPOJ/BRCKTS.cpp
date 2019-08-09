@@ -15,7 +15,7 @@ typedef pair<double,double> pdd;
 #define mp make_pair
 #define pb push_back
 #define eb emplace_back
-#define X firchg
+#define X first
 #define Y second
 #ifdef tmd
 #define debug(...) do{\
@@ -51,115 +51,89 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-const ll MAXN = 10004, MAXC = 1000006;
+const ll MAXN = 3000006;
 
-int t, n, q, sum[MAXN * 4], a[MAXN], chg[MAXN * 4], len[MAXN * 4];
-bool sieve[MAXC];
-vector<int> prime;
-
-void linear_sieve () {
-    for (int i=2; i<MAXC; i++) {
-        if (!sieve[i]) {
-            prime.eb(i);
-        }
-        for (int j=0; j<SZ(prime)&&i*prime[j]<MAXC; j++) {
-            sieve[i*prime[j]] = true;
-            if (i % prime[j] == 0) {
-                break;
-            }
-        }
+int t, n, m, sum, a[MAXN], mn[MAXN * 4], add[MAXN * 4], pre[MAXN * 4];
+void push(int o) {
+    if (add[o] != 0) {
+        mn[o] += add[o];
+        add[o<<1] += add[o];
+        add[o<<1|1] += add[o];
+        add[o] = 0;
     }
 }
 
-
 int get (int o) {
-    if (chg[o] == 0) {
-        return sum[o];
-    } else {
-        return (chg[o] == 1 ? len[o] : 0);
-    }
+    return mn[o] + add[o];
 }
 
 void pull (int o) {
-    sum[o] = get(o<<1) + get(o<<1|1);
-}
-
-void push (int o) {
-    if (chg[o] != 0) {
-        sum[o] = get(o);
-        chg[o<<1] = chg[o];
-        chg[o<<1|1] = chg[o];
-        chg[o] = 0;
-    }
+    mn[o] = min(get(o<<1), get(o<<1|1));
 }
 
 void build (int o, int l, int r) {
-    if (r == l + 1) {
-        sum[o] = !sieve[a[l]];
-        chg[o] = 0;
-        len[o] = 1;
+    if (l == r - 1) {
+        mn[o] = pre[l];
+        add[o] = 0;
     } else {
         int mid = (l + r) >> 1;
         build(o<<1, l, mid);
         build(o<<1|1, mid, r);
-        chg[o] = 0;
-        len[o] = r - l;
+        add[o] = 0;
         pull(o);
     }
 }
 
-void upd (int o, int nL, int nR, int qL, int qR, int status) {
-    if (nL < qR && nR > qL && qL < qR) {
-        if (nL >= qL && nR <= qR) {
-            chg[o] = status;
-        } else {
-            int mid = (nL + nR) >> 1;
-            push(o);
-            upd(o<<1, nL, mid, qL, qR, status);
-            upd(o<<1|1, mid, nR, qL, qR, status);
-            pull(o);
-        }
-    }
-}
-
-int qry (int o, int nL, int nR, int qL, int qR) {
-    if (nL >= qR || nR <= qL || qL >= qR) {
-        return 0;
+void upd (int o, int nL, int nR, int qL, int qR, int val) {
+    if (nR <= qL || nL >= qR || qL >= qR) {
+        /* smile */
     } else if (nL >= qL && nR <= qR) {
-        return get(o);
+        add[o] += val;
     } else {
         int mid = (nL + nR) >> 1;
         push(o);
-        return qry(o<<1, nL, mid, qL, qR) + qry(o<<1|1, mid, nR, qL, qR);
+        upd(o<<1, nL, mid, qL, qR, val);
+        upd(o<<1|1, mid, nR, qL, qR, val);
+        pull(o);
     }
 }
+
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    linear_sieve();
-    sieve[1] = true;
-    debug(sieve[232087]);
-    cin >> t;
-    REP1 (test, t) {
-        cout << "Case " << test << ":" << endl;
-        cin >> n >> q;
+    int testcase = 0;
+    while (cin >> n) {
+        cout << "Test " << ++testcase << ":" << endl;
+
+        sum = 0;
         REP (i, n) {
-            cin >> a[i];
+            char b;
+            cin >> b;
+            a[i] = (b == '(' ? 1 : -1);
+            sum += a[i];
+            pre[i] = sum;
         }
         build(1, 0, n);
 
-        debug(qry(1, 0, n, 0, 2));
-        while (q--) {
-            int cmd, l, r, v;
-            cin >> cmd >> l >> r;
-            if (cmd == 0) {
-                cin >> v;
-                upd(1, 0, n, l-1, r, sieve[v] ? -1 : 1);
+        cin >> m;
+        while (m--) {
+            int k;
+            cin >> k;
+            if (k == 0) {
+                debug(sum, get(1));
+                if (sum == 0 && get(1) == 0) {
+                    cout << "YES" << endl;
+                } else {
+                    cout << "NO" << endl;
+                }
             } else {
-                cout << qry(1, 0, n, l-1, r) << endl;
+                sum += ((a[k-1] == 1) ? -2 : 2);
+                upd(1, 0, n, k-1, n,((a[k-1] == 1) ? -2 : 2));
+                a[k-1] = -a[k-1];
             }
         }
     }
+
     return 0;
 }

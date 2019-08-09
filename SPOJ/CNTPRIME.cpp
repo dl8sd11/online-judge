@@ -139,7 +139,6 @@ int main()
     IOS();
     linear_sieve();
     sieve[1] = true;
-    debug(sieve[232087]);
     cin >> t;
     REP1 (test, t) {
         cout << "Case " << test << ":" << endl;

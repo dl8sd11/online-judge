@@ -1,93 +1,102 @@
-#include <bits/stdc++.h>
+#include <cstdio>
+#include <algorithm>
+#define MAX 100000
+
 using namespace std;
-typedef long long ll;
-typedef pair<ll, ll> pii;
-typedef pair<double,double> pdd;
-#define SQ(i) ((i)*(i))
-#define MEM(a, b) memset(a, (b), sizeof(a))
-#define SZ(i) int(i.size())
-#define FOR(i, j, k, in) for (int i=j ; i<k ; i+=in)
-#define RFOR(i, j, k, in) for (int i=j ; i>=k ; i-=in)
-#define REP(i, j) FOR(i, 0, j, 1)
-#define REP1(i,j) FOR(i, 1, j+1, 1)
-#define RREP(i, j) RFOR(i, j, 0, 1)
-#define ALL(_a) _a.begin(),_a.end()
-#define mp make_pair
-#define pb push_back
-#define eb emplace_back
-#define X first
-#define Y second
-#ifdef tmd
-#define debug(...) do{\
-    fprintf(stderr,"%s - %d (%s) = ",__PRETTY_FUNCTION__,__LINE__,#__VA_ARGS__);\
-    _do(__VA_ARGS__);\
-}while(0)
-template<typename T>void _do(T &&_x){cerr<<_x<<endl;}
-template<typename T,typename ...S> void _do(T &&_x,S &&..._t){cerr<<_x<<" ,";_do(_t...);}
-template<typename _a,typename _b> ostream& operator << (ostream &_s,const pair<_a,_b> &_p){return _s<<"("<<_p.X<<","<<_p.Y<<")";}
-template<typename It> ostream& _OUTC(ostream &_s,It _ita,It _itb)
-{
-    _s<<"{";
-    for(It _it=_ita;_it!=_itb;_it++)
-    {
-        _s<<(_it==_ita?"":",")<<*_it;
-    }
-    _s<<"}";
-    return _s;
-}
-template<typename _a> ostream &operator << (ostream &_s,vector<_a> &_c){return _OUTC(_s,ALL(_c));}
-template<typename _a> ostream &operator << (ostream &_s,set<_a> &_c){return _OUTC(_s,ALL(_c));}
-template<typename _a> ostream &operator << (ostream &_s,deque<_a> &_c){return _OUTC(_s,ALL(_c));}
-template<typename _a,typename _b> ostream &operator << (ostream &_s,map<_a,_b> &_c){return _OUTC(_s,ALL(_c));}
-template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
-#define IOS()
-#else
-#define debug(...)
-#define pary(...)
-#define endl '\n'
-#define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
-#endif
 
-const ll MOD = 1000000007;
-const ll INF = 0x3f3f3f3f3f3f3f3f;
-const int iNF = 0x3f3f3f3f;
-// const ll MAXN = 
+int array[ MAX + 1 ], tree[ 4 * MAX + 1 ], flag[ 4 * MAX + 1 ];
+bool prime[ 2000001 ];
 
-ll t, n, q, s;
-ll val[1003];
-
-void chg(ll pos) {
-    val[pos] = 0;
-}
-
-ll qry(ll l, ll r) {
-    ll mx = 0;
-    for (int i=l; i<=r; i++) {
-        mx = max(mx,val[i]);
-    }
-    return mx;
-}
-/********** Good Luck :) **********/
-int main()
-{
-    IOS();
-    cin >> t;
-    while (t--) {
-        cin >> n >> q;
-        REP1 (i, n) {
-            val[i] = i;
+void init( int node, int i, int j ) {
+    if ( i == j ) {
+        if ( prime[ array[ i ] ] ) {
+            tree[ node ] = 1;
         }
-        while (q--) {
-            ll cmd, x, l, r;
-            cin >> cmd;
-            if (cmd == 1) {
-                cin >> x;
-                chg(x+s);
-            } else {
-                cin >> l >> r;
-                ll res = qry(l+s, r+s);
-                cout << res << endl;
-                s = (s + res) % n;
+        else {
+            tree[ node ] = 0;
+        }
+        flag[ node ] = 0;
+    }
+    else {
+        init( node * 2, i, ( i + j ) / 2 );
+        init( node * 2 + 1, ( i + j ) / 2 + 1, j );
+        tree[ node ] = tree[ node * 2 ] + tree[ node * 2 + 1 ];
+        flag[ node ] = 0;
+    }
+}
+
+void refresh( int node, int a, int b ) {
+    if ( flag[ node ] ) {
+        if ( prime[ flag[ node ] ] ) {
+            tree[ node ] = b - a + 1;
+        }
+        else {
+            tree[ node ] = 0;
+        }
+        if ( a != b ) {
+            flag[ node * 2 ] = flag[ node ];
+            flag[ node * 2 + 1 ] = flag[ node ];
+        }
+        flag[ node ] = 0;
+    }
+}
+
+void update( int node, int a, int b, int i, int j, int val ) {
+    if ( a > b || a > j || b < i ) {
+        refresh( node, a, b );
+        return;
+    }
+    if ( a >= i && b <= j ) {
+        flag[ node ] = val;
+        refresh( node, a, b );
+        return;
+    }
+    refresh( node, a, b );
+    update( node * 2, a, ( a + b ) / 2, i, j, val );
+    update( node * 2 + 1, ( a + b ) / 2 + 1, b, i, j, val );
+    if ( a != b ) {
+        tree[ node ] = tree[ node * 2 ] + tree[ node * 2 + 1 ];
+    }
+}
+
+int query( int node, int a, int b, int i, int j ) {
+    if ( a > b || a > j || b < i ) {
+        return 0;
+    }
+    refresh( node, a, b );
+    if ( a >= i && b <= j ) {
+        return tree[ node ];
+    }
+    return query( node * 2, a, ( a + b ) / 2, i, j ) + query( node * 2 + 1, ( a + b ) / 2 + 1, b, i, j );
+}
+
+int main() {
+    int i, j, t, N, M, op, l, r, val, k;
+    for ( i = 0; i <= 1000000; ++i ) {
+        prime[ i ] = true;
+    }
+    for ( i = 2; i <= 1000000; ++i ) {
+        for ( j = i * 2; j <= 1000000; j += i ) {
+            prime[ j ] = false;
+        }
+    }
+    scanf( "%d", &t );
+    for ( k = 1; k <= t; ++k ) {
+        scanf( "%d%d", &N, &M );
+        for ( i = 0; i < N; ++i ) {
+            scanf( "%d", array + i );
+        }
+        init( 1, 0, N - 1 );
+        printf( "Case %d:\n", k );
+        for ( i = 0; i < M; ++i ) {
+            scanf( "%d", &op );
+            if ( !op ) {
+                scanf( "%d%d%d", &l, &r, &val );
+                update( 1, 0, N - 1, l - 1, r - 1, val );
+            }
+            else {
+                scanf( "%d%d", &l, &r );
+                printf( "%d\n", query( 1, 0, N - 1, l - 1, r - 1 ) );
             }
         }
     }

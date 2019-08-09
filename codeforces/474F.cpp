@@ -15,7 +15,7 @@ typedef pair<double,double> pdd;
 #define mp make_pair
 #define pb push_back
 #define eb emplace_back
-#define X firchg
+#define X first
 #define Y second
 #ifdef tmd
 #define debug(...) do{\
@@ -51,74 +51,19 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-const ll MAXN = 10004, MAXC = 1000006;
+const ll MAXN = 100005;
 
-int t, n, q, sum[MAXN * 4], a[MAXN], chg[MAXN * 4], len[MAXN * 4];
-bool sieve[MAXC];
-vector<int> prime;
+int n, t, a[MAXN], seg[MAXN * 4];
+vector<int> val, pos[MAXN];
 
-void linear_sieve () {
-    for (int i=2; i<MAXC; i++) {
-        if (!sieve[i]) {
-            prime.eb(i);
-        }
-        for (int j=0; j<SZ(prime)&&i*prime[j]<MAXC; j++) {
-            sieve[i*prime[j]] = true;
-            if (i % prime[j] == 0) {
-                break;
-            }
-        }
-    }
-}
-
-
-int get (int o) {
-    if (chg[o] == 0) {
-        return sum[o];
-    } else {
-        return (chg[o] == 1 ? len[o] : 0);
-    }
-}
-
-void pull (int o) {
-    sum[o] = get(o<<1) + get(o<<1|1);
-}
-
-void push (int o) {
-    if (chg[o] != 0) {
-        sum[o] = get(o);
-        chg[o<<1] = chg[o];
-        chg[o<<1|1] = chg[o];
-        chg[o] = 0;
-    }
-}
-
-void build (int o, int l, int r) {
+void build(int o, int l, int r) {
     if (r == l + 1) {
-        sum[o] = !sieve[a[l]];
-        chg[o] = 0;
-        len[o] = 1;
+        seg[o] = a[l];
     } else {
         int mid = (l + r) >> 1;
         build(o<<1, l, mid);
         build(o<<1|1, mid, r);
-        chg[o] = 0;
-        len[o] = r - l;
-        pull(o);
-    }
-}
-
-void upd (int o, int nL, int nR, int qL, int qR, int status) {
-    if (nL < qR && nR > qL && qL < qR) {
-        if (nL >= qL && nR <= qR) {
-            chg[o] = status;
-        } else {
-            int mid = (nL + nR) >> 1;
-            push(o);
-            upd(o<<1, nL, mid, qL, qR, status);
-            upd(o<<1|1, mid, nR, qL, qR, status);
-            pull(o);
-        }
+        seg[o] = __gcd(seg[o<<1], seg[o<<1|1]);
     }
 }
 
@@ -126,39 +71,43 @@ int qry (int o, int nL, int nR, int qL, int qR) {
     if (nL >= qR || nR <= qL || qL >= qR) {
         return 0;
     } else if (nL >= qL && nR <= qR) {
-        return get(o);
+        return seg[o];
     } else {
         int mid = (nL + nR) >> 1;
-        push(o);
-        return qry(o<<1, nL, mid, qL, qR) + qry(o<<1|1, mid, nR, qL, qR);
+        return __gcd(qry(o<<1, nL, mid, qL, qR), qry(o<<1|1, mid, nR, qL, qR));
     }
 }
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
-    linear_sieve();
-    sieve[1] = true;
-    debug(sieve[232087]);
-    cin >> t;
-    REP1 (test, t) {
-        cout << "Case " << test << ":" << endl;
-        cin >> n >> q;
-        REP (i, n) {
-            cin >> a[i];
-        }
-        build(1, 0, n);
+    cin >> n;
+    REP (i, n) {
+        cin >> a[i];
+        val.eb(a[i]);
+    }
 
-        debug(qry(1, 0, n, 0, 2));
-        while (q--) {
-            int cmd, l, r, v;
-            cin >> cmd >> l >> r;
-            if (cmd == 0) {
-                cin >> v;
-                upd(1, 0, n, l-1, r, sieve[v] ? -1 : 1);
-            } else {
-                cout << qry(1, 0, n, l-1, r) << endl;
-            }
+    sort(ALL(val));
+    val.resize(unique(ALL(val))-val.begin());
+    REP (i, n) {
+        pos[lower_bound(ALL(val),a[i])-val.begin()].eb(i);
+    }
+
+    build(1, 0, n);
+    pary(seg, seg+n*2);
+    
+    cin >> t;
+    while (t--) {
+        int l, r;
+        cin >> l >> r;
+        l--;
+        int gcd = qry(1, 0, n, l, r);
+        auto idx = lower_bound(ALL(val), gcd) - val.begin();
+        debug(gcd);
+        if (idx == SZ(val) || val[idx] != gcd) {
+            cout << r - l << endl;
+        } else {
+            cout << r - l - (lower_bound(ALL(pos[idx]),r) - lower_bound(ALL(pos[idx]),l)) << endl;
         }
     }
     return 0;

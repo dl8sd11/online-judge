@@ -1,20 +1,24 @@
 #!/usr/bin/env python3
 from random import randint, shuffle
 
-t = 100
+t = 1
 print(t)
 
 for i in range(t):
-    n = randint(1,1000)
-    z = 1000
-    print("{} {}".format(n, z))
-    for x in range(z):
-        if randint(1,2) == 1:
-            print("1 {}".format(randint(1,n)))
-        else:
-            l = randint(1,n)
-            r = randint(1,n)
-            if l > r:
-                l, r = r, l
-            print("2 {} {}".format(l, r))
+    n = randint(1,10000)
+    q = randint(1, 5)
+    print("{} {}".format(n, q))
+    for x in range(n):
+        print(randint(2,1000000),end=" ")
     print()
+    for qq in range(q):
+        l = randint(1, n)
+        r = randint(1, n)
+        v = randint(2,1000000)
+        if l > r:
+            l, r = r, l
+        
+        if randint(1,2) == 1:
+            print("0 {} {} {}".format(l,r,v))
+        else:
+            print("1 {} {}".format(l, r))

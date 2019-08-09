@@ -15,7 +15,7 @@ typedef pair<double,double> pdd;
 #define mp make_pair
 #define pb push_back
 #define eb emplace_back
-#define X firchg
+#define X first
 #define Y second
 #ifdef tmd
 #define debug(...) do{\
@@ -51,72 +51,56 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-const ll MAXN = 10004, MAXC = 1000006;
+const ll MAXN = 100005;
 
-int t, n, q, sum[MAXN * 4], a[MAXN], chg[MAXN * 4], len[MAXN * 4];
-bool sieve[MAXC];
-vector<int> prime;
+int n, q, tag[MAXN * 4];
+array<int, 3> cnt[MAXN * 4];
 
-void linear_sieve () {
-    for (int i=2; i<MAXC; i++) {
-        if (!sieve[i]) {
-            prime.eb(i);
-        }
-        for (int j=0; j<SZ(prime)&&i*prime[j]<MAXC; j++) {
-            sieve[i*prime[j]] = true;
-            if (i % prime[j] == 0) {
-                break;
-            }
-        }
+array<int, 3> get (int o) {
+    array<int, 3> ret;
+    REP (i, 3) {
+        ret[i] = cnt[o][(i-tag[o]+3)%3];
     }
+    return ret;
 }
 
-
-int get (int o) {
-    if (chg[o] == 0) {
-        return sum[o];
-    } else {
-        return (chg[o] == 1 ? len[o] : 0);
+void push (int o) {
+    if (tag[o]) {
+        cnt[o] = get(o);
+        tag[o<<1] = (tag[o<<1] + tag[o]) % 3;
+        tag[o<<1|1] = (tag[o<<1|1] + tag[o]) % 3;
+        tag[o] = 0;
     }
 }
 
 void pull (int o) {
-    sum[o] = get(o<<1) + get(o<<1|1);
-}
-
-void push (int o) {
-    if (chg[o] != 0) {
-        sum[o] = get(o);
-        chg[o<<1] = chg[o];
-        chg[o<<1|1] = chg[o];
-        chg[o] = 0;
+    array<int, 3> lC = get(o<<1);
+    array<int, 3> rC = get(o<<1|1);
+    REP (i, 3) {
+        cnt[o][i] = lC[i] + rC[i];
     }
 }
 
 void build (int o, int l, int r) {
     if (r == l + 1) {
-        sum[o] = !sieve[a[l]];
-        chg[o] = 0;
-        len[o] = 1;
+        cnt[o][0] = r - l;
     } else {
         int mid = (l + r) >> 1;
         build(o<<1, l, mid);
         build(o<<1|1, mid, r);
-        chg[o] = 0;
-        len[o] = r - l;
         pull(o);
     }
 }
 
-void upd (int o, int nL, int nR, int qL, int qR, int status) {
+void add (int o, int nL, int nR, int qL, int qR) {
     if (nL < qR && nR > qL && qL < qR) {
         if (nL >= qL && nR <= qR) {
-            chg[o] = status;
+            tag[o] = (tag[o] == 2 ? 0 : tag[o] + 1);
         } else {
             int mid = (nL + nR) >> 1;
             push(o);
-            upd(o<<1, nL, mid, qL, qR, status);
-            upd(o<<1|1, mid, nR, qL, qR, status);
+            add(o<<1, nL, mid, qL, qR);
+            add(o<<1|1, mid, nR, qL, qR);
             pull(o);
         }
     }
@@ -126,7 +110,7 @@ int qry (int o, int nL, int nR, int qL, int qR) {
     if (nL >= qR || nR <= qL || qL >= qR) {
         return 0;
     } else if (nL >= qL && nR <= qR) {
-        return get(o);
+        return get(o)[0];
     } else {
         int mid = (nL + nR) >> 1;
         push(o);
@@ -137,28 +121,15 @@ int qry (int o, int nL, int nR, int qL, int qR) {
 int main()
 {
     IOS();
-    linear_sieve();
-    sieve[1] = true;
-    debug(sieve[232087]);
-    cin >> t;
-    REP1 (test, t) {
-        cout << "Case " << test << ":" << endl;
-        cin >> n >> q;
-        REP (i, n) {
-            cin >> a[i];
-        }
-        build(1, 0, n);
-
-        debug(qry(1, 0, n, 0, 2));
-        while (q--) {
-            int cmd, l, r, v;
-            cin >> cmd >> l >> r;
-            if (cmd == 0) {
-                cin >> v;
-                upd(1, 0, n, l-1, r, sieve[v] ? -1 : 1);
-            } else {
-                cout << qry(1, 0, n, l-1, r) << endl;
-            }
+    cin >> n >> q;
+    build(1, 0, n);
+    while (q--) {
+        int cmd, l, r;
+        cin >> cmd >> l >> r;
+        if (cmd == 0) {
+            add(1, 0, n, l, r+1);
+        } else {
+            cout << qry(1, 0, n, l, r+1) << endl;
         }
     }
     return 0;
