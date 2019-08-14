@@ -68,114 +68,126 @@ public:
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-const ll MAXN = 200005;
-const ll C = 880301;
-const ll P = 1000000009;
-int n;
-string t, a[MAXN];
-ll t_hash[MAXN];
-unordered_map<ll, ll> cnt;
+const ll MAXN = 100005;
+const ll MAXLG = __lg(MAXN) + 3;
 
-ll mpow(ll base,ll ep) {
-    ll ret = 1;
-    while (ep > 0) {
-        if (ep & 1) {
-            ret = ret * base % P;
-        }
-        base = base * base % P;
-        ep >>= 1;
-    }
-    return ret;
+int djs[MAXN], n, m, anc[MAXLG][MAXN], mx[MAXLG][MAXN], dep[MAXN];
+int fnd (int x) {
+    return djs[x] == x ? x : djs[x] = fnd(djs[x]);
 }
 
-int occf[MAXN], occb[MAXN];
+bool mrg (int x, int y) {
+    x = fnd(x), y = fnd(y);
+    if (x == y) {
+        return false;
+    }
+    djs[x] = y;
+    return true;
+}
+
+struct Edge {
+    int a, b, w, id;
+    bool is_tree;
+} edge[MAXN * 10];
+
+ostream& operator << (ostream &_s,const Edge &_p){
+    return _s<<"("<<_p.a<<","<<_p.b<<","<<_p.w<<","<<_p.id<<","<<_p.is_tree<<")";
+}
+vector<pair<int,int> > g[MAXN];
+
+void dfs (int nd, int par) {
+    anc[0][nd] = par;
+    dep[nd] = dep[par] + 1;
+    for (auto p : g[nd]) {
+        if (p.X != par) {
+            mx[0][p.X] = p.Y;
+            dfs(p.X, nd);
+        }
+    }
+}
+
+void build_lca () {
+    REP1 (i, MAXLG - 1) {
+        REP1 (j, n) {
+            anc[i][j] = anc[i-1][anc[i-1][j]];
+            mx[i][j] = max(mx[i-1][j], mx[i-1][anc[i-1][j]]);
+        }
+    }
+    REP (i, 3) {
+        pary(anc[i]+1, anc[i]+n+1);
+        pary(mx[i]+1, mx[i]+n+1);
+    }
+}
+
+int max_edge (int u, int v) {
+    int ret = -iNF;
+    if (dep[u] > dep[v]) {
+        swap(u, v);
+    }
+    RREP (i, MAXLG - 1) {
+        if (dep[anc[i][v]] >= dep[u]) {
+            ret = max(ret, mx[i][v]);
+            v = anc[i][v];
+        }
+    }
+    debug(u, v, ret);
+
+    if (u == v) {
+        return ret;
+    }
+
+    RREP (i, MAXLG - 1) {
+        if (anc[i][v] != anc[i][u]) {
+            ret = max(ret, mx[i][v]);
+            ret = max(ret, mx[i][u]);
+            v = anc[i][v];
+            u = anc[i][u];
+        }
+    }
+    
+    return max({ret, mx[0][u], mx[0][v]});
+}
 /********** Good Luck :) **********/
 int main()
 {
     TIME(main);
     IOS();
-    cnt.reserve(MAXN);
-    cnt.max_load_factor(0.25);
-    
-    cin >> t;
-    ll bs = 1;
-    {
-        TIME(hash_t);
-        REP1 (i, SZ(t)) {
-            t_hash[i] = (t_hash[i-1] + bs * t[i-1]) % P;
-            bs = bs * C % P;
+
+    cin >> n >> m;
+    REP (i, m) {
+        cin >> edge[i].a >> edge[i].b >> edge[i].w;
+        edge[i].id = i;
+    }
+
+    sort(edge, edge+m, [&](Edge e1, Edge e2) {
+        return e1.w < e2.w;
+    });
+
+    REP1 (i, n) {
+        djs[i] = i;
+    }
+    REP (i, m) {
+        edge[i].is_tree = mrg(edge[i].a, edge[i].b);
+        if (edge[i].is_tree) {
+            g[edge[i].a].eb(edge[i].b, edge[i].w);
+            g[edge[i].b].eb(edge[i].a, edge[i].w);
         }
-    }
-    cin >> n;
-    REP (i, n) {
-        cin >> a[i];
+        debug(edge[i]);
     }
 
-    {
-        TIME(srt_a);
-        sort(a, a+n, [&](string s1, string s2) {
-            return SZ(s1) < SZ(s2);
-        });
-    }
+    mx[0][1] = -iNF;
+    dfs(1, 1);
+    build_lca();
 
-    {
-        TIME(match);
-        REP (i, n) {
-            int hd = i;
-            cnt.clear();
-            while (i < n && SZ(a[i]) == SZ(a[hd])) {
-                ll sum = 0;
-                for (auto c : a[i]) {
-                    sum = (sum * C + c) % P;
-                }
-                cnt[sum]++;
-                i++;
-            }
-            i--;
+    sort(edge, edge+m, [&](Edge e1, Edge e2) {
+        return e1.id < e2.id;
+    });
 
-            bs = 1;
-            for (int j=0; j<=SZ(t)-SZ(a[hd]); j++) {
-                ll cur = (t_hash[j + SZ(a[hd])] - t_hash[j] + P) % P;
-                cur = mpow(bs, P - 2) * cur % P;
-                if (cnt.count(cur)) {
-                    int cnt_cur = cnt[cur];
-                    occf[j] += cnt_cur;
-                    occb[j + SZ(a[hd])] += cnt_cur;
-                }
-                bs = C * bs % P; 
-            }
+    REP (i, m) {
+        if (!edge[i].is_tree) {
+            cout << max_edge(edge[i].a, edge[i].b) << endl;
         }
     }
 
-    ll ans = 0;
-
-    {
-        TIME(calc);
-        REP (i, SZ(t)) {
-            ans += ll(occf[i]) * occb[i];
-        }
-    }
-
-    cout << ans << endl;
     return 0;
 }
-
-/*
-aaabacaa
-2
-a
-aa
-
-5
-
-
-aaabacaa
-4
-a
-a
-a
-b
-
-
-33
-*/

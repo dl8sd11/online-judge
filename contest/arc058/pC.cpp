@@ -18,7 +18,7 @@ typedef pair<double,double> pdd;
 #define X first
 #define Y second
 #ifdef tmd
-#define TIME(i) Timer i(#i)
+#define TIME(i) Timer i
 #define debug(...) do{\
     fprintf(stderr,"%s - %d (%s) = ",__PRETTY_FUNCTION__,__LINE__,#__VA_ARGS__);\
     _do(__VA_ARGS__);\
@@ -49,133 +49,74 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define endl '\n'
 #define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
 #endif
-class Timer {
-private:
-    string scope_name;
-    chrono::high_resolution_clock::time_point start_time;
-public:
-    Timer (string name) : scope_name(name) {
-        start_time = chrono::high_resolution_clock::now();
-    }
-    ~Timer () {
-        auto stop_time = chrono::high_resolution_clock::now();
-        auto length = chrono::duration_cast<chrono::microseconds>(stop_time - start_time).count();
-        double mlength = double(length) * 0.001;
-        debug(scope_name, mlength);
-    }
-};
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-const ll MAXN = 200005;
-const ll C = 880301;
-const ll P = 1000000009;
-int n;
-string t, a[MAXN];
-ll t_hash[MAXN];
-unordered_map<ll, ll> cnt;
+// const ll MAXN = 
 
-ll mpow(ll base,ll ep) {
+class Timer {
+public:
+    Timer () {
+        start_time = chrono::high_resolution_clock::now();
+    }
+    ~Timer () {
+        stop();
+    }
+private:
+    void stop () {
+        auto stop_time = chrono::high_resolution_clock::now();
+        auto length = chrono::duration_cast<chrono::microseconds>(stop_time - start_time).count();
+        double mlength = double(length) * 0.001;
+        debug(mlength);
+    }
+    chrono::high_resolution_clock::time_point start_time;
+};
+ll n, x, y, z;
+ll dp[42][1<<17];
+ll mpow (ll bs, ll ep) {
     ll ret = 1;
-    while (ep > 0) {
+    while (ep) {
         if (ep & 1) {
-            ret = ret * base % P;
+            ret = (ret * bs) % MOD;
         }
-        base = base * base % P;
+        bs = (bs * bs) % MOD;
         ep >>= 1;
     }
     return ret;
 }
 
-int occf[MAXN], occb[MAXN];
 /********** Good Luck :) **********/
 int main()
 {
-    TIME(main);
     IOS();
-    cnt.reserve(MAXN);
-    cnt.max_load_factor(0.25);
-    
-    cin >> t;
-    ll bs = 1;
+    cin >> n >> x >> y >> z;
     {
-        TIME(hash_t);
-        REP1 (i, SZ(t)) {
-            t_hash[i] = (t_hash[i-1] + bs * t[i-1]) % P;
-            bs = bs * C % P;
-        }
-    }
-    cin >> n;
-    REP (i, n) {
-        cin >> a[i];
-    }
+        TIME(main);
 
-    {
-        TIME(srt_a);
-        sort(a, a+n, [&](string s1, string s2) {
-            return SZ(s1) < SZ(s2);
-        });
-    }
+        dp[0][0] = 1;
 
-    {
-        TIME(match);
-        REP (i, n) {
-            int hd = i;
-            cnt.clear();
-            while (i < n && SZ(a[i]) == SZ(a[hd])) {
-                ll sum = 0;
-                for (auto c : a[i]) {
-                    sum = (sum * C + c) % P;
-                }
-                cnt[sum]++;
-                i++;
-            }
-            i--;
-
-            bs = 1;
-            for (int j=0; j<=SZ(t)-SZ(a[hd]); j++) {
-                ll cur = (t_hash[j + SZ(a[hd])] - t_hash[j] + P) % P;
-                cur = mpow(bs, P - 2) * cur % P;
-                if (cnt.count(cur)) {
-                    int cnt_cur = cnt[cur];
-                    occf[j] += cnt_cur;
-                    occb[j + SZ(a[hd])] += cnt_cur;
-                }
-                bs = C * bs % P; 
+        ll ban = (1LL<<(x+y+z-1)) + (1LL<<(y+z-1)) + (1LL<<(z-1));
+        ll mx = (1LL<<(x+y+z))-1;
+        REP1 (i, n) {
+            REP (st, mx + 1) {
+                REP1 (d, 10) {
+                    ll cur = (st << d) + (1LL << (d-1));
+                    cur &= mx;
+                    if ((ban & cur) != ban) {
+                        dp[i][cur] = (dp[i][cur] + dp[i-1][st]) % MOD;
+                    }
+                } 
             }
         }
-    }
-
-    ll ans = 0;
-
-    {
-        TIME(calc);
-        REP (i, SZ(t)) {
-            ans += ll(occf[i]) * occb[i];
+        
+        ll ans = 0;
+        REP (st, mx+1) {
+            ans += dp[n][st];
+            ans %= MOD;
         }
-    }
 
-    cout << ans << endl;
+        cout << ((mpow(10, n) - ans) % MOD + MOD) % MOD << endl;
+    }
     return 0;
 }
-
-/*
-aaabacaa
-2
-a
-aa
-
-5
-
-
-aaabacaa
-4
-a
-a
-a
-b
-
-
-33
-*/

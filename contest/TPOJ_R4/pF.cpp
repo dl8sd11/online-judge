@@ -65,117 +65,78 @@ public:
     }
 };
 
-const ll MOD = 1000000007;
+const ll MOD = 998244353;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-const ll MAXN = 200005;
-const ll C = 880301;
-const ll P = 1000000009;
+const ll MAXN = 4096;
+
 int n;
-string t, a[MAXN];
-ll t_hash[MAXN];
-unordered_map<ll, ll> cnt;
+ll a[MAXN];
+ll pre[MAXN], tr[MAXN][MAXN], dp[MAXN][MAXN];
+
+bool lt (ll a1, ll a2, ll b1, ll b2, ll k) {
+    ll sumA = k * (a1 + SQ(a2));
+    ll sumB = k * (b1 + SQ(b2));
+    return sumA < sumB;
+}
 
 ll mpow(ll base,ll ep) {
     ll ret = 1;
     while (ep > 0) {
         if (ep & 1) {
-            ret = ret * base % P;
+            ret = ret * base % MOD;
         }
-        base = base * base % P;
+        base = base * base % MOD;
         ep >>= 1;
     }
     return ret;
 }
 
-int occf[MAXN], occb[MAXN];
+void solve (int j, int nL, int nR, int tL, int tR) {
+    if (nL <= nR) {
+        int mid = (nL + nR) >> 1;
+        ll sum = pre[mid];
+        tr[mid][j] = 0;
+        for (int k = tL; k <= tR; k++) {
+            ll cur = pre[mid] - pre[k];
+            if (lt(dp[k][j-1], cur, dp[tr[mid][j]][j-1], sum, mid)) {
+                tr[mid][j] = k;
+                sum = cur;
+            }
+        }
+        dp[mid][j] = dp[tr[mid][j]][j-1] + SQ(sum);
+
+        solve(j, nL, mid-1, tL, tr[mid][j]);
+        solve(j, mid + 1, nR, tr[mid][j], tR);
+    }
+}
 /********** Good Luck :) **********/
 int main()
 {
     TIME(main);
     IOS();
-    cnt.reserve(MAXN);
-    cnt.max_load_factor(0.25);
-    
-    cin >> t;
-    ll bs = 1;
-    {
-        TIME(hash_t);
-        REP1 (i, SZ(t)) {
-            t_hash[i] = (t_hash[i-1] + bs * t[i-1]) % P;
-            bs = bs * C % P;
-        }
-    }
     cin >> n;
-    REP (i, n) {
+    REP1 (i, n) {
         cin >> a[i];
+        pre[i] = pre[i-1] + a[i];
     }
 
-    {
-        TIME(srt_a);
-        sort(a, a+n, [&](string s1, string s2) {
-            return SZ(s1) < SZ(s2);
-        });
+    
+    REP1 (i, n) {
+        dp[i][0] = 10000000000000;
+    }
+    REP1 (i, n) {
+        solve(i, 1, n, 1, n);
     }
 
-    {
-        TIME(match);
-        REP (i, n) {
-            int hd = i;
-            cnt.clear();
-            while (i < n && SZ(a[i]) == SZ(a[hd])) {
-                ll sum = 0;
-                for (auto c : a[i]) {
-                    sum = (sum * C + c) % P;
-                }
-                cnt[sum]++;
-                i++;
-            }
-            i--;
-
-            bs = 1;
-            for (int j=0; j<=SZ(t)-SZ(a[hd]); j++) {
-                ll cur = (t_hash[j + SZ(a[hd])] - t_hash[j] + P) % P;
-                cur = mpow(bs, P - 2) * cur % P;
-                if (cnt.count(cur)) {
-                    int cnt_cur = cnt[cur];
-                    occf[j] += cnt_cur;
-                    occb[j + SZ(a[hd])] += cnt_cur;
-                }
-                bs = C * bs % P; 
-            }
-        }
+    REP1 (i, n) {
+        pary(tr[i]+1, tr[i]+1+n);
     }
 
-    ll ans = 0;
-
-    {
-        TIME(calc);
-        REP (i, SZ(t)) {
-            ans += ll(occf[i]) * occb[i];
-        }
+    REP1 (i, n) {
+        ll invn = mpow(i, MOD - 2);
+        ll sqm = SQ((pre[n] * invn) % MOD) % MOD;
+        cout << ((dp[n][i]%MOD * invn % MOD) - sqm + MOD) % MOD << endl;
     }
-
-    cout << ans << endl;
     return 0;
 }
-
-/*
-aaabacaa
-2
-a
-aa
-
-5
-
-
-aaabacaa
-4
-a
-a
-a
-b
-
-
-33
-*/

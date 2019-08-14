@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
-typedef pair<ll, ll> pii;
+typedef pair<int, int> pii;
 typedef pair<double,double> pdd;
 #define SQ(i) ((i)*(i))
 #define MEM(a, b) memset(a, (b), sizeof(a))
@@ -68,114 +68,61 @@ public:
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-const ll MAXN = 200005;
-const ll C = 880301;
-const ll P = 1000000009;
-int n;
-string t, a[MAXN];
-ll t_hash[MAXN];
-unordered_map<ll, ll> cnt;
+const ll MAXN = 500005;
 
-ll mpow(ll base,ll ep) {
-    ll ret = 1;
-    while (ep > 0) {
-        if (ep & 1) {
-            ret = ret * base % P;
-        }
-        base = base * base % P;
-        ep >>= 1;
-    }
-    return ret;
-}
+int n, dif;
+ll ans, k;
+string s, t;
 
-int occf[MAXN], occb[MAXN];
+ll cnt[MAXN];
 /********** Good Luck :) **********/
 int main()
 {
     TIME(main);
     IOS();
-    cnt.reserve(MAXN);
-    cnt.max_load_factor(0.25);
-    
-    cin >> t;
-    ll bs = 1;
-    {
-        TIME(hash_t);
-        REP1 (i, SZ(t)) {
-            t_hash[i] = (t_hash[i-1] + bs * t[i-1]) % P;
-            bs = bs * C % P;
-        }
-    }
-    cin >> n;
+    cin >> n >> k >> s >> t;
+    dif = n;
     REP (i, n) {
-        cin >> a[i];
-    }
-
-    {
-        TIME(srt_a);
-        sort(a, a+n, [&](string s1, string s2) {
-            return SZ(s1) < SZ(s2);
-        });
-    }
-
-    {
-        TIME(match);
-        REP (i, n) {
-            int hd = i;
-            cnt.clear();
-            while (i < n && SZ(a[i]) == SZ(a[hd])) {
-                ll sum = 0;
-                for (auto c : a[i]) {
-                    sum = (sum * C + c) % P;
-                }
-                cnt[sum]++;
-                i++;
-            }
-            i--;
-
-            bs = 1;
-            for (int j=0; j<=SZ(t)-SZ(a[hd]); j++) {
-                ll cur = (t_hash[j + SZ(a[hd])] - t_hash[j] + P) % P;
-                cur = mpow(bs, P - 2) * cur % P;
-                if (cnt.count(cur)) {
-                    int cnt_cur = cnt[cur];
-                    occf[j] += cnt_cur;
-                    occb[j + SZ(a[hd])] += cnt_cur;
-                }
-                bs = C * bs % P; 
-            }
+        if (s[i] != t[i]) {
+            dif = i;
+            break;
         }
     }
 
-    ll ans = 0;
+    if (dif == n || k == 1) {
+        cout << n << endl;
+        return 0;
+    }
 
-    {
-        TIME(calc);
-        REP (i, SZ(t)) {
-            ans += ll(occf[i]) * occb[i];
+    ans = n * 2 - dif;
+    k -= 2;
+
+    for (int i = dif+1; i<n; i++) {
+        int it = (s[i] == 'a') + (t[i] == 'b');
+        while (k > 0 && it) {
+            int lay = n - i, cur = 1;
+            for (int j=lay; j>=1; j--) {
+                cnt[j] += cur;
+                if (j != lay) {
+                    if (cur > k) {
+                        break;
+                    } else {
+                        cur <<= 1;
+                    }
+                }
+            }
+            it--;
         }
+    }
+
+
+
+    RREP (i, MAXN-1) {
+        ll cur = min(cnt[i], k);
+        ans += cur * i;
+        k -= cur;
     }
 
     cout << ans << endl;
     return 0;
 }
-
-/*
-aaabacaa
-2
-a
-aa
-
-5
-
-
-aaabacaa
-4
-a
-a
-a
-b
-
-
-33
-*/

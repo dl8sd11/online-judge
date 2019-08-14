@@ -74,7 +74,7 @@ const ll P = 1000000009;
 int n;
 string t, a[MAXN];
 ll t_hash[MAXN];
-unordered_map<ll, ll> cnt;
+map<ll, ll> cnt;
 
 ll mpow(ll base,ll ep) {
     ll ret = 1;
@@ -88,20 +88,20 @@ ll mpow(ll base,ll ep) {
     return ret;
 }
 
-int occf[MAXN], occb[MAXN];
+ll inv[MAXN];
+int occ[MAXN][2];
 /********** Good Luck :) **********/
 int main()
 {
     TIME(main);
     IOS();
-    cnt.reserve(MAXN);
-    cnt.max_load_factor(0.25);
-    
+
     cin >> t;
     ll bs = 1;
     {
         TIME(hash_t);
         REP1 (i, SZ(t)) {
+            inv[i-1] = mpow(bs, P - 2);
             t_hash[i] = (t_hash[i-1] + bs * t[i-1]) % P;
             bs = bs * C % P;
         }
@@ -118,31 +118,46 @@ int main()
         });
     }
 
+    int tbl[MAXN];
     {
         TIME(match);
         REP (i, n) {
             int hd = i;
-            cnt.clear();
-            while (i < n && SZ(a[i]) == SZ(a[hd])) {
-                ll sum = 0;
-                for (auto c : a[i]) {
-                    sum = (sum * C + c) % P;
+            int tbl_sz = 0;
+            {
+                // TIME(FLL);
+                while (i < n && SZ(a[i]) == SZ(a[hd])) {
+                    ll sum = 0;
+                    for (auto c : a[i]) {
+                        sum = (sum * C + c) % P;
+                    }
+                    tbl[tbl_sz++] = sum;
+                    i++;
                 }
-                cnt[sum]++;
-                i++;
+                i--;
             }
-            i--;
 
-            bs = 1;
-            for (int j=0; j<=SZ(t)-SZ(a[hd]); j++) {
-                ll cur = (t_hash[j + SZ(a[hd])] - t_hash[j] + P) % P;
-                cur = mpow(bs, P - 2) * cur % P;
-                if (cnt.count(cur)) {
-                    int cnt_cur = cnt[cur];
-                    occf[j] += cnt_cur;
-                    occb[j + SZ(a[hd])] += cnt_cur;
+            {
+                // TIME(USE);
+                {
+                    // TIME(srt);
+                    sort(tbl, tbl+tbl_sz);
                 }
-                bs = C * bs % P; 
+                bs = 1;
+                for (int j=0; j<=SZ(t)-SZ(a[hd]); j++) {
+                    ll cur = (t_hash[j + SZ(a[hd])] - t_hash[j] + P) % P;
+                    cur = inv[j] * cur % P;
+
+                    // auto p = equal_range(tbl, tbl+tbl_sz, cur);
+
+                    // int cnt_cur = p.Y - p.X;
+                    int cnt_cur = 0;
+                    if (cnt_cur) {
+                        occ[j][0] += cnt_cur;
+                        occ[j + SZ(a[hd])][1] += cnt_cur;
+                    }
+                    bs = C * bs % P; 
+                }
             }
         }
     }
@@ -152,7 +167,7 @@ int main()
     {
         TIME(calc);
         REP (i, SZ(t)) {
-            ans += ll(occf[i]) * occb[i];
+            ans += ll(occ[i][0]) * occ[i][1];
         }
     }
 

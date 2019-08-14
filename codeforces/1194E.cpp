@@ -103,8 +103,8 @@ int main()
     sort(ALL(v), [&](pair<int,pii> p1, pair<int,pii> p2) {
         return p1.Y.Y > p2.Y.Y;
     });
-    debug(h);
     debug(v);
+    debug(h);
 
     ll ans = 0;
     REP (i, SZ(h)) {

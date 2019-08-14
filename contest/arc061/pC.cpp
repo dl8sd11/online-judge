@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
-typedef pair<ll, ll> pii;
+typedef pair<int, int> pii;
 typedef pair<double,double> pdd;
 #define SQ(i) ((i)*(i))
 #define MEM(a, b) memset(a, (b), sizeof(a))
@@ -68,114 +68,93 @@ public:
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-const ll MAXN = 200005;
-const ll C = 880301;
-const ll P = 1000000009;
-int n;
-string t, a[MAXN];
-ll t_hash[MAXN];
-unordered_map<ll, ll> cnt;
+const ll MAXN = 100005;
 
-ll mpow(ll base,ll ep) {
-    ll ret = 1;
-    while (ep > 0) {
-        if (ep & 1) {
-            ret = ret * base % P;
-        }
-        base = base * base % P;
-        ep >>= 1;
-    }
-    return ret;
-}
+int n, m;
+vector<pii> edge[MAXN];
+map<int, int> dis[MAXN];
+set<int> vis[MAXN];
+bool slv[MAXN];
 
-int occf[MAXN], occb[MAXN];
+typedef pair<int, pii> piii;
+priority_queue<piii, vector<piii>, greater<piii> > pq;
 /********** Good Luck :) **********/
 int main()
 {
     TIME(main);
     IOS();
-    cnt.reserve(MAXN);
-    cnt.max_load_factor(0.25);
+
+    cin >> n >> m;
+    REP (i, m) {
+        int u, v, c;
+        cin >> u >> v >> c;
+        edge[u].eb(c, v);
+        edge[v].eb(c, u);
+    }
+
+    REP1 (i, n) {
+        sort(ALL(edge[i]));
+    }
+    debug(edge[6]);
+    debug(edge[7]);
+
+    MEM(slv, 0);
+    dis[1][0] = 0;
+    pq.emplace(0, pii(1, 0));
+
+    while (true) {
+        pii fnd = {-1, -1};
+        while (!pq.empty()) {
+            fnd = pq.top().Y;
+            pq.pop();
+            if (vis[fnd.X].count(fnd.Y) == 0) {
+                break;
+            }
+        }
+        if (fnd.X == -1) {
+            break;
+        } else if (vis[fnd.X].count(fnd.Y) == 1) {
+            break;
+        }
+        vis[fnd.X].insert(fnd.Y);
+
+        int bs = dis[fnd.X][fnd.Y];
+        debug(fnd, bs);
+        if (!slv[fnd.X]) {
+            for (auto e : edge[fnd.X]) {
+                if (e.X == fnd.Y) {
+                    if (dis[e.Y].count(e.X) == 0 || dis[e.Y][e.X] > bs) {
+                        dis[e.Y][e.X] = bs;
+                        pq.emplace(bs, pii(e.Y, e.X));
+                    }
+                } else {
+                    if (dis[e.Y].count(e.X) == 0 || dis[e.Y][e.X] > bs + 1) {
+                        dis[e.Y][e.X] = bs + 1;
+                        pq.emplace(bs + 1, pii(e.Y, e.X));
+                    }
+                }
+            }
+            slv[fnd.X] = true;
+        } else {
+            auto ed = upper_bound(ALL(edge[fnd.X]), pii(fnd.Y, iNF));
+            for (auto e = lower_bound(ALL(edge[fnd.X]), pii(fnd.Y, -1)); e != ed; e++) {
+                if (dis[e->Y].count(e->X) == 0 || dis[e->Y][e->X] > bs) {
+                    dis[e->Y][e->X] = bs;
+                    pq.emplace(bs, pii(e->Y, e->X));
+                }
+            }
+        }
+    }
     
-    cin >> t;
-    ll bs = 1;
-    {
-        TIME(hash_t);
-        REP1 (i, SZ(t)) {
-            t_hash[i] = (t_hash[i-1] + bs * t[i-1]) % P;
-            bs = bs * C % P;
+    if (dis[n].empty()) {
+        cout << -1 << endl;
+    } else {
+        int ans = iNF;
+        for (auto d : dis[n]) {
+            ans = min(ans, d.Y);
         }
-    }
-    cin >> n;
-    REP (i, n) {
-        cin >> a[i];
+        cout << ans << endl;
     }
 
-    {
-        TIME(srt_a);
-        sort(a, a+n, [&](string s1, string s2) {
-            return SZ(s1) < SZ(s2);
-        });
-    }
-
-    {
-        TIME(match);
-        REP (i, n) {
-            int hd = i;
-            cnt.clear();
-            while (i < n && SZ(a[i]) == SZ(a[hd])) {
-                ll sum = 0;
-                for (auto c : a[i]) {
-                    sum = (sum * C + c) % P;
-                }
-                cnt[sum]++;
-                i++;
-            }
-            i--;
-
-            bs = 1;
-            for (int j=0; j<=SZ(t)-SZ(a[hd]); j++) {
-                ll cur = (t_hash[j + SZ(a[hd])] - t_hash[j] + P) % P;
-                cur = mpow(bs, P - 2) * cur % P;
-                if (cnt.count(cur)) {
-                    int cnt_cur = cnt[cur];
-                    occf[j] += cnt_cur;
-                    occb[j + SZ(a[hd])] += cnt_cur;
-                }
-                bs = C * bs % P; 
-            }
-        }
-    }
-
-    ll ans = 0;
-
-    {
-        TIME(calc);
-        REP (i, SZ(t)) {
-            ans += ll(occf[i]) * occb[i];
-        }
-    }
-
-    cout << ans << endl;
     return 0;
 }
-
-/*
-aaabacaa
-2
-a
-aa
-
-5
-
-
-aaabacaa
-4
-a
-a
-a
-b
-
-
-33
-*/

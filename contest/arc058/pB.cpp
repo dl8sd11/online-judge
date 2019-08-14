@@ -18,7 +18,6 @@ typedef pair<double,double> pdd;
 #define X first
 #define Y second
 #ifdef tmd
-#define TIME(i) Timer i(#i)
 #define debug(...) do{\
     fprintf(stderr,"%s - %d (%s) = ",__PRETTY_FUNCTION__,__LINE__,#__VA_ARGS__);\
     _do(__VA_ARGS__);\
@@ -43,38 +42,55 @@ template<typename _a,typename _b> ostream &operator << (ostream &_s,map<_a,_b> &
 template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS()
 #else
-#define TIME(i)
 #define debug(...)
 #define pary(...)
 #define endl '\n'
 #define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
 #endif
-class Timer {
-private:
-    string scope_name;
-    chrono::high_resolution_clock::time_point start_time;
-public:
-    Timer (string name) : scope_name(name) {
-        start_time = chrono::high_resolution_clock::now();
-    }
-    ~Timer () {
-        auto stop_time = chrono::high_resolution_clock::now();
-        auto length = chrono::duration_cast<chrono::microseconds>(stop_time - start_time).count();
-        double mlength = double(length) * 0.001;
-        debug(scope_name, mlength);
-    }
-};
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-// const ll MAXN = 
+const ll MAXN = 200005;
 
+int h, w, a, b;
+ll fact[MAXN], inv[MAXN];
+
+ll mpow (ll bs, ll ep) {
+    ll ret = 1;
+    while (ep) {
+        if (ep & 1) {
+            ret = (ret * bs) % MOD;
+        }
+        bs = (bs * bs) % MOD;
+        ep >>= 1;
+    }
+    return ret;
+}
+
+ll cob (int x, int y) {
+    return fact[x+y] * inv[x] % MOD * inv[y] % MOD;
+}
 /********** Good Luck :) **********/
 int main()
 {
-    TIME(main);
     IOS();
 
+    fact[0] = 1;
+    inv[0] = 1;
+    REP1 (i, MAXN - 1) {
+        fact[i] = fact[i-1] * i % MOD;
+        inv[i] = mpow(fact[i], MOD - 2);
+        assert(fact[i] * inv[i] % MOD == 1);
+    }
+
+    cin >> h >> w >> a >> b;
+
+    ll ans = 0;
+    REP (i, h-a) {
+        ans = (ans + cob(i, b-1) * cob(h-i-1, w-b-1)) % MOD;
+    }
+
+    cout << ans << endl;
     return 0;
 }

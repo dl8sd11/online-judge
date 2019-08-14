@@ -68,114 +68,40 @@ public:
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-const ll MAXN = 200005;
-const ll C = 880301;
-const ll P = 1000000009;
+const ll MAXN = 5003;
+
+string s;
 int n;
-string t, a[MAXN];
-ll t_hash[MAXN];
-unordered_map<ll, ll> cnt;
+ll dp[MAXN][MAXN];
 
 ll mpow(ll base,ll ep) {
     ll ret = 1;
     while (ep > 0) {
         if (ep & 1) {
-            ret = ret * base % P;
+            ret = ret * base % MOD;
         }
-        base = base * base % P;
+        base = base * base % MOD;
         ep >>= 1;
     }
     return ret;
 }
-
-int occf[MAXN], occb[MAXN];
 /********** Good Luck :) **********/
 int main()
 {
     TIME(main);
     IOS();
-    cnt.reserve(MAXN);
-    cnt.max_load_factor(0.25);
-    
-    cin >> t;
-    ll bs = 1;
-    {
-        TIME(hash_t);
-        REP1 (i, SZ(t)) {
-            t_hash[i] = (t_hash[i-1] + bs * t[i-1]) % P;
-            bs = bs * C % P;
-        }
-    }
-    cin >> n;
-    REP (i, n) {
-        cin >> a[i];
-    }
 
-    {
-        TIME(srt_a);
-        sort(a, a+n, [&](string s1, string s2) {
-            return SZ(s1) < SZ(s2);
-        });
-    }
-
-    {
-        TIME(match);
-        REP (i, n) {
-            int hd = i;
-            cnt.clear();
-            while (i < n && SZ(a[i]) == SZ(a[hd])) {
-                ll sum = 0;
-                for (auto c : a[i]) {
-                    sum = (sum * C + c) % P;
-                }
-                cnt[sum]++;
-                i++;
-            }
-            i--;
-
-            bs = 1;
-            for (int j=0; j<=SZ(t)-SZ(a[hd]); j++) {
-                ll cur = (t_hash[j + SZ(a[hd])] - t_hash[j] + P) % P;
-                cur = mpow(bs, P - 2) * cur % P;
-                if (cnt.count(cur)) {
-                    int cnt_cur = cnt[cur];
-                    occf[j] += cnt_cur;
-                    occb[j + SZ(a[hd])] += cnt_cur;
-                }
-                bs = C * bs % P; 
-            }
+    cin >> n >> s;
+    dp[0][0] = 1;
+    REP1 (i, n) {
+        for (int j=0; j<=i; j++) {
+            dp[i][j] = j ? dp[i-1][j-1] * 2 : dp[i-1][j];
+            dp[i][j] += dp[i-1][j+1];
+            dp[i][j] %= MOD;
         }
     }
 
-    ll ans = 0;
-
-    {
-        TIME(calc);
-        REP (i, SZ(t)) {
-            ans += ll(occf[i]) * occb[i];
-        }
-    }
-
-    cout << ans << endl;
+    debug(dp[n][SZ(s)]);
+    cout << dp[n][SZ(s)] * mpow(2, SZ(s) * (MOD - 2) % (MOD - 1)) % MOD << endl;
     return 0;
 }
-
-/*
-aaabacaa
-2
-a
-aa
-
-5
-
-
-aaabacaa
-4
-a
-a
-a
-b
-
-
-33
-*/

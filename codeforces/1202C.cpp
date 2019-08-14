@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
-typedef pair<ll, ll> pii;
+typedef pair<int, int> pii;
 typedef pair<double,double> pdd;
 #define SQ(i) ((i)*(i))
 #define MEM(a, b) memset(a, (b), sizeof(a))
@@ -69,113 +69,78 @@ const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
 const ll MAXN = 200005;
-const ll C = 880301;
-const ll P = 1000000009;
-int n;
-string t, a[MAXN];
-ll t_hash[MAXN];
-unordered_map<ll, ll> cnt;
 
-ll mpow(ll base,ll ep) {
-    ll ret = 1;
-    while (ep > 0) {
-        if (ep & 1) {
-            ret = ret * base % P;
-        }
-        base = base * base % P;
-        ep >>= 1;
-    }
-    return ret;
+int t, n;
+string s;
+
+pii mrg (pii p1, pii p2) {
+    return pii(min(p1.X, p2.X), max(p1.Y, p2.Y));
 }
 
-int occf[MAXN], occb[MAXN];
+struct RMQ {
+    pii pre[MAXN], suf[MAXN], a[MAXN];
+    RMQ() {}
+    pii add (pii p1, int val) {
+        return pii(p1.X + val, p1.Y + val);
+    }
+
+    int len (int i, int val) {
+        pii ret = mrg(pre[i-1], add(suf[i], val));
+        ret = mrg(ret, add(a[i-1], val));
+        // debug(pre[i-1], add(suf[i], val), add(a[i-1],val));
+        return ret.Y - ret.X + 1;
+    }
+}hori, vert;
+
 /********** Good Luck :) **********/
 int main()
 {
     TIME(main);
     IOS();
-    cnt.reserve(MAXN);
-    cnt.max_load_factor(0.25);
-    
     cin >> t;
-    ll bs = 1;
-    {
-        TIME(hash_t);
-        REP1 (i, SZ(t)) {
-            t_hash[i] = (t_hash[i-1] + bs * t[i-1]) % P;
-            bs = bs * C % P;
-        }
-    }
-    cin >> n;
-    REP (i, n) {
-        cin >> a[i];
-    }
+    while (t--) {
+        cin >> s;
+        n = SZ(s) + 1;
 
-    {
-        TIME(srt_a);
-        sort(a, a+n, [&](string s1, string s2) {
-            return SZ(s1) < SZ(s2);
-        });
-    }
+        int x = 0, y = 0;
 
-    {
-        TIME(match);
-        REP (i, n) {
-            int hd = i;
-            cnt.clear();
-            while (i < n && SZ(a[i]) == SZ(a[hd])) {
-                ll sum = 0;
-                for (auto c : a[i]) {
-                    sum = (sum * C + c) % P;
-                }
-                cnt[sum]++;
-                i++;
+        hori.pre[0] = vert.pre[0] = {0, 0};
+        hori.suf[n] = vert.suf[n] = {iNF, -iNF};
+        REP1 (i, n-1) {
+            if (s[i-1] == 'W') {
+                y++;
+            } else if (s[i-1] == 'S') {
+                y--;
+            } else if (s[i-1] == 'A') {
+                x--;
+            } else if (s[i-1] == 'D') {
+                x++;
             }
-            i--;
+            hori.a[i] = pii(x, x);
+            vert.a[i] = pii(y, y);
 
-            bs = 1;
-            for (int j=0; j<=SZ(t)-SZ(a[hd]); j++) {
-                ll cur = (t_hash[j + SZ(a[hd])] - t_hash[j] + P) % P;
-                cur = mpow(bs, P - 2) * cur % P;
-                if (cnt.count(cur)) {
-                    int cnt_cur = cnt[cur];
-                    occf[j] += cnt_cur;
-                    occb[j + SZ(a[hd])] += cnt_cur;
-                }
-                bs = C * bs % P; 
-            }
+            hori.pre[i] = mrg(hori.pre[i-1], hori.a[i]);
+            vert.pre[i] = mrg(vert.pre[i-1], vert.a[i]);
         }
-    }
 
-    ll ans = 0;
-
-    {
-        TIME(calc);
-        REP (i, SZ(t)) {
-            ans += ll(occf[i]) * occb[i];
+        for (int i=n-1; i >= 0; i--) {
+            hori.suf[i] = mrg(hori.suf[i+1], hori.a[i]);
+            vert.suf[i] = mrg(vert.suf[i+1], vert.a[i]);
         }
-    }
 
-    cout << ans << endl;
+        int wid_o = hori.len(n-1, 0), hei_o = vert.len(n-1, 0);
+        int wid_c = iNF, hei_c = iNF;
+        REP1 (i, n-1) {
+            wid_c = min(wid_c, hori.len(i, 1));
+            wid_c = min(wid_c, hori.len(i, -1));
+ 
+            hei_c = min(hei_c, vert.len(i, -1));
+            hei_c = min(hei_c, vert.len(i, 1));
+        }
+
+        debug(wid_o, hei_o, wid_c, hei_c);
+
+        cout << min({ll(wid_o) * hei_o, ll(wid_c) * hei_o, ll(wid_o) * hei_c}) << endl;
+    }
     return 0;
 }
-
-/*
-aaabacaa
-2
-a
-aa
-
-5
-
-
-aaabacaa
-4
-a
-a
-a
-b
-
-
-33
-*/

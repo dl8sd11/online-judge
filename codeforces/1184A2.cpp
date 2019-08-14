@@ -69,113 +69,66 @@ const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
 const ll MAXN = 200005;
-const ll C = 880301;
-const ll P = 1000000009;
-int n;
-string t, a[MAXN];
-ll t_hash[MAXN];
-unordered_map<ll, ll> cnt;
 
-ll mpow(ll base,ll ep) {
-    ll ret = 1;
-    while (ep > 0) {
-        if (ep & 1) {
-            ret = ret * base % P;
-        }
-        base = base * base % P;
-        ep >>= 1;
+int n;
+string s;
+
+int djs[MAXN*2], sz[MAXN*2];
+void init () {
+    REP (i, MAXN * 2) {
+        djs[i] = i;
+        sz[i] = 1;
     }
-    return ret;
 }
 
-int occf[MAXN], occb[MAXN];
+int fnd (int x) {
+    return x == djs[x] ? x : djs[x] = fnd(djs[x]);
+}
+
+void mrg (int x, int y) {
+    if (sz[x=fnd(x)] > sz[y=fnd(y)]) {
+        swap(x, y);
+    }
+    djs[x] = y;
+    sz[y] += sz[x];
+}
+
+bool valid[MAXN];
 /********** Good Luck :) **********/
 int main()
 {
     TIME(main);
     IOS();
-    cnt.reserve(MAXN);
-    cnt.max_load_factor(0.25);
-    
-    cin >> t;
-    ll bs = 1;
-    {
-        TIME(hash_t);
-        REP1 (i, SZ(t)) {
-            t_hash[i] = (t_hash[i-1] + bs * t[i-1]) % P;
-            bs = bs * C % P;
-        }
-    }
-    cin >> n;
+    cin >> n >> s;
+
     REP (i, n) {
-        cin >> a[i];
-    }
-
-    {
-        TIME(srt_a);
-        sort(a, a+n, [&](string s1, string s2) {
-            return SZ(s1) < SZ(s2);
-        });
-    }
-
-    {
-        TIME(match);
-        REP (i, n) {
-            int hd = i;
-            cnt.clear();
-            while (i < n && SZ(a[i]) == SZ(a[hd])) {
-                ll sum = 0;
-                for (auto c : a[i]) {
-                    sum = (sum * C + c) % P;
+        if (i == 0 || n % i == 0) {
+            init();
+            REP (x, n) {
+                int y = (x + n - i) % n;
+                if (s[x] == '1') {
+                    mrg(x<<1, y<<1|1);
+                    mrg(x<<1|1, y<<1);
+                } else {
+                    mrg(x<<1, y<<1);
+                    mrg(x<<1|1, y<<1|1);
                 }
-                cnt[sum]++;
-                i++;
             }
-            i--;
 
-            bs = 1;
-            for (int j=0; j<=SZ(t)-SZ(a[hd]); j++) {
-                ll cur = (t_hash[j + SZ(a[hd])] - t_hash[j] + P) % P;
-                cur = mpow(bs, P - 2) * cur % P;
-                if (cnt.count(cur)) {
-                    int cnt_cur = cnt[cur];
-                    occf[j] += cnt_cur;
-                    occb[j + SZ(a[hd])] += cnt_cur;
-                }
-                bs = C * bs % P; 
+            valid[i] = true;
+            REP (x, n) {
+                valid[i] &= fnd(x<<1) != fnd(x<<1|1);
             }
         }
     }
+    valid[n] = valid[0];
+    pary(valid, valid+n);
 
-    ll ans = 0;
-
-    {
-        TIME(calc);
-        REP (i, SZ(t)) {
-            ans += ll(occf[i]) * occb[i];
-        }
+    int ans = 0;
+    REP (i, n) {
+        ans += valid[__gcd(i, n)];
     }
 
     cout << ans << endl;
     return 0;
 }
-
-/*
-aaabacaa
-2
-a
-aa
-
-5
-
-
-aaabacaa
-4
-a
-a
-a
-b
-
-
-33
-*/

@@ -18,7 +18,6 @@ typedef pair<double,double> pdd;
 #define X first
 #define Y second
 #ifdef tmd
-#define TIME(i) Timer i(#i)
 #define debug(...) do{\
     fprintf(stderr,"%s - %d (%s) = ",__PRETTY_FUNCTION__,__LINE__,#__VA_ARGS__);\
     _do(__VA_ARGS__);\
@@ -43,38 +42,45 @@ template<typename _a,typename _b> ostream &operator << (ostream &_s,map<_a,_b> &
 template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS()
 #else
-#define TIME(i)
 #define debug(...)
 #define pary(...)
 #define endl '\n'
 #define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
 #endif
-class Timer {
-private:
-    string scope_name;
-    chrono::high_resolution_clock::time_point start_time;
-public:
-    Timer (string name) : scope_name(name) {
-        start_time = chrono::high_resolution_clock::now();
-    }
-    ~Timer () {
-        auto stop_time = chrono::high_resolution_clock::now();
-        auto length = chrono::duration_cast<chrono::microseconds>(stop_time - start_time).count();
-        double mlength = double(length) * 0.001;
-        debug(scope_name, mlength);
-    }
-};
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
 // const ll MAXN = 
 
+set<int> ban;
+int n, k, d;
+
+bool valid (int x) {
+    while (x) {
+        if (ban.count(x % 10)) {
+            return false;
+        }
+        x /= 10;
+    }
+    return true;
+}
 /********** Good Luck :) **********/
 int main()
 {
-    TIME(main);
     IOS();
+    cin >> n >> k;
+    REP (i, k) {
+        cin >> d;
+        ban.insert(d);
+    }
 
+    while (true) {
+        if (valid(n)) {
+            cout << n << endl;
+            return 0;
+        }
+        n++;
+    }
     return 0;
 }
