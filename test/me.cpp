@@ -1,7 +1,10 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
-typedef pair<ll, ll> pii;
+typedef pair<int, int> pii;
+typedef pair<ll, ll> pll;
+typedef pair<int, ll> pil;
+typedef pair<int, ll> pli;
 typedef pair<double,double> pdd;
 #define SQ(i) ((i)*(i))
 #define MEM(a, b) memset(a, (b), sizeof(a))
@@ -68,114 +71,168 @@ public:
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-const ll MAXN = 200005;
-const ll C = 880301;
-const ll P = 1000000009;
-int n;
-string t, a[MAXN];
-ll t_hash[MAXN];
-unordered_map<ll, ll> cnt;
+const ll MAXN = 100005;
+const ll MAXLG = __lg(MAXN) + 3;
 
-ll mpow(ll base,ll ep) {
-    ll ret = 1;
-    while (ep > 0) {
-        if (ep & 1) {
-            ret = ret * base % P;
+int n, q, dep[MAXN], anc[MAXLG][MAXN];
+vector<int> edge[MAXN];
+
+
+void dfs (int nd, int par) {
+    dep[nd] = dep[par] + 1;
+    anc[0][nd] = par;
+    for (auto v : edge[nd]) {
+        if (v != par) {
+            dfs(v, nd);
         }
-        base = base * base % P;
-        ep >>= 1;
     }
-    return ret;
 }
 
-int occf[MAXN], occb[MAXN];
+void build_lca () {
+    REP1 (i, MAXLG - 1) {
+        REP1 (j, n) {
+            anc[i][j] = anc[i-1][anc[i-1][j]];
+        }
+    }
+}
+
+int get_lca(int u, int v) {
+    if (dep[u] > dep[v]) {
+        swap(u, v);
+    }
+    RREP (i, MAXLG - 1) {
+        if (dep[anc[i][v]] >= dep[u]) {
+            v = anc[i][v];
+        }
+    }
+    if (u == v) {
+        return u;
+    }
+
+    RREP (i, MAXLG - 1) {
+        if (anc[i][u] != anc[i][v]) {
+            u = anc[i][u];
+            v = anc[i][v];
+        }
+    }
+    return anc[0][u];
+}
+typedef array<pii, 2> ppp; // [{lca, rm},{}]
+typedef pair<ppp, int> dt;
+dt mrg (const dt &l, const dt &r) {
+    dt R;
+    ppp &ret = R.X;
+    R.Y = get_lca(l.Y, r.Y);
+    REP (i, 2) {
+        if (l.X[i].X == -1) {
+            continue;
+        } else if (l.X[i].X != 0) {
+            int lC = get_lca(l.X[i].X, r.Y);
+            if (dep[lC] > dep[ret[0].X]) {
+                ret[1] = ret[0];
+                ret[0] = pii(lC, l.X[i].Y);
+            } else if (dep[lC] > dep[ret[1].X]) {
+                ret[1] = pii(lC, l.X[i].Y);
+            }
+        } else {
+            int lC = r.Y;
+            if (dep[lC] > dep[ret[0].X]) {
+                ret[1] = ret[0];
+                ret[0] = pii(lC, l.X[i].Y);
+            } else if (dep[lC] > dep[ret[1].X]) {
+                ret[1] = pii(lC, l.X[i].Y);
+            }
+        }
+    }
+    REP (i, 2) {
+        if (r.X[i].X == -1) {
+            continue;
+        } else if (r.X[i].X != 0)  {
+            int lC = get_lca(r.X[i].X, l.Y);
+            if (dep[lC] > dep[ret[0].X]) {
+                ret[1] = ret[0];
+                ret[0] = pii(lC, r.X[i].Y);
+            } else if (dep[lC] > dep[ret[1].X]) {
+                ret[1] = pii(lC, r.X[i].Y);
+            }
+        } else {
+            int lC = l.Y;
+            if (dep[lC] > dep[ret[0].X]) {
+                ret[1] = ret[0];
+                ret[0] = pii(lC, r.X[i].Y);
+            } else if (dep[lC] > dep[ret[1].X]) {
+                ret[1] = pii(lC, r.X[i].Y);
+            }
+        }
+    }
+    return R;
+}
+
+struct Node {
+    int l, r;
+    Node *lc, *rc;
+    dt can;
+
+    void pull () {
+        can = mrg(lc->can, rc->can);
+    }
+};
+Node *root;
+
+Node *build (int l, int r) {
+    if (l == r - 1) {
+        ppp cp = {pii(0, l+1), pii(-1, -1)};
+        dt cur = dt(cp, l+1);
+        return new Node{l, r, nullptr, nullptr, cur};
+    } else {
+        int m = (l + r) >> 1;
+        Node *ret = new Node{l, r, build(l, m), build(m, r), dt()};
+        ret->pull();
+        debug(l, r);
+        debug(ret->can.X[0]);
+        debug(ret->can.X[1]);
+        return ret;
+    }
+}
+
+dt qry (int l, int r, Node *nd) {
+    if (l == nd->l && r == nd->r) {
+        return nd->can;
+    } else {
+        int md = (nd->l + nd->r) >> 1;
+        if (l >= md) {
+            return qry(l, r, nd->rc);
+        } else if (r <= md) {
+            return qry(l, r, nd->lc);
+        } else {
+            return mrg(qry(l, md, nd->lc), qry(md, r, nd->rc));
+        }
+    }
+}
 /********** Good Luck :) **********/
 int main()
 {
     TIME(main);
     IOS();
-    cnt.reserve(MAXN);
-    cnt.max_load_factor(0.25);
-    
-    cin >> t;
-    ll bs = 1;
-    {
-        TIME(hash_t);
-        REP1 (i, SZ(t)) {
-            t_hash[i] = (t_hash[i-1] + bs * t[i-1]) % P;
-            bs = bs * C % P;
-        }
-    }
-    cin >> n;
-    REP (i, n) {
-        cin >> a[i];
+    dep[0] = -1;
+
+    cin >> n >> q;
+    for (int i=2; i<=n; i++) {
+        int j;
+        cin >> j;
+        edge[i].eb(j);
+        edge[j].eb(i);
     }
 
-    {
-        TIME(srt_a);
-        sort(a, a+n, [&](string s1, string s2) {
-            return SZ(s1) < SZ(s2);
-        });
+    dfs(1, 0);
+    build_lca();
+
+    root = build(0, n);
+    while (q--) {
+        int u, v;
+        cin >> u >> v;
+        dt ret = qry(u-1, v, root);
+        cout << ret.X[0].Y << " " << dep[ret.X[0].X] << endl;
     }
-
-    {
-        TIME(match);
-        REP (i, n) {
-            int hd = i;
-            cnt.clear();
-            while (i < n && SZ(a[i]) == SZ(a[hd])) {
-                ll sum = 0;
-                for (auto c : a[i]) {
-                    sum = (sum * C + c) % P;
-                }
-                cnt[sum]++;
-                i++;
-            }
-            i--;
-
-            bs = 1;
-            for (int j=0; j<=SZ(t)-SZ(a[hd]); j++) {
-                ll cur = (t_hash[j + SZ(a[hd])] - t_hash[j] + P) % P;
-                cur = mpow(bs, P - 2) * cur % P;
-                if (cnt.count(cur)) {
-                    int cnt_cur = cnt[cur];
-                    occf[j] += cnt_cur;
-                    occb[j + SZ(a[hd])] += cnt_cur;
-                }
-                bs = C * bs % P; 
-            }
-        }
-    }
-
-    ll ans = 0;
-
-    {
-        TIME(calc);
-        REP (i, SZ(t)) {
-            ans += ll(occf[i]) * occb[i];
-        }
-    }
-
-    cout << ans << endl;
     return 0;
 }
-
-/*
-aaabacaa
-2
-a
-aa
-
-5
-
-
-aaabacaa
-4
-a
-a
-a
-b
-
-
-33
-*/

@@ -1,9 +1,11 @@
 set -e
+g++ -std=c++11 me.cpp -o me.out
+g++ -std=c++11 ans.cpp -o ans.out
 while [ 1 ]
 do
     ./testgen.py 2 > testcase.in
-    ./$1 < testcase.in > a1.out
-    ./$2 < testcase.in > a2.out
+    ./me.out < testcase.in > a1.out
+    ./ans.out < testcase.in > a2.out
     diff a1.out a2.out
     echo "Accept"
 done

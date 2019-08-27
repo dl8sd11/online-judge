@@ -1,104 +1,51 @@
-#include <cstdio>
-#include <algorithm>
-#define MAX 100000
-
+#include<bits/stdc++.h>
 using namespace std;
-
-int array[ MAX + 1 ], tree[ 4 * MAX + 1 ], flag[ 4 * MAX + 1 ];
-bool prime[ 2000001 ];
-
-void init( int node, int i, int j ) {
-    if ( i == j ) {
-        if ( prime[ array[ i ] ] ) {
-            tree[ node ] = 1;
-        }
-        else {
-            tree[ node ] = 0;
-        }
-        flag[ node ] = 0;
-    }
-    else {
-        init( node * 2, i, ( i + j ) / 2 );
-        init( node * 2 + 1, ( i + j ) / 2 + 1, j );
-        tree[ node ] = tree[ node * 2 ] + tree[ node * 2 + 1 ];
-        flag[ node ] = 0;
-    }
+const int N=100055;
+int n,q,dfn,ll[N],id[N],dep[N],fa[N][22],mx[N][22],mn[N][22],lg[N];
+vector<int>G[N];
+void dfs(int x,int p)
+{
+	ll[x]=++dfn;id[dfn]=x;fa[x][0]=p;
+	for(int j=1;j<=20;j++)fa[x][j]=fa[fa[x][j-1]][j-1];
+	for(int i=0;i<G[x].size();i++)dep[G[x][i]]=dep[x]+1,dfs(G[x][i],x);
 }
-
-void refresh( int node, int a, int b ) {
-    if ( flag[ node ] ) {
-        if ( prime[ flag[ node ] ] ) {
-            tree[ node ] = b - a + 1;
-        }
-        else {
-            tree[ node ] = 0;
-        }
-        if ( a != b ) {
-            flag[ node * 2 ] = flag[ node ];
-            flag[ node * 2 + 1 ] = flag[ node ];
-        }
-        flag[ node ] = 0;
-    }
+void rmq()
+{
+	for(int i=2;i<=n;i++)lg[i]=lg[i>>1]+1;
+	for(int i=1;i<=n;i++)mx[i][0]=mn[i][0]=ll[i];
+	for(int i=1;i<=20;i++)for(int j=1;j+(1<<i-1)<=n;j++)mx[j][i]=max(mx[j][i-1],mx[j+(1<<i-1)][i-1]);
+	for(int i=1;i<=20;i++)for(int j=1;j+(1<<i-1)<=n;j++)mn[j][i]=min(mn[j][i-1],mn[j+(1<<i-1)][i-1]);
 }
-
-void update( int node, int a, int b, int i, int j, int val ) {
-    if ( a > b || a > j || b < i ) {
-        refresh( node, a, b );
-        return;
-    }
-    if ( a >= i && b <= j ) {
-        flag[ node ] = val;
-        refresh( node, a, b );
-        return;
-    }
-    refresh( node, a, b );
-    update( node * 2, a, ( a + b ) / 2, i, j, val );
-    update( node * 2 + 1, ( a + b ) / 2 + 1, b, i, j, val );
-    if ( a != b ) {
-        tree[ node ] = tree[ node * 2 ] + tree[ node * 2 + 1 ];
-    }
+int gtmn(int l,int r){int d=lg[r-l+1];return min(mn[l][d],mn[r-(1<<d)+1][d]);}
+int gtmx(int l,int r){int d=lg[r-l+1];return max(mx[l][d],mx[r-(1<<d)+1][d]);}
+int lca(int u,int v)
+{
+	if(dep[u]<dep[v])swap(u,v);
+	int sub=dep[u]-dep[v];
+	for(int i=0;i<=20;i++)if(sub>>i&1)u=fa[u][i];
+	if(u==v)return u;
+	for(int i=20;i>=0;i--)if(fa[u][i]!=fa[v][i])u=fa[u][i],v=fa[v][i];
+	return fa[u][0]; 
 }
-
-int query( int node, int a, int b, int i, int j ) {
-    if ( a > b || a > j || b < i ) {
-        return 0;
-    }
-    refresh( node, a, b );
-    if ( a >= i && b <= j ) {
-        return tree[ node ];
-    }
-    return query( node * 2, a, ( a + b ) / 2, i, j ) + query( node * 2 + 1, ( a + b ) / 2 + 1, b, i, j );
+int gt(int x,int l,int r)
+{
+	int ans1,ans2;
+	if(x==l)ans1=gtmn(l+1,r),ans2=gtmx(l+1,r);
+	else if(x==r)ans1=gtmn(l,r-1),ans2=gtmx(l,r-1);
+	else ans1=min(gtmn(l,x-1),gtmn(x+1,r)),ans2=max(gtmx(l,x-1),gtmx(x+1,r));
+	return lca(id[ans1],id[ans2]);
 }
-
-int main() {
-    int i, j, t, N, M, op, l, r, val, k;
-    for ( i = 0; i <= 1000000; ++i ) {
-        prime[ i ] = true;
-    }
-    for ( i = 2; i <= 1000000; ++i ) {
-        for ( j = i * 2; j <= 1000000; j += i ) {
-            prime[ j ] = false;
-        }
-    }
-    scanf( "%d", &t );
-    for ( k = 1; k <= t; ++k ) {
-        scanf( "%d%d", &N, &M );
-        for ( i = 0; i < N; ++i ) {
-            scanf( "%d", array + i );
-        }
-        init( 1, 0, N - 1 );
-        printf( "Case %d:\n", k );
-        for ( i = 0; i < M; ++i ) {
-            scanf( "%d", &op );
-            if ( !op ) {
-                scanf( "%d%d%d", &l, &r, &val );
-                update( 1, 0, N - 1, l - 1, r - 1, val );
-            }
-            else {
-                scanf( "%d%d", &l, &r );
-                printf( "%d\n", query( 1, 0, N - 1, l - 1, r - 1 ) );
-            }
-        }
-    }
-    return 0;
+int main()
+{
+	scanf("%d%d",&n,&q);
+	for(int i=2,p;i<=n;i++)scanf("%d",&p),G[p].push_back(i);
+	dfs(1,0);rmq();
+	while(q--)
+	{
+		int l,r;scanf("%d%d",&l,&r);
+		if(n==2){puts("1 1");continue;}
+		int ll=gtmn(l,r),rr=gtmx(l,r),f1=gt(id[ll],l,r),f2=gt(id[rr],l,r);
+		if(dep[f1]>=dep[f2])printf("%d\n",dep[f1]);else printf("%d\n",dep[f2]);
+	}
+	return 0;
 }
