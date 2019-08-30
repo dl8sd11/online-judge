@@ -73,10 +73,40 @@ const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
 // const ll MAXN = 
 
+int cnt;
+bool ans[100005];
+vector<int> stk;
 /********** Good Luck :) **********/
-int main () {
+int main()
+{
     TIME(main);
     IOS();
 
+    string s;
+    cin >> s;
+
+    REP (i, SZ(s)) {
+        if (s[i] == '0') {
+            if (cnt) {
+                cnt--;
+                ans[i] = 0;
+                ans[stk.back()] = 1;
+                stk.pop_back();
+            } else {
+                ans[i] = 0;
+            }
+        } else {
+            cnt++;
+            stk.push_back(i);
+        }
+    }
+    debug(stk);
+    for (auto v : stk) {
+        ans[v] = 0;
+    }
+
+    REP (i, SZ(s)) {
+        cout << ans[i];
+    }
     return 0;
 }

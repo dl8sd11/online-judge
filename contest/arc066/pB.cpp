@@ -73,10 +73,43 @@ const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
 // const ll MAXN = 
 
+ll n, dp[62][3]; // 0x, 2x, 4x+
+
+ll solve (ll idx, ll x) {
+    if (idx == -1) {
+        return 1;
+    }
+    if (dp[idx][x] != -1) {
+        return dp[idx][x];
+    }
+    if ((n>>idx) & 1LL) {
+        if (x == 0) {
+            dp[idx][0] = (solve(idx-1, 0) + solve(idx-1, 1)) % MOD;
+        } else if (x == 1) {
+            dp[idx][1] = (solve(idx-1, 2)*2 + solve(idx-1, 1)) % MOD;
+        } else {
+            dp[idx][2] = (solve(idx-1, 2) * 3) % MOD;
+        }
+    } else {
+        if (x == 0) {
+            dp[idx][0] = solve(idx-1, 0);
+        } else if (x == 1) {
+            dp[idx][1] = (solve(idx-1, 2) + solve(idx-1, 1) + solve(idx-1, 0)) % MOD;
+        } else {
+            dp[idx][2] = (solve(idx-1, 2) * 3) % MOD;
+        }
+    }
+    return dp[idx][x];
+}
 /********** Good Luck :) **********/
-int main () {
+int main()
+{
     TIME(main);
     IOS();
 
+    cin >> n;
+
+    MEM(dp, -1);
+    cout << solve(60, 0) << endl;
     return 0;
 }

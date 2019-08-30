@@ -74,7 +74,8 @@ const int iNF = 0x3f3f3f3f;
 // const ll MAXN = 
 
 /********** Good Luck :) **********/
-int main () {
+int main()
+{
     TIME(main);
     IOS();
 

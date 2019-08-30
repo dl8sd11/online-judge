@@ -1,51 +1,172 @@
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
 using namespace std;
-const int N=100055;
-int n,q,dfn,ll[N],id[N],dep[N],fa[N][22],mx[N][22],mn[N][22],lg[N];
-vector<int>G[N];
-void dfs(int x,int p)
+typedef long long ll;
+typedef pair<int, int> pii;
+typedef pair<ll, ll> pll;
+typedef pair<int, ll> pil;
+typedef pair<int, ll> pli;
+typedef pair<double,double> pdd;
+#define SQ(i) ((i)*(i))
+#define MEM(a, b) memset(a, (b), sizeof(a))
+#define SZ(i) int(i.size())
+#define FOR(i, j, k, in) for (int i=j ; i<k ; i+=in)
+#define RFOR(i, j, k, in) for (int i=j ; i>=k ; i-=in)
+#define REP(i, j) FOR(i, 0, j, 1)
+#define REP1(i,j) FOR(i, 1, j+1, 1)
+#define RREP(i, j) RFOR(i, j, 0, 1)
+#define ALL(_a) _a.begin(),_a.end()
+#define mp make_pair
+#define pb push_back
+#define eb emplace_back
+#define X first
+#define Y second
+#ifdef tmd
+#define TIME(i) Timer i(#i)
+#define debug(...) do{\
+    fprintf(stderr,"%s - %d (%s) = ",__PRETTY_FUNCTION__,__LINE__,#__VA_ARGS__);\
+    _do(__VA_ARGS__);\
+}while(0)
+template<typename T>void _do(T &&_x){cerr<<_x<<endl;}
+template<typename T,typename ...S> void _do(T &&_x,S &&..._t){cerr<<_x<<" ,";_do(_t...);}
+template<typename _a,typename _b> ostream& operator << (ostream &_s,const pair<_a,_b> &_p){return _s<<"("<<_p.X<<","<<_p.Y<<")";}
+template<typename It> ostream& _OUTC(ostream &_s,It _ita,It _itb)
 {
-	ll[x]=++dfn;id[dfn]=x;fa[x][0]=p;
-	for(int j=1;j<=20;j++)fa[x][j]=fa[fa[x][j-1]][j-1];
-	for(int i=0;i<G[x].size();i++)dep[G[x][i]]=dep[x]+1,dfs(G[x][i],x);
+    _s<<"{";
+    for(It _it=_ita;_it!=_itb;_it++)
+    {
+        _s<<(_it==_ita?"":",")<<*_it;
+    }
+    _s<<"}";
+    return _s;
 }
-void rmq()
-{
-	for(int i=2;i<=n;i++)lg[i]=lg[i>>1]+1;
-	for(int i=1;i<=n;i++)mx[i][0]=mn[i][0]=ll[i];
-	for(int i=1;i<=20;i++)for(int j=1;j+(1<<i-1)<=n;j++)mx[j][i]=max(mx[j][i-1],mx[j+(1<<i-1)][i-1]);
-	for(int i=1;i<=20;i++)for(int j=1;j+(1<<i-1)<=n;j++)mn[j][i]=min(mn[j][i-1],mn[j+(1<<i-1)][i-1]);
+template<typename _a> ostream &operator << (ostream &_s,vector<_a> &_c){return _OUTC(_s,ALL(_c));}
+template<typename _a> ostream &operator << (ostream &_s,set<_a> &_c){return _OUTC(_s,ALL(_c));}
+template<typename _a> ostream &operator << (ostream &_s,deque<_a> &_c){return _OUTC(_s,ALL(_c));}
+template<typename _a,typename _b> ostream &operator << (ostream &_s,map<_a,_b> &_c){return _OUTC(_s,ALL(_c));}
+template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
+#define IOS()
+#else
+#define TIME(i)
+#define debug(...)
+#define pary(...)
+#define endl '\n'
+#define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
+#endif
+class Timer {
+private:
+    string scope_name;
+    chrono::high_resolution_clock::time_point start_time;
+public:
+    Timer (string name) : scope_name(name) {
+        start_time = chrono::high_resolution_clock::now();
+    }
+    ~Timer () {
+        auto stop_time = chrono::high_resolution_clock::now();
+        auto length = chrono::duration_cast<chrono::microseconds>(stop_time - start_time).count();
+        double mlength = double(length) * 0.001;
+        debug(scope_name, mlength);
+    }
+};
+
+const ll MOD = 1000000007;
+const ll INF = 0x3f3f3f3f3f3f3f3f;
+const int iNF = 0x3f3f3f3f;
+const ll MAXN = 1000006;
+
+ll n, w;
+
+ll seg1[MAXN * 2];
+void add1 (ll l, ll r, ll val) {
+    for (l+=w, r+=w; l<r; l>>=1, r>>=1) {
+        if (l&1) {
+            seg1[l] = max(seg1[l], val);
+            l++;
+        }
+        if (r&1) {
+            r--;
+            seg1[r] = max(seg1[r], val);
+        }
+    }
 }
-int gtmn(int l,int r){int d=lg[r-l+1];return min(mn[l][d],mn[r-(1<<d)+1][d]);}
-int gtmx(int l,int r){int d=lg[r-l+1];return max(mx[l][d],mx[r-(1<<d)+1][d]);}
-int lca(int u,int v)
-{
-	if(dep[u]<dep[v])swap(u,v);
-	int sub=dep[u]-dep[v];
-	for(int i=0;i<=20;i++)if(sub>>i&1)u=fa[u][i];
-	if(u==v)return u;
-	for(int i=20;i>=0;i--)if(fa[u][i]!=fa[v][i])u=fa[u][i],v=fa[v][i];
-	return fa[u][0]; 
+
+ll qry1 (ll x) {
+    ll ret = -iNF;
+    for (x+=w; x>=1; x>>=1) {
+        ret = max(ret, seg1[x]);
+    }
+    return ret;
 }
-int gt(int x,int l,int r)
-{
-	int ans1,ans2;
-	if(x==l)ans1=gtmn(l+1,r),ans2=gtmx(l+1,r);
-	else if(x==r)ans1=gtmn(l,r-1),ans2=gtmx(l,r-1);
-	else ans1=min(gtmn(l,x-1),gtmn(x+1,r)),ans2=max(gtmx(l,x-1),gtmx(x+1,r));
-	return lca(id[ans1],id[ans2]);
+
+ll seg[MAXN * 2];
+void add (ll l, ll r,ll val) {
+    for (l+=w, r+=w; l<r; l>>=1, r>>=1) {
+        if (l&1) {
+            seg[l++] += val;
+        }
+        if (r&1) {
+            seg[--r] += val;
+        }
+    }
+
 }
+
+ll qry (ll x) {
+    ll ret = 0;
+    for (x+=w; x>=1; x>>=1) {
+        ret += seg[x];
+    }
+    return ret;
+}
+
+/********** Good Luck :) **********/
 int main()
 {
-	scanf("%d%d",&n,&q);
-	for(int i=2,p;i<=n;i++)scanf("%d",&p),G[p].push_back(i);
-	dfs(1,0);rmq();
-	while(q--)
-	{
-		int l,r;scanf("%d%d",&l,&r);
-		if(n==2){puts("1 1");continue;}
-		int ll=gtmn(l,r),rr=gtmx(l,r),f1=gt(id[ll],l,r),f2=gt(id[rr],l,r);
-		if(dep[f1]>=dep[f2])printf("%d\n",dep[f1]);else printf("%d\n",dep[f2]);
-	}
-	return 0;
+    TIME(main);
+    IOS();
+
+    cin >> n >> w;
+    ll l, a[MAXN];
+    REP (i, n) {
+        cin >> l;
+        REP (j, l) {
+            cin >> a[j];
+        }
+        if (l * 2 > w) {
+            REP (j, w*2) {
+                seg1[j] = -iNF;
+            }
+            REP (j, l) {
+                add1(j,w-l+j+1,a[j]);
+            }
+            add1(l, w, 0);
+            add1(0, w-l, 0);
+            
+            REP (j, w) {
+                debug(qry1(j));
+                add(j, j+1, qry1(j));
+            }
+        } else {
+            ll mx = 0;
+            REP (j, l) {
+                mx = max(mx, a[j]);
+                add(j, j+1, mx);
+                debug(j, j+1, mx);
+            }
+
+            mx = 0;
+            REP (j, l) {
+                mx = max(mx, a[l-j-1]);
+                add(w-j-1, w-j, mx);
+                debug(w-j-1, w-j, mx);
+            }
+
+            add(l, w-l, mx);
+            debug(l, w-l, mx);
+        }
+    }
+
+    REP (i, w) {
+        cout << qry(i) << " \n"[i==w-1];
+    }
+    return 0;
 }

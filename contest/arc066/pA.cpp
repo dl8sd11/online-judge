@@ -74,9 +74,32 @@ const int iNF = 0x3f3f3f3f;
 // const ll MAXN = 
 
 /********** Good Luck :) **********/
-int main () {
+int main()
+{
     TIME(main);
     IOS();
 
+    int n;
+    vector<int> a;
+    vector<int> m;
+
+    cin >> n;
+
+    int ans = 1;
+    REP (i, n) {
+        int d;
+        cin >> d;
+        a.eb(d);
+        m.eb(abs((n-i-1) - i));
+
+        if (i < n/2) {
+            ans = ans * 2 % MOD;
+        }
+    }
+
+    sort(ALL(a));
+    sort(ALL(m));
+
+    cout << (a == m ? ans : 0) << endl;
     return 0;
 }

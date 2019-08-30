@@ -9,18 +9,16 @@ def randomString(stringLength=10):
     return ''.join(random.choice(letters) for i in range(stringLength))
 
 
-n = 100000
-m = 100000
+n = 1
+w = 3
+print("{} {}".format(n, w))
 
-print("{} {}".format(n, m))
-for i in range(n-1):
-    print("{}".format(randint(1, i+1)))
-
-for i in range(m):
-    u = randint(1, n)
-    v = u + randint(1, n-1)
-    if v > n:
-        v -= n
-    if u > v:
-        u, v= v, u
-    print("{} {}".format(u, v))
+for i in range(n):
+    l = randint(1, w)
+    a = []
+    a.append(l)
+    for j in range(l):
+        a.append(randint(-10, 10))
+    for x in a:
+        print(x, end=' ')
+    print()

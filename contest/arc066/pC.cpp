@@ -71,12 +71,30 @@ public:
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-// const ll MAXN = 
+const ll MAXN = 100005;
 
-/********** Good Luck :) **********/
+int n;
+ll dp[MAXN][3];
 int main () {
-    TIME(main);
-    IOS();
+    cin >> n;
 
-    return 0;
+    dp[0][1] = -INF;
+    dp[0][2] = -INF;
+    cin >> dp[0][0];
+
+    REP1 (i, n-1) {
+        char op;
+        ll a;
+        cin >> op >> a;
+        if (op == '-') {
+            dp[i][0] = max({dp[i-1][0]-a, dp[i-1][1]+a, dp[i-1][2]-a});
+            dp[i][1] = max({dp[i-1][0]-a, dp[i-1][1]+a, dp[i-1][2]-a});
+            dp[i][2] = max(dp[i-1][1]+a, dp[i-1][2]-a);
+        } else {
+            dp[i][0] = max({dp[i-1][0]+a, dp[i-1][1]-a, dp[i-1][2]+a});
+            dp[i][1] = max(dp[i-1][1]-a, dp[i-1][2]+a);
+            dp[i][2] = dp[i-1][2]+a;
+        }
+    }
+    cout << dp[n-1][0] << endl;
 }

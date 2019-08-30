@@ -71,12 +71,69 @@ public:
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-// const ll MAXN = 
+const ll MAXN = 1000006;
+
+int n, a[MAXN];
+pii dp[1<<21];
+
+array<int, 4> v;
+void mrg (pii &p1, const pii &p2) {
+    v = {p1.X, p1.Y, p2.X, p2.Y};
+    sort(ALL(v));
+    p1 = pii(v[3], v[2]);
+    return;
+}
 
 /********** Good Luck :) **********/
-int main () {
+int main()
+{
     TIME(main);
     IOS();
 
+    cin >> n;
+
+    REP (i, (1<<21)) {
+        dp[i] = pii(-1, -1);
+    }
+
+    REP (i, n) {
+        cin >> a[i];
+        pii &cur = dp[((1<<21)-1) ^ a[i]];
+        if (i > cur.X) {
+            cur.Y = cur.X;
+            cur.X = i;
+        } else if (i > cur.Y) {
+            cur.Y = i;
+        }
+    }
+
+    {
+        TIME(DP);
+        REP (i, 21) {
+            REP (j, (1<<21)) {
+                if (j & (1<<i)) {
+                    mrg(dp[j], dp[j^(1<<i)]);
+                }
+            }
+        }
+    }
+
+    debug(dp[((1<<21)-1)^4]);
+    debug(dp[((1<<21)-1)^6]);
+    int ans = 0;
+    REP (j, n-2) {
+        int cur = 0;
+        for (int i=19; i>=0; i--) {
+            if (((a[j]>>i) & 1) ^ 1) {
+                if (dp[((1<<21)-1) ^ (cur | (1<<i))].Y > j) {
+                    cur |= (1<<i);
+                }
+            }
+        }
+        debug(cur, a[j]);
+        ans = max(ans, cur | a[j]);
+    }
+
+    cout << ans << endl;
     return 0;
 }

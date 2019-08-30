@@ -41,6 +41,7 @@
         "type_traits": "cpp",
         "typeindex": "cpp",
         "hash_map": "cpp",
-        "random": "cpp"
+        "random": "cpp",
+        "limits": "cpp"
     }
 }
