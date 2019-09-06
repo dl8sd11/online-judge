@@ -20,7 +20,6 @@ typedef pair<double,double> pdd;
 #define eb emplace_back
 #define X first
 #define Y second
-#define SRTUNQ(v) sort(ALL(v));v.resize(unique(ALL(v))-v.begin());
 #ifdef tmd
 #define TIME(i) Timer i(#i)
 #define debug(...) do{\
@@ -72,91 +71,77 @@ public:
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-const ll MAXN = 1003;
-const double EPS = 1e-14;
+const ll MAXN = 100005;
 
-int n;
-struct Line {
-	pii s, t, v;
-	Line (pii a, pii b) : s(a), t(b) {
-		v = pii(t.X - s.X, t.Y - s.Y);
-	}
+int n, m;
+vector<int> tr[MAXN];
+
+struct Node {
+    int l, r;
+    Node *lc, *rc;
+    int mx;
 };
-vector<Line> line;
-vector<pii> pts;
-vector<pair<int, pii> > ptcv;
+Node *root[MAXN];
 
-pii intersec (Line &a, Line &b) {
-	ll p1, p2, p3, p4, q1, q2, q3, q4;
-	tie(p1, q1) = a.s;
-	tie(p2, q2) = a.v;
-	tie(p3, q3) = b.s;
-	tie(p4, q4) = b.v;
-
-	ll d = p4 * q2 - p2 * q4;
-	if (d == 0) {
-		return pii(iNF, iNF);
-	}
-	ll dx = p4 * (q3-q1) - (p3-p1) * q4;
-	ll dy = p2 * (q3-q1) - (p3-p1) * q2;
-
-	if (dx * p2 % d != 0 || dx * q2 % d != 0) {
-		return pii(iNF, iNF);
-	}
-
-	return pii(p1+dx*p2/d, q1+dx*q2/d);
+int qry (int l, int r, Node *nd) {
+    if (!nd) {
+        return 0;
+    } else if (nd->l == l && r == nd->r) {
+        return nd->mx;
+    } else {
+        int mid = (nd->l + nd->r) >> 1;
+        if (l >= mid) {
+            return qry(l, r, nd->rc);
+        } else if (r <= mid) {
+            return qry(l, r, nd->lc);
+        } else {
+            return max(qry(l, mid, nd->lc), qry(mid, r, nd->rc));
+        }
+    }
 }
 
-
-
-bool out (int id, pdd pt) {
-	if (pt.X > max(line[id].s.X, line[id].t.X) || pt.X < min(line[id].s.X, line[id].t.X)) {
-		return true;
-	}
-	if (pt.Y > max(line[id].s.Y, line[id].t.Y) || pt.Y < min(line[id].s.Y, line[id].t.Y)) {
-		return true;
-	}
-	return false;
-}
-
-void check (int x, int y) {
-	pii inter = intersec(line[x], line[y]);
-
-	debug(x, y, inter);
-	if (out(x, inter) || out(y, inter)) {
-		return;
-	}
-
-	pts.eb(inter.X, inter.Y);
-	ptcv.eb(x, pii(inter.X, inter.Y));
-	ptcv.eb(y, pii(inter.X, inter.Y));
+void chg (int pos, int v, Node *nd) {
+    if (nd->l == nd->r-1) {
+        nd->mx = max(nd->mx, v);
+    } else {
+        int mid = (nd->l + nd->r) >> 1;
+        if (pos >= mid) {
+            if (!nd->rc) {
+                nd->rc = new Node{mid, nd->r, nullptr, nullptr, 0};
+            }
+            chg(pos, v, nd->rc);
+            nd->mx = max(nd->mx, nd->rc->mx);
+        } else {
+            if (!nd->lc) {
+                nd->lc = new Node{nd->l, mid, nullptr, nullptr, 0};
+            }
+            chg(pos, v, nd->lc);
+            nd->mx = max(nd->mx, nd->lc->mx);
+        }
+    }
 }
 /********** Good Luck :) **********/
 int main () {
     TIME(main);
     IOS();
 
-	cin >> n;
-	int ans = 0;
-	REP (i, n) {
-		pii a, b;
-		cin >> a.X >> a.Y >> b.X >> b.Y;
-		line.eb(a, b);
-		int gc = __gcd(abs(line[i].v.X), abs(line[i].v.Y));
-		ans += gc + 1;
-	}
-	debug(ans);
+    cin >> n >> m;
+    REP1 (i, n) {
+        root[i] = new Node{0, MAXN, nullptr, nullptr, 0};
+    }
 
-	REP (i, n) {
-		REP (j, i) {
-			check(i, j);
-		}
-	}
+    int ans = 0;
+    REP (i, m) {
+        int f, t, w;
+        cin >> f >> t >> w;
 
-	debug(pts);
-	SRTUNQ(pts);
-	SRTUNQ(ptcv);
+        int ret = qry(0, w, root[f]);
+        debug(ret);
+        ret++;
+        ans = max(ret, ans);
+        chg(w, ret, root[t]);
+    }
 
-	cout << ans - SZ(ptcv) + SZ(pts) << endl;
+    cout << ans << endl;
     return 0;
 }

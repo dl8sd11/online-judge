@@ -73,100 +73,43 @@ const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
 const ll MAXN = 1000006;
 
-ll n, w;
 
-ll seg1[MAXN * 2];
-void add1 (ll l, ll r, ll val) {
-    for (l+=w, r+=w; l<r; l>>=1, r>>=1) {
-        if (l&1) {
-            seg1[l] = max(seg1[l], val);
-            l++;
+ll ans, n;
+vector<int> v;
+void dfs (int idx) {
+    if (idx == n) {
+        vector<int> nw;
+        nw = v;
+        REP (i, n+3) {
+            nw.eb(v.back());
         }
-        if (r&1) {
-            r--;
-            seg1[r] = max(seg1[r], val);
+        debug(v);
+        debug(nw);
+
+        bool flag = true;
+        REP (i, n) {
+            REP1 (j, nw[i]) {
+                if (nw[i+1] != nw[i+j]) {
+                    flag = false;
+                }
+            }
+        }
+        ans += flag;
+    } else {
+        for (int i=1; i<=n; i++) {
+            v.eb(i);
+            dfs(idx+1);
+            v.pop_back();
         }
     }
 }
-
-ll qry1 (ll x) {
-    ll ret = -iNF;
-    for (x+=w; x>=1; x>>=1) {
-        ret = max(ret, seg1[x]);
-    }
-    return ret;
-}
-
-ll seg[MAXN * 2];
-void add (ll l, ll r,ll val) {
-    for (l+=w, r+=w; l<r; l>>=1, r>>=1) {
-        if (l&1) {
-            seg[l++] += val;
-        }
-        if (r&1) {
-            seg[--r] += val;
-        }
-    }
-
-}
-
-ll qry (ll x) {
-    ll ret = 0;
-    for (x+=w; x>=1; x>>=1) {
-        ret += seg[x];
-    }
-    return ret;
-}
-
 /********** Good Luck :) **********/
-int main()
-{
+int main () {
     TIME(main);
     IOS();
 
-    cin >> n >> w;
-    ll l, a[MAXN];
-    REP (i, n) {
-        cin >> l;
-        REP (j, l) {
-            cin >> a[j];
-        }
-        if (l * 2 > w) {
-            REP (j, w*2) {
-                seg1[j] = -iNF;
-            }
-            REP (j, l) {
-                add1(j,w-l+j+1,a[j]);
-            }
-            add1(l, w, 0);
-            add1(0, w-l, 0);
-            
-            REP (j, w) {
-                debug(qry1(j));
-                add(j, j+1, qry1(j));
-            }
-        } else {
-            ll mx = 0;
-            REP (j, l) {
-                mx = max(mx, a[j]);
-                add(j, j+1, mx);
-                debug(j, j+1, mx);
-            }
-
-            mx = 0;
-            REP (j, l) {
-                mx = max(mx, a[l-j-1]);
-                add(w-j-1, w-j, mx);
-                debug(w-j-1, w-j, mx);
-            }
-
-            add(l, w-l, mx);
-            debug(l, w-l, mx);
-        }
-    }
-
-    REP (i, w) {
-        cout << qry(i) << " \n"[i==w-1];
-    }
+    cin >> n;
+    dfs(0);
+    cout << ans << endl;
     return 0;
 }

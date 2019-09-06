@@ -20,7 +20,6 @@ typedef pair<double,double> pdd;
 #define eb emplace_back
 #define X first
 #define Y second
-#define SRTUNQ(v) sort(ALL(v));v.resize(unique(ALL(v))-v.begin());
 #ifdef tmd
 #define TIME(i) Timer i(#i)
 #define debug(...) do{\
@@ -72,91 +71,85 @@ public:
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-const ll MAXN = 1003;
-const double EPS = 1e-14;
+const ll MAXN = 500005;
 
-int n;
-struct Line {
-	pii s, t, v;
-	Line (pii a, pii b) : s(a), t(b) {
-		v = pii(t.X - s.X, t.Y - s.Y);
-	}
-};
-vector<Line> line;
-vector<pii> pts;
-vector<pair<int, pii> > ptcv;
+int n, m, k;
+ll c[MAXN];
 
-pii intersec (Line &a, Line &b) {
-	ll p1, p2, p3, p4, q1, q2, q3, q4;
-	tie(p1, q1) = a.s;
-	tie(p2, q2) = a.v;
-	tie(p3, q3) = b.s;
-	tie(p4, q4) = b.v;
+map<ll, vector<pii> > edge;
 
-	ll d = p4 * q2 - p2 * q4;
-	if (d == 0) {
-		return pii(iNF, iNF);
-	}
-	ll dx = p4 * (q3-q1) - (p3-p1) * q4;
-	ll dy = p2 * (q3-q1) - (p3-p1) * q2;
-
-	if (dx * p2 % d != 0 || dx * q2 % d != 0) {
-		return pii(iNF, iNF);
-	}
-
-	return pii(p1+dx*p2/d, q1+dx*q2/d);
+int djs[MAXN];
+int fnd (int x) {
+    return djs[x] == x ? x : djs[x] = fnd(djs[x]);
 }
 
-
-
-bool out (int id, pdd pt) {
-	if (pt.X > max(line[id].s.X, line[id].t.X) || pt.X < min(line[id].s.X, line[id].t.X)) {
-		return true;
-	}
-	if (pt.Y > max(line[id].s.Y, line[id].t.Y) || pt.Y < min(line[id].s.Y, line[id].t.Y)) {
-		return true;
-	}
-	return false;
+void mrg (int x, int y) {
+    x = fnd(x), y = fnd(y);
+    djs[x] = y;
 }
 
-void check (int x, int y) {
-	pii inter = intersec(line[x], line[y]);
-
-	debug(x, y, inter);
-	if (out(x, inter) || out(y, inter)) {
-		return;
-	}
-
-	pts.eb(inter.X, inter.Y);
-	ptcv.eb(x, pii(inter.X, inter.Y));
-	ptcv.eb(y, pii(inter.X, inter.Y));
+ll mpow(ll base,ll ep) {
+    ep = ep % (MOD - 1);
+    ll ret = 1;
+    while (ep > 0) {
+        if (ep & 1) {
+            ret = ret * base % MOD;
+        }
+        base = base * base % MOD;
+        ep >>= 1;
+    }
+    return ret;
 }
 /********** Good Luck :) **********/
 int main () {
     TIME(main);
     IOS();
+    cin >> n >> m >> k;
+    REP1 (i, n) {
+        cin >> c[i];
+    }
+    REP (i, m) {
+        int u, v;
+        cin >> u >> v;
+        ll cur = c[u] ^ c[v];
+        edge[cur].eb(u, v);
+    }
 
-	cin >> n;
-	int ans = 0;
-	REP (i, n) {
-		pii a, b;
-		cin >> a.X >> a.Y >> b.X >> b.Y;
-		line.eb(a, b);
-		int gc = __gcd(abs(line[i].v.X), abs(line[i].v.Y));
-		ans += gc + 1;
-	}
-	debug(ans);
+    REP1 (i, n) {
+        djs[i] = i;
+    }
 
-	REP (i, n) {
-		REP (j, i) {
-			check(i, j);
-		}
-	}
+    ll ans = 0;
+    for (auto p : edge) {
+        auto edg = p.Y;
+        vector<int> vt;
 
-	debug(pts);
-	SRTUNQ(pts);
-	SRTUNQ(ptcv);
+        for (auto e : edg) {
+            vt.eb(e.X);
+            vt.eb(e.Y);
+            mrg(e.X, e.Y);
+        }
+        sort(ALL(vt));
+        vt.resize(unique(ALL(vt))-vt.begin());
 
-	cout << ans - SZ(ptcv) + SZ(pts) << endl;
+        vector<int> gp;
+        for (auto v : vt) {
+            gp.eb(fnd(v));
+        }
+
+        sort(ALL(gp));
+        gp.resize(unique(ALL(gp))-gp.begin());
+
+        (ans += mpow(2, SZ(gp)) * mpow(2, n - SZ(vt))) %= MOD;
+        debug(p.X, SZ(gp), SZ(vt));
+        debug(mpow(2, SZ(gp) * mpow(2, n - SZ(vt))));
+        for (auto v : vt) {
+            djs[v] = v;
+        }
+    }
+
+    (ans += (mpow(2, k) - SZ(edge)) * mpow(2, n)) %= MOD;
+
+    cout << ans << endl;
     return 0;
 }

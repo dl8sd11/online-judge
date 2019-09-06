@@ -9,16 +9,18 @@ def randomString(stringLength=10):
     return ''.join(random.choice(letters) for i in range(stringLength))
 
 
-n = 1
-w = 3
-print("{} {}".format(n, w))
+n = 1000
+k = 0
+print(n)
+print(k)
+
+p1 = []
+q1 = []
+
 
 for i in range(n):
-    l = randint(1, w)
-    a = []
-    a.append(l)
-    for j in range(l):
-        a.append(randint(-10, 10))
-    for x in a:
-        print(x, end=' ')
-    print()
+    p1.append(i+1)
+    q1.append(i+1)
+
+shuffle(p1)
+shuffle(q1)

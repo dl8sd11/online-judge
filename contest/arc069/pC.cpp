@@ -20,7 +20,6 @@ typedef pair<double,double> pdd;
 #define eb emplace_back
 #define X first
 #define Y second
-#define SRTUNQ(v) sort(ALL(v));v.resize(unique(ALL(v))-v.begin());
 #ifdef tmd
 #define TIME(i) Timer i(#i)
 #define debug(...) do{\
@@ -72,91 +71,49 @@ public:
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-const ll MAXN = 1003;
-const double EPS = 1e-14;
+const ll MAXN = 100005;
 
 int n;
-struct Line {
-	pii s, t, v;
-	Line (pii a, pii b) : s(a), t(b) {
-		v = pii(t.X - s.X, t.Y - s.Y);
-	}
-};
-vector<Line> line;
-vector<pii> pts;
-vector<pair<int, pii> > ptcv;
+ll a[MAXN];
+pll val[MAXN];
+vector<pll> gp;
 
-pii intersec (Line &a, Line &b) {
-	ll p1, p2, p3, p4, q1, q2, q3, q4;
-	tie(p1, q1) = a.s;
-	tie(p2, q2) = a.v;
-	tie(p3, q3) = b.s;
-	tie(p4, q4) = b.v;
-
-	ll d = p4 * q2 - p2 * q4;
-	if (d == 0) {
-		return pii(iNF, iNF);
-	}
-	ll dx = p4 * (q3-q1) - (p3-p1) * q4;
-	ll dy = p2 * (q3-q1) - (p3-p1) * q2;
-
-	if (dx * p2 % d != 0 || dx * q2 % d != 0) {
-		return pii(iNF, iNF);
-	}
-
-	return pii(p1+dx*p2/d, q1+dx*q2/d);
-}
-
-
-
-bool out (int id, pdd pt) {
-	if (pt.X > max(line[id].s.X, line[id].t.X) || pt.X < min(line[id].s.X, line[id].t.X)) {
-		return true;
-	}
-	if (pt.Y > max(line[id].s.Y, line[id].t.Y) || pt.Y < min(line[id].s.Y, line[id].t.Y)) {
-		return true;
-	}
-	return false;
-}
-
-void check (int x, int y) {
-	pii inter = intersec(line[x], line[y]);
-
-	debug(x, y, inter);
-	if (out(x, inter) || out(y, inter)) {
-		return;
-	}
-
-	pts.eb(inter.X, inter.Y);
-	ptcv.eb(x, pii(inter.X, inter.Y));
-	ptcv.eb(y, pii(inter.X, inter.Y));
-}
+ll ans[MAXN];
 /********** Good Luck :) **********/
 int main () {
     TIME(main);
     IOS();
 
-	cin >> n;
-	int ans = 0;
-	REP (i, n) {
-		pii a, b;
-		cin >> a.X >> a.Y >> b.X >> b.Y;
-		line.eb(a, b);
-		int gc = __gcd(abs(line[i].v.X), abs(line[i].v.Y));
-		ans += gc + 1;
-	}
-	debug(ans);
+    cin >> n;
+    REP (i, n) {
+        cin >> a[i];
+        val[i].X = a[i];
+        val[i].Y = i;
+    }
+    sort(val, val+n);
 
-	REP (i, n) {
-		REP (j, i) {
-			check(i, j);
-		}
-	}
+    ll con = 0, mn = iNF;
+    REP (i, n) {
+        con++;
+        mn = min(mn, val[i].Y);
+        if (i == n-1 || val[i].X != val[i+1].X) {
+            gp.eb(mn, con);
+            mn = iNF;
+            con = 0;
+        }
+    }
 
-	debug(pts);
-	SRTUNQ(pts);
-	SRTUNQ(ptcv);
+    debug(gp);
 
-	cout << ans - SZ(ptcv) + SZ(pts) << endl;
+    ll sz = 0, id = iNF;
+    RREP (i, SZ(gp)-1) {
+        sz += gp[i].Y;
+        id = min(gp[i].X, id);
+        ans[id] += (a[gp[i].X] - (i ? a[gp[i-1].X] : 0)) * sz;
+    }
+
+    REP (i, n) {
+        cout << ans[i] << endl;
+    }
     return 0;
 }

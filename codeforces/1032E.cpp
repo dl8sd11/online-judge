@@ -20,7 +20,6 @@ typedef pair<double,double> pdd;
 #define eb emplace_back
 #define X first
 #define Y second
-#define SRTUNQ(v) sort(ALL(v));v.resize(unique(ALL(v))-v.begin());
 #ifdef tmd
 #define TIME(i) Timer i(#i)
 #define debug(...) do{\
@@ -69,94 +68,75 @@ public:
     }
 };
 
-const ll MOD = 1000000007;
+const ll MOD = 989327761;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-const ll MAXN = 1003;
-const double EPS = 1e-14;
+const ll MAXN = 102;
 
-int n;
-struct Line {
-	pii s, t, v;
-	Line (pii a, pii b) : s(a), t(b) {
-		v = pii(t.X - s.X, t.Y - s.Y);
-	}
-};
-vector<Line> line;
-vector<pii> pts;
-vector<pair<int, pii> > ptcv;
+int n, a[MAXN], dp[MAXN][MAXN*MAXN];
+int cnt[MAXN];
 
-pii intersec (Line &a, Line &b) {
-	ll p1, p2, p3, p4, q1, q2, q3, q4;
-	tie(p1, q1) = a.s;
-	tie(p2, q2) = a.v;
-	tie(p3, q3) = b.s;
-	tie(p4, q4) = b.v;
+int c[MAXN][MAXN];
 
-	ll d = p4 * q2 - p2 * q4;
-	if (d == 0) {
-		return pii(iNF, iNF);
-	}
-	ll dx = p4 * (q3-q1) - (p3-p1) * q4;
-	ll dy = p2 * (q3-q1) - (p3-p1) * q2;
-
-	if (dx * p2 % d != 0 || dx * q2 % d != 0) {
-		return pii(iNF, iNF);
-	}
-
-	return pii(p1+dx*p2/d, q1+dx*q2/d);
+void build () {
+    c[0][0] = 1;
+    REP1 (i, MAXN-1) {
+        c[i][0] = 1;
+        REP1 (j, MAXN-1) {
+            c[i][j] = (c[i-1][j] + c[i-1][j-1]) % MOD;
+        }
+    } 
 }
 
-
-
-bool out (int id, pdd pt) {
-	if (pt.X > max(line[id].s.X, line[id].t.X) || pt.X < min(line[id].s.X, line[id].t.X)) {
-		return true;
-	}
-	if (pt.Y > max(line[id].s.Y, line[id].t.Y) || pt.Y < min(line[id].s.Y, line[id].t.Y)) {
-		return true;
-	}
-	return false;
-}
-
-void check (int x, int y) {
-	pii inter = intersec(line[x], line[y]);
-
-	debug(x, y, inter);
-	if (out(x, inter) || out(y, inter)) {
-		return;
-	}
-
-	pts.eb(inter.X, inter.Y);
-	ptcv.eb(x, pii(inter.X, inter.Y));
-	ptcv.eb(y, pii(inter.X, inter.Y));
-}
+set<int> gp;
 /********** Good Luck :) **********/
 int main () {
     TIME(main);
     IOS();
+ 
+    dp[0][0] = 1;
+    build();
+    cin >> n;
 
-	cin >> n;
-	int ans = 0;
-	REP (i, n) {
-		pii a, b;
-		cin >> a.X >> a.Y >> b.X >> b.Y;
-		line.eb(a, b);
-		int gc = __gcd(abs(line[i].v.X), abs(line[i].v.Y));
-		ans += gc + 1;
-	}
-	debug(ans);
+    int sum = 0;
+    REP1 (i, n) {
+        cin >> a[i];
+        gp.insert(a[i]);
+        for (int k=MAXN-1; k>=1; k--) {
+            for (int j=MAXN*MAXN-1; j>=a[i]; j--) {
+                dp[k][j] += dp[k-1][j-a[i]];
+                dp[k][j] %= MOD;
+            }
+        }
+        cnt[a[i]]++;
+        sum += a[i];
+    }
+    debug(sum);
+    debug(dp[16][1205-200]);
 
-	REP (i, n) {
-		REP (j, i) {
-			check(i, j);
-		}
-	}
+    if (SZ(gp) == 1 || SZ(gp) == 2) {
+        cout << n << endl;
+        return 0;
+    }
 
-	debug(pts);
-	SRTUNQ(pts);
-	SRTUNQ(ptcv);
+    int ans = 0;
+    REP1 (i, MAXN-1) {
+        REP1 (j, cnt[i]) {
+            if (dp[j][i * j] == c[cnt[i]][j]) {
+                debug(i, j);
+                ans = max(ans, j);
+            }
+        }
 
-	cout << ans - SZ(ptcv) + SZ(pts) << endl;
+        REP (j, cnt[i]) {
+            if (dp[n-(cnt[i]-j)][sum - (cnt[i] - j) * a[i]] == c[cnt[i]][j]) {
+                debug(i, j, cnt[i]-j);
+                ans = max(ans, cnt[i]-j);
+            }
+        }
+
+    }
+
+    cout << ans << endl;
     return 0;
 }

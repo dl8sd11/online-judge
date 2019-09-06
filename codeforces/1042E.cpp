@@ -20,7 +20,6 @@ typedef pair<double,double> pdd;
 #define eb emplace_back
 #define X first
 #define Y second
-#define SRTUNQ(v) sort(ALL(v));v.resize(unique(ALL(v))-v.begin());
 #ifdef tmd
 #define TIME(i) Timer i(#i)
 #define debug(...) do{\
@@ -69,94 +68,80 @@ public:
     }
 };
 
-const ll MOD = 1000000007;
+const ll MOD = 998244353;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-const ll MAXN = 1003;
-const double EPS = 1e-14;
+const ll MAXN = 1003; 
 
-int n;
-struct Line {
-	pii s, t, v;
-	Line (pii a, pii b) : s(a), t(b) {
-		v = pii(t.X - s.X, t.Y - s.Y);
-	}
-};
-vector<Line> line;
-vector<pii> pts;
-vector<pair<int, pii> > ptcv;
+int n, m;
+vector<pair<ll, pii>> a;
+ll dp[MAXN][MAXN];
+ll isq, jsq, isu, jsu, dps;
 
-pii intersec (Line &a, Line &b) {
-	ll p1, p2, p3, p4, q1, q2, q3, q4;
-	tie(p1, q1) = a.s;
-	tie(p2, q2) = a.v;
-	tie(p3, q3) = b.s;
-	tie(p4, q4) = b.v;
-
-	ll d = p4 * q2 - p2 * q4;
-	if (d == 0) {
-		return pii(iNF, iNF);
-	}
-	ll dx = p4 * (q3-q1) - (p3-p1) * q4;
-	ll dy = p2 * (q3-q1) - (p3-p1) * q2;
-
-	if (dx * p2 % d != 0 || dx * q2 % d != 0) {
-		return pii(iNF, iNF);
-	}
-
-	return pii(p1+dx*p2/d, q1+dx*q2/d);
-}
-
-
-
-bool out (int id, pdd pt) {
-	if (pt.X > max(line[id].s.X, line[id].t.X) || pt.X < min(line[id].s.X, line[id].t.X)) {
-		return true;
-	}
-	if (pt.Y > max(line[id].s.Y, line[id].t.Y) || pt.Y < min(line[id].s.Y, line[id].t.Y)) {
-		return true;
-	}
-	return false;
-}
-
-void check (int x, int y) {
-	pii inter = intersec(line[x], line[y]);
-
-	debug(x, y, inter);
-	if (out(x, inter) || out(y, inter)) {
-		return;
-	}
-
-	pts.eb(inter.X, inter.Y);
-	ptcv.eb(x, pii(inter.X, inter.Y));
-	ptcv.eb(y, pii(inter.X, inter.Y));
+ll mpow(ll base,ll ep) {
+    ep = ep % (MOD - 1);
+    ll ret = 1;
+    while (ep > 0) {
+        if (ep & 1) {
+            ret = ret * base % MOD;
+        }
+        base = base * base % MOD;
+        ep >>= 1;
+    }
+    return ret;
 }
 /********** Good Luck :) **********/
 int main () {
     TIME(main);
     IOS();
 
-	cin >> n;
-	int ans = 0;
-	REP (i, n) {
-		pii a, b;
-		cin >> a.X >> a.Y >> b.X >> b.Y;
-		line.eb(a, b);
-		int gc = __gcd(abs(line[i].v.X), abs(line[i].v.Y));
-		ans += gc + 1;
-	}
-	debug(ans);
+    cin >> n >> m;
+    REP (i, n) {
+        REP (j, m) {
+            ll d;
+            cin >> d;
+            a.eb(d, pii(i, j));
+        }
+    }
 
-	REP (i, n) {
-		REP (j, i) {
-			check(i, j);
-		}
-	}
+    sort(ALL(a));
+    debug(a);
+    int r, c;
+    cin >> r >> c;
 
-	debug(pts);
-	SRTUNQ(pts);
-	SRTUNQ(ptcv);
+    ll idx = 0;
+    for (auto el : a) {
+        while (idx < SZ(a) && a[idx].X < el.X) {
+            (isu += a[idx].Y.X) %= MOD; 
+            (isq += SQ(a[idx].Y.X)) %= MOD; 
+            (jsu += a[idx].Y.Y) %= MOD; 
+            (jsq += SQ(a[idx].Y.Y)) %= MOD; 
+            (dps += dp[a[idx].Y.X][a[idx].Y.Y]) %= MOD;
+            idx++;
+        }
 
-	cout << ans - SZ(ptcv) + SZ(pts) << endl;
+        if (idx == 0){
+            continue;
+        }
+
+        int i, j;
+        tie(i, j) = el.Y; 
+        debug(isq, jsq, isu, jsu);
+        dp[i][j] = (dps + isq + SQ(i)*idx%MOD + jsq + SQ(j)*idx%MOD - isu*i*2%MOD -jsu*j*2%MOD)%MOD;
+        debug(dp[i][j]);
+        if (dp[i][j] < 0) {
+            dp[i][j] += MOD;
+        }
+        (dp[i][j] *= mpow(idx, MOD-2)) %= MOD;
+        debug(i, j, dp[i][j]);
+        #ifdef tmd
+        ll x, y;
+        cin >> x >> y;
+        assert(x*mpow(y, MOD-2)%MOD == dp[i][j]);
+
+        #endif
+    }
+
+    cout << dp[r-1][c-1] << endl;
     return 0;
 }
