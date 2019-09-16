@@ -71,12 +71,38 @@ public:
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-// const ll MAXN = 
+const ll MAXN = 200005;
 
+int n, m;
+pii rng[MAXN];
+pii rbt[MAXN];
+
+void mrg (int x, int y) {
+    pii nr = pii(min(rng[x].X, rng[y].X), max(rng[x].Y, rng[y].Y));
+    rng[x] = rng[y] = nr;
+}
 /********** Good Luck :) **********/
 int main () {
     TIME(main);
     IOS();
+
+    cin >> n >> m;
+    REP (i, m) {
+        cin >> rbt[i].X >> rbt[i].Y;
+    }
+    sort(rbt, rbt + m);
+
+    REP1 (i, n) {
+        rng[i] = pii(i, i);
+    }
+
+    REP (i, m) {
+        mrg(rbt[i].Y, rbt[i].Y+1);
+    }
+
+    REP1 (i, n) {
+        cout << rng[i].Y - rng[i].X + 1 << " \n"[i==n];
+    }
 
     return 0;
 }

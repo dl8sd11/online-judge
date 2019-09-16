@@ -73,10 +73,35 @@ const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
 // const ll MAXN = 
 
+int r, s, p;
+vector<int> tms;
 /********** Good Luck :) **********/
 int main () {
     TIME(main);
     IOS();
+
+    cin >> r >> s >> p;
+
+    REP (i, p) {
+        int x, y;
+        cin >> x >> y;
+        int c = y <= s ? s+1-y : y-s;
+        tms.eb(r+1-x+c);
+    }
+
+    sort(ALL(tms));
+    debug(tms);
+
+    int lst = -1;
+    for (auto v : tms) {
+        if (v > lst) {
+            lst = v;
+        } else {
+            lst++;
+        }
+    }
+
+    cout << lst << endl;
 
     return 0;
 }

@@ -71,12 +71,46 @@ public:
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-// const ll MAXN = 
+const ll MAXN = 200005;
 
+int n, a[MAXN], neg, pos;
 /********** Good Luck :) **********/
 int main () {
     TIME(main);
     IOS();
+
+    cin >> n;
+    REP (i, n) {
+        cin >> a[i];
+        a[i] = a[i] > 0 ? 1 : -1;
+    }
+
+
+    int cur = 1;
+    REP (i, n) {
+        cur *= a[i];
+        if (cur > 0) {
+            pos++;
+        } else {
+            neg++;
+        }
+    }
+
+    ll ap = 0, an = 0;
+    REP (i, n) {
+        debug(pos, neg);
+        ap += pos;
+        an += neg;
+        if (a[i] > 0) {
+            pos--;
+        } else {
+            neg--;
+        }
+        if (a[i] < 0) {
+            swap(pos, neg);
+        }
+    }
+    cout << an << " " << ap << endl;
 
     return 0;
 }

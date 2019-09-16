@@ -71,12 +71,37 @@ public:
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-// const ll MAXN = 
+const ll MAXN = 200005;
 
+int n, q;
+bool vis[MAXN], vis2[MAXN];
+vector<int> op;
 /********** Good Luck :) **********/
 int main () {
     TIME(main);
     IOS();
+
+    cin >> n >> q;
+    REP (i, q) {
+        int d;
+        cin >> d;
+        vis[d] = true;
+        op.eb(d);
+    }
+
+    REP (i, q) {
+        if (!vis2[op.back()]) {
+            cout << op.back() << endl;
+            vis2[op.back()] = true;
+        }
+        op.pop_back();
+    }
+
+    REP1 (i, n) {
+        if (!vis[i]) {
+            cout << i << endl;
+        }
+    }
 
     return 0;
 }

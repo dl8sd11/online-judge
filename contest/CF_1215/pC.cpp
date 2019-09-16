@@ -73,10 +73,53 @@ const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
 // const ll MAXN = 
 
+int n;
+string a, b;
+
+vector<int> ab, ba;
 /********** Good Luck :) **********/
 int main () {
     TIME(main);
     IOS();
+
+    cin >> n;
+    cin >> a >> b;
+
+    REP (i, n) {
+        if (a[i] == 'a' && b[i] == 'b') {
+            ab.eb(i+1);
+        } else if (a[i] == 'b' && b[i] == 'a') {
+            ba.eb(i+1);
+        }
+    }
+
+    if ((SZ(ab) + SZ(ba)) %2 == 0) {
+        cout << SZ(ab)/2 + SZ(ba)/2 + 2*(SZ(ab)&1) << endl;
+        int lm = SZ(ab)/2 + SZ(ba)/2 + 2*(SZ(ab)&1);
+        while (SZ(ab) >= 2) {
+            cout << ab[SZ(ab)-1] << " " << ab[SZ(ab)-2] << endl;
+            lm--;
+            ab.pop_back();
+            ab.pop_back();
+        }
+        while (SZ(ba) >= 2) {
+            cout << ba[SZ(ba)-1] << " " << ba[SZ(ba)-2] << endl;
+            lm--;
+            ba.pop_back();
+            ba.pop_back();
+        }
+        if (SZ(ab)) {
+            assert(SZ(ba));
+            cout << ab.front() << " " << ab.front() << endl;
+            cout << ab.front() << " " << ba.front() << endl;
+            lm--;
+            lm--;
+        }
+
+        assert(lm == 0);
+    } else {
+        cout << -1 << endl;
+    }
 
     return 0;
 }

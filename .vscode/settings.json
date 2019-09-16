@@ -42,6 +42,8 @@
         "typeindex": "cpp",
         "hash_map": "cpp",
         "random": "cpp",
-        "limits": "cpp"
+        "limits": "cpp",
+        "iomanip": "cpp",
+        "set": "cpp"
     }
 }

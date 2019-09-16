@@ -45,6 +45,13 @@ template<typename _a> ostream &operator << (ostream &_s,deque<_a> &_c){return _O
 template<typename _a,typename _b> ostream &operator << (ostream &_s,map<_a,_b> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS()
+#else
+#define TIME(i)
+#define debug(...)
+#define pary(...)
+#define endl '\n'
+#define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
+#endif
 class Timer {
 private:
     string scope_name;
@@ -60,23 +67,59 @@ public:
         debug(scope_name, mlength);
     }
 };
-#else
-#define TIME(i)
-#define debug(...)
-#define pary(...)
-#define endl '\n'
-#define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
-#endif
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-// const ll MAXN = 
+const ll MAXN = 102; 
 
+ll x, y;
+ll sg[MAXN][MAXN];
+
+ll solve (int i, int j) {
+    if (sg[i][j] != -1) {
+        return sg[i][j];
+    } else {
+        bool ocp[MAXN*MAXN] = {};
+        REP1 (k, MAXN-1) {
+            if (i >= k*2) {
+                ocp[solve(i-k*2, j+k)] = true;
+            }
+            if (j >= k*2) {
+                ocp[solve(i+k, j-k*2)] = true;
+            }
+        }
+
+        REP (k, MAXN*MAXN) {
+            if (!ocp[k]) {
+                sg[i][j] = k;
+                return sg[i][j];
+            }
+        }
+        assert(true);
+    }
+}
 /********** Good Luck :) **********/
 int main () {
     TIME(main);
     IOS();
 
+    // MEM(sg, -1);
+
+    // int n = 20;
+    // REP (i, n) {
+    //     REP (j, n) {
+    //         cout << setw(2) << setfill(' ') << solve(i, j) << " \n"[j==n-1];
+    //     }
+    // }
+
+
+    ll x, y;
+    cin >> x >> y;
+    if (abs(x-y) <= 1) {
+        cout << "Brown" << endl;
+    } else {
+        cout << "Alice" << endl;
+    }
     return 0;
 }

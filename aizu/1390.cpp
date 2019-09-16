@@ -71,12 +71,47 @@ public:
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-// const ll MAXN = 
+const ll MAXN = 5003;
 
+int n, v[MAXN];
+int dp[MAXN][MAXN];
+int dl[MAXN][MAXN];
 /********** Good Luck :) **********/
 int main () {
     TIME(main);
     IOS();
+
+    cin >> n;
+    REP (i, n) {
+        cin >> v[i];
+    }
+    sort(v, v+n);
+    REP (i, n) {
+        REP (j, i) {
+            dl[i][j] = v[i] - v[j];
+        }
+        sort(dl[i], dl[i]+i);
+        pary(dl[i], dl[i]+i);
+    }
+
+    int ans = 0;
+    REP (i, n) {
+        REP (j, i) {
+            int d = v[i] - v[j];
+            int idx = lower_bound(dl[j], dl[j]+j, d) - dl[j];
+            int idx2 = lower_bound(dl[i], dl[i]+i, d) - dl[i];
+            if (dl[j][idx] == d) {
+                dp[i][idx2] = dp[j][idx] + 1;
+            } else {
+                dp[i][idx2] = 2;
+            }
+            debug(i, j, d, idx, idx2);
+            ans = max(ans, dp[i][idx2]);
+        }
+    }
+
+    cout << ans << endl;
+
 
     return 0;
 }

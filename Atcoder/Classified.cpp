@@ -45,6 +45,13 @@ template<typename _a> ostream &operator << (ostream &_s,deque<_a> &_c){return _O
 template<typename _a,typename _b> ostream &operator << (ostream &_s,map<_a,_b> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS()
+#else
+#define TIME(i)
+#define debug(...)
+#define pary(...)
+#define endl '\n'
+#define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
+#endif
 class Timer {
 private:
     string scope_name;
@@ -60,23 +67,62 @@ public:
         debug(scope_name, mlength);
     }
 };
-#else
-#define TIME(i)
-#define debug(...)
-#define pary(...)
-#define endl '\n'
-#define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
-#endif
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-// const ll MAXN = 
+const ll MAXN = 502;
 
+int n;
+int vis[MAXN], dep[MAXN];
+int ans[MAXN][MAXN];
+int cnt[MAXN];
+
+void dfs (int nd, int id, int lev) {
+    vis[nd] = id;
+    REP1 (i, n) {
+        if (i != nd) {
+            if (vis[i] == id && ((dep[i]^dep[nd])&1) && ans[i][nd] == 0) {
+                ans[i][nd] = lev;
+                ans[nd][i] = lev;
+                cnt[i]++;
+                cnt[nd]++;
+            } else if (vis[i] == 0 && ans[i][nd] == 0) {
+                dep[i] = dep[nd] + 1;
+                ans[i][nd] = lev;
+                ans[nd][i] = lev;
+                cnt[i]++;
+                cnt[nd]++;
+
+                dfs(i, id, lev);
+            }
+        }
+    }
+}
 /********** Good Luck :) **********/
 int main () {
     TIME(main);
     IOS();
 
+    cin >> n;
+    REP1 (rd, n*n) {
+        MEM(vis, 0);
+        MEM(dep, 0);
+        debug(cnt[1], cnt[5]);
+        debug(ans[1][5]);
+        debug(ans[5][1]);
+        REP1 (i, n) {
+            if (cnt[i] < n-1 && vis[i] == 0) {
+                debug(i);
+                dfs(i, i, rd);
+            }
+        }
+    }
+
+    REP1 (i, n) {
+        for (int j=i+1; j<=n; j++) {
+            cout << ans[i][j] << " \n"[j==n];
+        }
+    }
     return 0;
 }

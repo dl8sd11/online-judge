@@ -45,6 +45,13 @@ template<typename _a> ostream &operator << (ostream &_s,deque<_a> &_c){return _O
 template<typename _a,typename _b> ostream &operator << (ostream &_s,map<_a,_b> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS()
+#else
+#define TIME(i)
+#define debug(...)
+#define pary(...)
+#define endl '\n'
+#define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
+#endif
 class Timer {
 private:
     string scope_name;
@@ -60,23 +67,115 @@ public:
         debug(scope_name, mlength);
     }
 };
-#else
-#define TIME(i)
-#define debug(...)
-#define pary(...)
-#define endl '\n'
-#define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
-#endif
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-// const ll MAXN = 
+const int MAXN = 100005;
+const int MAXLG = __lg(100005) + 3;
+const int MAXK = 1000006;
 
+int n, q, a[MAXN];
+ll cnt[MAXK], cnt2[MAXK];
+int st[MAXLG][MAXN];
+
+void build_st () {
+    REP1 (i, MAXLG) {
+        REP (j, n) {
+            if (j+(1<<i) <= n) {
+                st[i][j] = __gcd(st[i-1][j], st[i-1][j+(1<<(i-1))]);
+            }
+        }
+    }
+}
+
+int rmq_gcd (int l, int r) { // [l,r)
+    int len = __lg(r-l);
+    return __gcd(st[len][l], st[len][r-(1<<len)]);
+}
+
+void calc_segment (int start) {
+    int cur = start;
+    while (cur < n) {
+        int l = cur, r = n;
+        while (l < r - 1) {
+            int mid = (l + r) >> 1;
+            if (rmq_gcd(start, mid+1) == rmq_gcd(start, cur+1)) {
+                l = mid;
+            } else {
+                r = mid;
+            }
+        }
+        int ret = rmq_gcd(start, cur+1);
+        if (ret < MAXK) {
+            cnt[ret] += r - cur;
+        }
+        cur = r;
+    }
+}
 /********** Good Luck :) **********/
 int main () {
     TIME(main);
     IOS();
 
+    cin >> n;
+    REP (i, n) {
+        #ifdef tmd
+            a[i] = rand() % 1000000000 + 1;
+        #else
+            cin >> a[i];
+        #endif
+        st[0][i] = a[i];
+    }
+
+    {
+        TIME(pre_calc);
+        build_st();
+        REP (i, n) {
+            calc_segment(i);
+        }
+    }
+
+    {
+        REP (i, n) {
+            int g = 0;
+            for (int j=i; j<n; j++) {
+                g = __gcd(g, a[j]);
+                if (g < MAXK) {
+                    cnt2[g]++;
+                }
+            }
+        }
+    }
+
+    REP (i, MAXK) {
+        assert(cnt[i] == cnt2[i]);
+    }
+
+    cin >> q;
+    while (q--) {
+        int k;
+        #ifdef tmd
+            k = rand() % 1000000 + 1;
+        #else
+            cin >> k;
+        #endif
+
+        ll ans = 0;
+        for (int i=1; i*i<=k; i++) {
+            if (k % i == 0) {
+                ans += cnt[i];
+                if (i != k/i) {
+                    ans += cnt[k/i];
+                }
+            }
+        }
+
+        cout << ans << endl;
+        
+        
+    }
+
+    
     return 0;
 }

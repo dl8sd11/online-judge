@@ -71,12 +71,62 @@ public:
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-// const ll MAXN = 
+const ll MAXN = 100005;
+
+int n, k, ans;
+set<int> edge[MAXN];
+bool vis[MAXN];
+bool tk[MAXN];
+
+set<pii> us;
+void add_edge (int x, int y) {
+    if (edge[x].count(y)) {
+        ans++;
+    } else {
+        edge[x].insert(y);
+        edge[y].insert(x);
+    }
+}
+
+void dfs (int nd) {
+    vis[nd] = true;
+    for (auto v : edge[nd]) {
+        if (us.count(pii(v, nd)) == 0) {
+            us.insert(pii(nd,v));
+            us.insert(pii(v,nd));
+
+            if (tk[v] && tk[nd]) {
+                ans++;
+            }
+            tk[v] = tk[nd] = true;
+
+            if (!vis[v]) {
+                dfs(v);
+            }
+        }
+    }
+}
 
 /********** Good Luck :) **********/
 int main () {
     TIME(main);
     IOS();
 
+    cin >> n >> k;
+    REP (i, k) {
+        int x, y;
+        cin >> x >> y;
+        add_edge(x, y);
+    }
+
+    REP1 (i, n) {
+        if (!vis[i]) {
+            dfs(i);
+        }
+    }
+
+    cout << ans << endl;
+
     return 0;
 }
+/**********Meow***********/

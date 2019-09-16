@@ -45,6 +45,13 @@ template<typename _a> ostream &operator << (ostream &_s,deque<_a> &_c){return _O
 template<typename _a,typename _b> ostream &operator << (ostream &_s,map<_a,_b> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS()
+#else
+#define TIME(i)
+#define debug(...)
+#define pary(...)
+#define endl '\n'
+#define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
+#endif
 class Timer {
 private:
     string scope_name;
@@ -60,23 +67,95 @@ public:
         debug(scope_name, mlength);
     }
 };
-#else
-#define TIME(i)
-#define debug(...)
-#define pary(...)
-#define endl '\n'
-#define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
-#endif
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
 // const ll MAXN = 
 
+ll n;
+vector<ll> a, b, p;
 /********** Good Luck :) **********/
 int main () {
     TIME(main);
     IOS();
 
+    cin >> n;
+    REP (i, n) {
+        ll pos;
+        char c;
+        cin >> pos >> c;
+        if (c == 'R') {
+            a.eb(pos);
+        } else if (c == 'B') {
+            b.eb(pos);
+        } else {
+            p.eb(pos);
+        }
+    }
+
+    ll ap = 0, bp = 0;
+    ll ans = 0;
+    REP (i, SZ(p)-1) {
+        ll amx = 0, bmx = 0;
+        ll lst = p[i];
+        while (ap < SZ(a) && a[ap] < p[i]) {
+            ap++;
+        }
+        while (bp < SZ(b) && b[bp] < p[i]) {
+            bp++;
+        }
+        while (ap < SZ(a) && a[ap] < p[i+1]) {
+            amx = max(amx, a[ap] - lst);
+            lst = a[ap];
+            ap++;
+        }
+        lst = p[i];
+        while (bp < SZ(b) && b[bp] < p[i+1]) {
+            bmx = max(bmx, b[bp] - lst);
+            lst = b[bp];
+            bp++;
+        }
+        debug(ap, bp);
+        if (amx != 0) {
+            amx = max(amx, p[i+1] - a[ap-1]);
+        }
+        if (bmx != 0) {
+            bmx = max(bmx, p[i+1] - b[bp-1]);
+        }
+
+        ll cur = 2*(p[i+1]-p[i]);
+        ll alt = p[i+1] - p[i];
+        if (amx) {
+            alt += p[i+1] - p[i] -amx;
+        }
+        if (bmx) {
+            alt += p[i+1] - p[i] -bmx;
+        }
+
+        ans += min(alt, cur);
+    }
+    debug(ans);
+
+    if (p.empty()) {
+        if (a.size()) {
+            ans += a.back() - a.front();
+        }
+        if (b.size()) {
+            ans += b.back() - b.front();
+        }
+    } else {
+        if (SZ(a)) {
+            ans += max(0LL, p.front() - a.front());
+            ans += max(0LL, a.back() - p.back());
+
+        }
+        if (SZ(b)) {
+            ans += max(0LL, p.front() - b.front());
+            ans += max(0LL, b.back() - p.back());
+        }
+    }
+
+    cout << ans << endl;
     return 0;
 }

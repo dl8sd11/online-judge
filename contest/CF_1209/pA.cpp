@@ -71,12 +71,36 @@ public:
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-// const ll MAXN = 
+const ll MAXN = 102;
 
+int n, a[MAXN];
+vector<int> v;
+bool vis[MAXN];
 /********** Good Luck :) **********/
 int main () {
     TIME(main);
     IOS();
 
+    cin >> n;
+    REP (i, n) {
+        cin >> a[i];
+        v.eb(a[i]);
+    }
+
+    sort(ALL(v));
+    int ans = 0;
+    for (auto e : v) {
+        bool flag = false;
+        REP (i, n) {
+            if (!vis[i] && a[i] % e == 0) {
+                vis[i] = true;
+                flag = true;
+            }
+        }
+        ans += flag;
+    }
+
+    cout << ans << endl;
     return 0;
 }
+/**********Meow***********/

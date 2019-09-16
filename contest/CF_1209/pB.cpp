@@ -71,12 +71,46 @@ public:
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-// const ll MAXN = 
+const ll MAXN = 102;
 
+int n;
+bool st[MAXN], cur[MAXN];
+int a[MAXN], b[MAXN];
 /********** Good Luck :) **********/
 int main () {
     TIME(main);
     IOS();
 
+    cin >> n;
+    REP (i, n) {
+        char c;
+        cin >> c;
+        cur[i] = st[i] = c == '1';
+    }
+    REP (i, n) {
+        cin >> a[i] >> b[i];
+    }
+    pary(st ,st+n);
+    int ans = 0;
+    REP (i, 100005) {
+        int sum = 0;
+        REP (j, n) {
+            if (i >= b[j]) {
+                cur[j] = st[j] ^ ((i-b[j])/a[j]&1) ^ 1;
+            } else {
+                cur[j] = st[j];
+            }
+            sum += cur[j];
+        }
+        if (i < 20) {
+            debug((i - b[0]) / a[0], st[0]);
+            debug(st[0] ^ ((i-b[0])/a[0]) ^ 1);
+            debug(i, sum);
+        }
+        ans = max(ans, sum);
+    }
+
+    cout << ans << endl;
     return 0;
 }
+/**********Meow***********/

@@ -45,6 +45,13 @@ template<typename _a> ostream &operator << (ostream &_s,deque<_a> &_c){return _O
 template<typename _a,typename _b> ostream &operator << (ostream &_s,map<_a,_b> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS()
+#else
+#define TIME(i)
+#define debug(...)
+#define pary(...)
+#define endl '\n'
+#define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
+#endif
 class Timer {
 private:
     string scope_name;
@@ -60,23 +67,71 @@ public:
         debug(scope_name, mlength);
     }
 };
-#else
-#define TIME(i)
-#define debug(...)
-#define pary(...)
-#define endl '\n'
-#define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
-#endif
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
 // const ll MAXN = 
 
+ll t, n, m;
+
+ll max_edge (ll d) {
+    return d * n / 2;
+}
 /********** Good Luck :) **********/
 int main () {
     TIME(main);
     IOS();
 
+    cin >> t;
+    while (t--) {
+        cin >> n >> m;
+
+        if (n == 1) {
+            if (m == 0) {
+                cout << 0 << endl;
+            } else if (m == 1) {
+                cout << 1 << endl;
+            } else {
+                cout << -1 << endl;
+            }
+        } else if (n == 2) {
+            if (m == 0) {
+                cout << -1 << endl;
+            } else if (m == 1) {
+                cout << 1 << endl;
+            } else if (m <= 3) {
+                cout << 2 << endl;
+            } else {
+                cout << -1 << endl;
+            }
+        } else {
+            if (m < n - 1) {
+                cout << -1 << endl;
+            } else if (m <= n+1) {
+                cout << 2 << endl;
+            } else if (m <= n*2) {
+                cout << 3 << endl;
+            } else {
+                m -= 2 * n;
+                ll l = 0, r = n-3;
+                while (l < r - 1) {
+                    ll mid = (l + r) >> 1;
+                    if (max_edge(mid) >= m) {
+                        r = mid;
+                    } else {
+                        l = mid;
+                    }
+                }
+                debug(r);
+                if (max_edge(r) >= m) {
+                    cout << r + 3 << endl;
+                } else {
+                    cout << -1 << endl;
+                }
+            }
+        }
+
+    }
     return 0;
 }

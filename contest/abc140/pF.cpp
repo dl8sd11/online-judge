@@ -41,10 +41,18 @@ template<typename It> ostream& _OUTC(ostream &_s,It _ita,It _itb)
 }
 template<typename _a> ostream &operator << (ostream &_s,vector<_a> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _a> ostream &operator << (ostream &_s,set<_a> &_c){return _OUTC(_s,ALL(_c));}
+template<typename _a> ostream &operator << (ostream &_s,multiset<_a> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _a> ostream &operator << (ostream &_s,deque<_a> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _a,typename _b> ostream &operator << (ostream &_s,map<_a,_b> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS()
+#else
+#define TIME(i)
+#define debug(...)
+#define pary(...)
+#define endl '\n'
+#define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
+#endif
 class Timer {
 private:
     string scope_name;
@@ -60,23 +68,53 @@ public:
         debug(scope_name, mlength);
     }
 };
-#else
-#define TIME(i)
-#define debug(...)
-#define pary(...)
-#define endl '\n'
-#define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
-#endif
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
 // const ll MAXN = 
 
+int n;
+multiset<int> ms;
 /********** Good Luck :) **********/
 int main () {
     TIME(main);
     IOS();
 
+    cin >> n;
+    REP (i, 1<<n) {
+        int d;
+        cin >> d;
+        ms.insert(d);
+    }
+
+    priority_queue<int, vector<int>, greater<int> > pq;
+    pq.emplace(*prev(ms.end()));
+    ms.erase(prev(ms.end()));
+    debug(ms);
+
+    REP (i, n) {
+        vector<int> cur;
+        while (pq.size()) {
+            int tp = pq.top();
+            pq.pop();
+            debug(i, tp);
+            auto pt = ms.lower_bound(tp);
+            if (pt == ms.begin()) {
+                cout << "No" << endl;
+                return 0;
+            }
+            debug(*prev(pt));
+            cur.eb(*prev(pt));
+            cur.eb(tp);
+            ms.erase(prev(pt));
+        }
+
+        for (auto d : cur) {
+            pq.emplace(d);
+        }
+    }
+
+    cout << "Yes" << endl;
     return 0;
 }

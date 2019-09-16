@@ -45,6 +45,13 @@ template<typename _a> ostream &operator << (ostream &_s,deque<_a> &_c){return _O
 template<typename _a,typename _b> ostream &operator << (ostream &_s,map<_a,_b> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS()
+#else
+#define TIME(i)
+#define debug(...)
+#define pary(...)
+#define endl '\n'
+#define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
+#endif
 class Timer {
 private:
     string scope_name;
@@ -60,23 +67,140 @@ public:
         debug(scope_name, mlength);
     }
 };
-#else
-#define TIME(i)
-#define debug(...)
-#define pary(...)
-#define endl '\n'
-#define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
-#endif
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
 // const ll MAXN = 
 
+struct Node {
+    Node *l, *r;
+    int val, sz, pri;
+    bool rev;
+
+    Node (int v) {
+        l = r = nullptr;
+        val = v;
+        sz = 1;
+        rev = false;
+        pri = rand();
+    }
+
+    void pull () {
+        sz = 1;
+        if (l) {
+            sz += l->sz;
+        }
+        if (r) {
+            sz += r->sz;
+        }
+    }
+
+    void push () {
+        if (rev) {
+            if (l) {
+                l->rev ^= 1;
+            }
+            if (r) {
+                r->rev ^= 1;
+            }
+            swap(l, r);
+            rev = 0;
+        }
+    }
+};
+Node *root;
+
+Node *mrg (Node *a, Node *b) {
+    if (!a || !b) {
+        return a ? a : b;
+    }
+    if (a->pri > b->pri) {
+        a->push();
+        a->r = mrg(a->r, b);
+        a->pull();
+        return a;
+    } else {
+        b->push();
+        b->l = mrg(a, b->l);
+        b->pull();
+        return b;
+    }
+}
+
+int SIZ (Node *nd) {
+    return nd ? nd->sz : 0;
+}
+
+void split (Node *o, Node *&a, Node *&b, int k) {
+    if (!o) {
+        a = b = nullptr;
+        return;
+    } else {
+        o->push();
+        if (SIZ(o->l) + 1 <= k) {
+            a = o;
+            split(o->r, a->r, b, k-SIZ(o->l)-1);
+        } else {
+            b = o;
+            split(o->l, a, b->l, k);
+        }
+        o->pull();
+    }
+}
+
+void flip (int l, int r) {
+    Node *nL, *nM, *nR;
+
+    split(root, nL, nM, l-1);
+    split(nM, nM, nR, r-l+1);
+    assert(SIZ(nM) == r-l+1);
+    if (nM) {
+        nM->rev ^= 1;
+    }
+    root = mrg(mrg(nL, nM), nR);
+}
+
+vector<int> ans;
+void dfs (Node *nd) {
+    nd->push();
+    if (nd->l) {
+        dfs(nd->l);
+    }
+    ans.eb(nd->val);
+    if (nd->r) {
+        dfs(nd->r);
+    }
+}
+int n, m;
 /********** Good Luck :) **********/
 int main () {
     TIME(main);
     IOS();
+    srand(time(0));
+
+    while (cin >> n >> m) {
+        REP1 (i, n) {
+            if (i == 1) {
+                root = new Node(i);
+            } else {
+                root = mrg(root, new Node(i));
+            }
+        }
+        while (m--) {
+            int l, r;
+            cin >> l >> r;
+            flip(l, r);
+        }
+
+        ans.clear();
+        dfs(root);
+        REP (i, n) {
+            cout << ans[i] << " \n"[i==n-1];
+        }
+
+    }
+
 
     return 0;
 }

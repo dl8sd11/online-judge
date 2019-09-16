@@ -73,10 +73,26 @@ const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
 // const ll MAXN = 
 
+int n, k;
 /********** Good Luck :) **********/
 int main () {
     TIME(main);
     IOS();
 
+    cin >> n >> k;
+    int sum = 0, ans = 0;
+    while (true) {
+        int cur = max(1, (sum+k-1)/k);
+        debug(cur);
+        if (n < cur) {
+            break;
+        } else {
+            n -= cur;
+            sum += cur;
+            ans++;
+        }
+    }
+
+    cout << ans << endl;
     return 0;
 }

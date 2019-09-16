@@ -71,12 +71,43 @@ public:
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-// const ll MAXN = 
+const ll MAXN = 200005;
 
+int n, q, a[MAXN], r[MAXN];
+map<int, int> cnt;
 /********** Good Luck :) **********/
 int main () {
     TIME(main);
     IOS();
+    cin >> n >> q;
+    REP (i, n) {
+        cin >> a[i];
+        r[a[i]] = max(r[a[i]], i);
+    }
+
+    int ft = 0;
+    int ans = 0;
+    int cur = 0;
+    REP (i, n) {
+        ft = max(ft, r[a[i]]);
+        cnt[a[i]]++;
+        cur++;
+        if (ft == i) {
+            int lg = 0;
+            for (auto c : cnt) {
+                lg = max(lg, c.Y);
+                debug(c);
+            }
+            debug(lg);
+            ans += cur - lg;
+            cur = 0;
+            cnt.clear();
+        }
+    }
+
+    cout << ans << endl;
+
 
     return 0;
 }
+/**********Meow***********/

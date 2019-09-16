@@ -71,94 +71,151 @@ public:
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-const ll MAXN = 200005;
+const ll MAXN = 302;
 
-int q, k, n;
-ll mpow(ll base,ll ep) {
-    ep = ep % (MOD - 1);
-    ll ret = 1;
-    while (ep > 0) {
-        if (ep & 1) {
-            ret = ret * base % MOD;
-        }
-        base = base * base % MOD;
-        ep >>= 1;
-    }
-    return ret;
+int n, m;
+vector<pair<pii, pii> > blk;
+
+set<int> xsplit, ysplit;
+vector<pii> xseg, yseg;
+
+struct Edge {
+    int t, cap, flow, nxt;
+};
+vector<Edge> edge;
+int head[MAXN];
+
+void add_edge (int f, int t, int c) {
+    debug(f, t, c);
+    edge.pb({t, c, 0, head[f]});
+    head[f] = SZ(edge) - 1;
+    edge.pb({f, 0, 0, head[t]});
+    head[t] = SZ(edge) - 1;
 }
 
-vector<pii> divi[MAXN];
-bool sieve[MAXN];
-void build () {
-    for (int i=2; i<MAXN; i++) {
-        if (!sieve[i]) {
-            for (int j=i; j<MAXN; j+=i) {
-                sieve[j] = true;
-                int cnt = 0, tmp = j;
-                while (tmp % i == 0) {
-                    tmp /= i;
-                    cnt++;
-                    divi[j].eb(i, cnt);
-                }
+int lev[MAXN];
+
+bool bfs (int f, int t) {
+    MEM(lev, -1);
+    queue<int> que;
+    que.emplace(f);
+    lev[f] = 0;
+
+    while (!que.empty()) {
+        int cur = que.front();
+        que.pop();
+
+        for (int i=head[cur]; i!=-1; i=edge[i].nxt) {
+            int x = edge[i].t;
+            if (lev[x] == -1 && edge[i].flow < edge[i].cap) {
+                lev[x] = lev[cur] + 1;
+                que.emplace(x);
             }
         }
     }
+
+    return lev[t] != -1;
 }
 
-ll fac[MAXN], fin[MAXN];
+int dfs (int t, int nd, int lim) {
+    if (nd == t || lim == 0) {
+        return lim;
+    }
 
-ll c(int cn, int cr) {
-    return fac[cn] * fin[cr] % MOD * fin[cn-cr] % MOD;
+    for (int i=head[nd]; i != -1; i=edge[i].nxt) {
+        int x = edge[i].t;
+        if (lev[x] == lev[nd]+1 && edge[i].cap > edge[i].flow) {
+            int d = dfs(t, x, min(lim, edge[i].cap - edge[i].flow));
+            if (d) {
+                edge[i].flow += d;
+                edge[i^1].flow -= d;
+                return d;
+            }
+        }
+    }
+
+    return 0;
 }
+
+int dinic (int f, int t) {
+    int flow = 0;
+    while (bfs(f, t)) {
+        int df = -1;
+        while (df = dfs(t, f, iNF)) {
+            flow += df;
+        }
+    }
+
+    return flow;
+}
+
 /********** Good Luck :) **********/
 int main () {
     TIME(main);
     IOS();
-    build();
+    MEM(head, -1);
 
-    fac[0] = fin[0] = 1;
-    REP1 (i, MAXN-1) {
-        fac[i] = fac[i-1] * i % MOD;
-        fin[i] = mpow(fac[i], MOD-2);
+    cin >> n >> m;
+
+
+    xsplit.insert(n);
+    ysplit.insert(n);
+
+    REP (i, m) {
+        int xa, xb, ya, yb;
+        cin >> xa >> ya >> xb >> yb;
+        blk.eb(pii(xa, ya), pii(xb, yb));
+
+        xsplit.insert(xa-1);
+        xsplit.insert(xb);
+        ysplit.insert(ya-1);
+        ysplit.insert(yb);
     }
 
-    cin >> q >> k;
-    while (q--) {
-        cin >> n;
-        if (n < k) {
-            cout << 0 << endl;
-            continue;
+    int cx = 1, cy = 1;
+    for (auto p : xsplit) {
+        if (p >= cx) {
+            xseg.eb(cx, p);
         }
-        map<pii, int> cnt;
+        cx = p + 1;
+    }
 
-        ll cnk = c(n, k);
-        ll cop = 1;
-        ll ep = -1;
-        REP1 (i, n) {
-            for (auto p : divi[i]) {
-                cnt[p]++;
+    for (auto p : ysplit) {
+        if (p >= cy) {
+            yseg.eb(cy, p);
+        }
+        cy = p + 1;
+    }
+
+    debug(xseg);
+    debug(yseg);
+
+    int mstart = 2, lstart = 2 + m, rstart = 2 + m + SZ(xseg);
+    int src = 0, des = 1;
+
+    REP (i, m) {
+        REP (j, SZ(xseg)) {
+            auto rng = xseg[j];
+            if (blk[i].X.X <= rng.X && rng.Y <= blk[i].Y.X) {
+                add_edge(lstart+j, mstart+i, iNF);
             }
         }
 
-        for (auto p : cnt) {
-            debug(p);
-            if (p.Y >= k) {
-                if (ep == -1) {
-                    ep = 1;
-                }
-                ll prob = c(p.Y, k) * mpow(cnk, MOD-2) % MOD;
-                debug(prob, c(p.Y, k), cnk);
-                (ep *= prob *p.X.X % MOD) %= MOD;
-                (cop *= (1-prob+MOD)%MOD) %= MOD;
+        REP (j, SZ(yseg)) {
+            auto rng = yseg[j];
+            if (blk[i].X.Y <= rng.X && rng.Y <= blk[i].Y.Y) {
+                add_edge(mstart+i, rstart+j, iNF);
             }
         }
-        debug(ep, cop);
-        if (ep == -1) {
-            ep = 0;
-        }
-
-        cout << (ep + cop) % MOD << endl;
     }
 
+    REP (i, SZ(xseg)) {
+        add_edge(0, lstart+i, xseg[i].Y-xseg[i].X+1);
+    }
+    REP (i, SZ(yseg)) {
+        add_edge(rstart+i, 1, yseg[i].Y-yseg[i].X+1);
+    }
+
+    cout << dinic(src, des) << endl;
     return 0;
 }

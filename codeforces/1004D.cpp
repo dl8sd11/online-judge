@@ -45,6 +45,13 @@ template<typename _a> ostream &operator << (ostream &_s,deque<_a> &_c){return _O
 template<typename _a,typename _b> ostream &operator << (ostream &_s,map<_a,_b> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS()
+#else
+#define TIME(i)
+#define debug(...)
+#define pary(...)
+#define endl '\n'
+#define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
+#endif
 class Timer {
 private:
     string scope_name;
@@ -60,23 +67,63 @@ public:
         debug(scope_name, mlength);
     }
 };
-#else
-#define TIME(i)
-#define debug(...)
-#define pary(...)
-#define endl '\n'
-#define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
-#endif
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-// const ll MAXN = 
+const ll MAXN = 2000006;
 
+int t, occ[MAXN], mx, x, cur[MAXN];
 /********** Good Luck :) **********/
 int main () {
     TIME(main);
     IOS();
 
+    cin >> t;
+    REP (i, t) {
+        int d;
+        cin >> d;
+        occ[d]++;
+        mx = max(mx, d);
+    }
+
+    x = 1;
+    REP1 (i, MAXN) {
+        if (occ[i] < i*4) {
+            x = i;
+            break;
+        }
+    }
+    debug(x);
+
+    REP1 (n, t) {
+        if (t % n == 0) {
+            int m = t / n;
+            int y = n + m - x - mx;
+            if (x > n || y < 1 || y > m) {
+                continue;
+            }
+            debug(n, m, x, y);
+            MEM(cur, 0);
+            REP1 (i, n) {
+                REP1 (j, m) {
+                    cur[abs(x-i)+abs(y-j)]++;
+                }
+            }
+
+            bool flag = true;
+            REP (i, MAXN) {
+                flag &= cur[i] == occ[i];
+            }
+
+            if (flag) {
+                cout << n << " " << m << endl;
+                cout << x << " " << y << endl;
+                return 0;
+            }
+        }
+    }
+
+    cout << -1 << endl;
     return 0;
 }

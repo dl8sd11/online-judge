@@ -71,12 +71,95 @@ public:
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-// const ll MAXN = 
+const ll MAXN = 4003;
 
+string a, b;
+int n, m;
+int nxta[MAXN][2];
+int nxtb[MAXN][2];
+
+int id (int x,int y) {
+    return x * (m+2) + y;
+}
+
+pii rid (int v) {
+    return pii(v/(m+2), v%(m+2));
+}
+
+int tran[MAXN*MAXN];
+int prv[MAXN*MAXN];
+int dis[MAXN*MAXN];
 /********** Good Luck :) **********/
 int main () {
     TIME(main);
     IOS();
 
+    cin >> a >> b;
+    n = SZ(a), m = SZ(b);
+    vector<int> lst = {n+1, n+1};
+    nxta[n+1][0] = n+1;
+    nxta[n+1][1] = n+1;
+    nxtb[m+1][0] = m+1;
+    nxtb[m+1][1] = m+1;
+    RREP (i, n) {
+        nxta[i][0] = lst[0];
+        nxta[i][1] = lst[1];
+        if (i) {
+            lst[a[i-1]-'0'] = i;
+        }
+    }
+
+    lst = {m+1, m+1};
+    RREP (i, m) {
+        nxtb[i][0] = lst[0];
+        nxtb[i][1] = lst[1];
+        if (i) {
+            lst[b[i-1]-'0'] = i;
+        }
+    }
+
+    queue<int> bfs;
+    bfs.emplace(0);
+    MEM(dis, iNF);
+    dis[0] = 0;
+
+    debug(nxta[0][0], nxtb[0][0]);
+    debug(nxta[0][1], nxtb[0][1]);
+    while (!bfs.empty()) {
+        int cur = bfs.front(), x, y;
+        bfs.pop();
+        tie(x, y) = rid(cur);
+        debug(x, y);
+
+        int nx0 = id(nxta[x][0], nxtb[y][0]);
+        int nx1 = id(nxta[x][1], nxtb[y][1]);
+        debug(rid(nx0));
+        debug(rid(nx1));
+
+        if (dis[nx0] == iNF) {
+            bfs.emplace(nx0);
+            dis[nx0] = dis[cur] + 1;
+            tran[nx0] = 0;
+            prv[nx0] = cur;
+        }
+        if (dis[nx1] == iNF) {
+            bfs.emplace(nx1);
+            dis[nx1] = dis[cur] + 1;
+            tran[nx1] = 1;
+            prv[nx1] = cur;
+        }
+    }
+
+    vector<bool> ans;
+    int x = n+1, y = m+1;
+    while (x && y) {
+        ans.eb(tran[id(x, y)]);
+        tie(x, y) = rid(prv[id(x, y)]);
+    }
+
+    RREP (i, SZ(ans)-1) {
+        cout << ans[i];
+    }
+    cout << endl;
     return 0;
 }

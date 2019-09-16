@@ -45,6 +45,13 @@ template<typename _a> ostream &operator << (ostream &_s,deque<_a> &_c){return _O
 template<typename _a,typename _b> ostream &operator << (ostream &_s,map<_a,_b> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS()
+#else
+#define TIME(i)
+#define debug(...)
+#define pary(...)
+#define endl '\n'
+#define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
+#endif
 class Timer {
 private:
     string scope_name;
@@ -60,23 +67,40 @@ public:
         debug(scope_name, mlength);
     }
 };
-#else
-#define TIME(i)
-#define debug(...)
-#define pary(...)
-#define endl '\n'
-#define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
-#endif
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-// const ll MAXN = 
+const ll MAXN = 102;
 
+int n, a[MAXN], b[MAXN], c[MAXN];
 /********** Good Luck :) **********/
 int main () {
     TIME(main);
     IOS();
+
+    cin >> n;
+
+    int sum = 0;
+    REP (i, n) {
+        cin >> a[i];
+    }
+    REP (i, n) {
+        cin >> b[i];
+        sum += b[i];
+    }
+    REP1 (i, n-1) {
+        cin >> c[i];
+    }
+
+    REP (i, n-1) {
+        if (a[i+1] - a[i] == 1) {
+            sum += c[a[i]];
+        }
+    }
+
+    cout << sum << endl;
+
 
     return 0;
 }

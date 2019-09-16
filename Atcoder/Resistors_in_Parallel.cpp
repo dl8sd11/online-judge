@@ -73,10 +73,19 @@ const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
 // const ll MAXN = 
 
+int n;
+double sum;
 /********** Good Luck :) **********/
 int main () {
     TIME(main);
     IOS();
+    cin >> n;
+    REP (i, n) {
+        double a;
+        cin >> a;
+        sum += 1.0 / a;
+    }
 
+    cout << fixed << setprecision(10) << 1/sum << endl;
     return 0;
 }

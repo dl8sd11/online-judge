@@ -45,6 +45,13 @@ template<typename _a> ostream &operator << (ostream &_s,deque<_a> &_c){return _O
 template<typename _a,typename _b> ostream &operator << (ostream &_s,map<_a,_b> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS()
+#else
+#define TIME(i)
+#define debug(...)
+#define pary(...)
+#define endl '\n'
+#define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
+#endif
 class Timer {
 private:
     string scope_name;
@@ -60,23 +67,62 @@ public:
         debug(scope_name, mlength);
     }
 };
-#else
-#define TIME(i)
-#define debug(...)
-#define pary(...)
-#define endl '\n'
-#define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
-#endif
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-// const ll MAXN = 
+const int MAXN = (1<<23) + 2;
 
+int n, m;
+int st_cnt;
+
+bool vis[MAXN];
+bool is_vert[MAXN];
+
+void dfs (int nd) {
+    vis[nd] = true;
+    
+    if (nd < st_cnt) {
+        if (is_vert[(st_cnt - 1) ^ nd] && !vis[((st_cnt - 1) ^ nd) + st_cnt]) {
+            dfs(((st_cnt - 1) ^ nd) + st_cnt);
+        }
+        for (int j=0; j<n; j++) {
+            if (!(nd & (1<<j))) {
+                int ns = nd | (1<<j);
+                if (!vis[ns]) {
+                    dfs(ns);
+                }
+            }
+        }
+    } else {
+        if (!vis[nd-st_cnt]) {
+            dfs(nd-st_cnt);
+        }
+    }
+}
 /********** Good Luck :) **********/
 int main () {
     TIME(main);
     IOS();
 
+    cin >> n >> m;
+    st_cnt = 1<<n;
+
+    REP (i, m) {
+        int d;
+        cin >> d;
+        is_vert[d] = true;
+    }
+
+
+    int ans = 0;
+    REP (i, st_cnt) {
+        if (!vis[i+st_cnt] && is_vert[i]) {
+            ans++;
+            dfs(i+st_cnt);
+        }
+    }
+    
+    cout << ans << endl;
     return 0;
 }

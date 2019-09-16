@@ -71,12 +71,56 @@ public:
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-// const ll MAXN = 
+const ll MAXN = 100005;
 
+int n, a[MAXN], p[MAXN], s[MAXN];
+
+int bit[MAXN];
+void add (int x) {
+    for (;x<MAXN;x+=-x&x) {
+        bit[x]++;
+    }
+}
+
+int qry (int x) {
+    int ret = 0;
+    for (;x>0;x-=-x&x) {
+        ret += bit[x];
+    }
+    return ret;
+}
 /********** Good Luck :) **********/
 int main () {
     TIME(main);
     IOS();
 
+    cin >> n;
+
+    vector<pii> id;
+    REP (i, n) {
+        cin >> a[i];
+        id.eb(a[i], i);
+    }
+
+    REP (i, n) {
+        p[i] = qry(MAXN-1) - qry(a[i]);
+        add(a[i]);
+    }
+
+    MEM(bit, 0);
+    RREP (i, n-1) {
+        s[i] = qry(MAXN-1) - qry(a[i]);
+        add(a[i]);
+    }
+
+    // pary(p, p+n);
+    // pary(s, s+n);
+
+    ll ans = 0;
+    for (auto pp : id) {
+        ans += min(p[pp.Y], s[pp.Y]);
+    }
+
+    cout << ans << endl;
     return 0;
 }

@@ -71,12 +71,127 @@ public:
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-// const ll MAXN = 
+const ll MAXN = 102;
 
+int n, m;
+bool edge[MAXN][MAXN];
+bool comp[MAXN][MAXN];
+int deg[MAXN];
+vector<pii> ans;
+
+bool vis[MAXN];
+void make_even (int nd) {
+    vis[nd] = true;
+    REP1 (i, n) {
+        if (comp[nd][i] && !vis[i]) {
+            make_even(i);
+            if (deg[i] & 1) {
+                deg[i]++;
+                deg[nd]++;
+                edge[i][nd] = true;
+                edge[nd][i] = true;
+                ans.eb(i, nd);
+            }
+        }
+    }
+}
+
+void dfs (int nd, vector<int> &cur) {
+    vis[nd] = true;
+    cur.eb(nd);
+    REP1 (i, n) {
+        if (!vis[i] && edge[i][nd]) {
+            dfs(i, cur);
+        }
+    }
+}
 /********** Good Luck :) **********/
 int main () {
     TIME(main);
     IOS();
 
+    cin >> n >> m;
+    
+    REP1 (i, n) {
+        REP1 (j, n) {
+            comp[i][j] = true;
+        }
+    }
+    REP (i, m) {
+        int u, v;
+        cin >> u >> v;
+        edge[u][v] = true;
+        edge[v][u] = true;
+        comp[u][v] = false;
+        comp[v][u] = false;
+        deg[u]++;
+        deg[v]++;
+    }
+
+    REP1 (i, n) {
+        if (!vis[i]) {
+            make_even(i);
+            if (deg[i] & 1) {
+                cout << -1 << endl;
+                return 0;
+            }
+        }
+    }
+
+    MEM(vis, 0);
+    vector<vector<int> > cc;
+    REP1 (i, n) {
+        if (!vis[i]) {
+            vector<int> cur;
+            dfs(i, cur);
+            cc.eb(cur);
+        }
+    }
+
+    debug(cc);
+    if (SZ(cc) == 2) {
+        if (min(SZ(cc[0]), SZ(cc[1])) == 1) {
+            bool rsv = false;
+            if (SZ(cc[0]) < SZ(cc[1])) {
+                swap(cc[0], cc[1]);
+            }
+            for (auto c1 : cc[0]) {
+                for (auto c2 : cc[0]) {
+                    if (rsv) {
+                        break;
+                    }
+                    debug(c1, c2, edge[c1][c2]);
+                    if (c1 != c2 && !edge[c1][c2]) {
+                        rsv = true;
+                        ans.eb(c1, c2);
+                        ans.eb(c1, cc[1][0]);
+                        ans.eb(c2, cc[1][0]);
+                    }
+                }
+            }
+            if (!rsv) {
+                cout << -1 << endl;
+                return 0;
+            }
+        } else {
+            REP (i, 2) {
+                REP (j, 2) {
+                    ans.eb(cc[0][i], cc[1][j]);
+                }
+            }
+        }
+    } else if (SZ(cc) >= 3) {
+        REP (i, SZ(cc)) {
+            ans.eb(cc[i][0], cc[(i+1)%SZ(cc)][0]);
+        }
+    }
+
+    cout << SZ(ans) << endl;
+    for (auto p : ans) {
+        if (p.X > p.Y) {
+            swap(p.X, p.Y);
+        }
+        cout << p.X << " " << p.Y << endl;
+    }
     return 0;
 }

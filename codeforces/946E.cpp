@@ -45,6 +45,13 @@ template<typename _a> ostream &operator << (ostream &_s,deque<_a> &_c){return _O
 template<typename _a,typename _b> ostream &operator << (ostream &_s,map<_a,_b> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS()
+#else
+#define TIME(i)
+#define debug(...)
+#define pary(...)
+#define endl '\n'
+#define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
+#endif
 class Timer {
 private:
     string scope_name;
@@ -60,23 +67,92 @@ public:
         debug(scope_name, mlength);
     }
 };
-#else
-#define TIME(i)
-#define debug(...)
-#define pary(...)
-#define endl '\n'
-#define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
-#endif
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
 // const ll MAXN = 
 
+int t;
+string s;
+int cnt[11];
+
+bool pow10 () {
+    bool al = true;
+    REP1 (i, SZ(s)-2) {
+        al &= s[i] == '0';
+    }
+    return al && s.front() == '1' && (s.back() == '1' || s.back() == '0');
+}
 /********** Good Luck :) **********/
 int main () {
     TIME(main);
     IOS();
+    cin >> t;
+    while (t--) {
+        cin >> s;
+        debug(s);
+        if (pow10()) {
+            REP (i, SZ(s) - 2) {
+                cout << 9;
+            }
+            cout << endl;
+        } else {
+            MEM(cnt, 0);
+            for (auto c : s) {
+                cnt[c-'0']++;
+            }
+            string ans = s;
+            RREP (i, SZ(s)-1) {
+                cnt[s[i]-'0']--;
+                pary(cnt ,cnt+10);
+                bool flag = false;
+                if (s[i] != '0') {
+                    RREP (ts, s[i]-'0'-1) {
+                        ans[i] = ts + '0';
+                        cnt[ts]++;
+                        set<int> od;
+                        REP (d, 10) {
+                            if (cnt[d] & 1) {
+                                od.insert(d);
+                            }
+                        }
+                        cnt[ts]--;
 
+
+                        int fre = SZ(s)-i-1;
+                        if (SZ(od) > fre) {
+                            continue;
+                        }
+                        if ((fre - SZ(od)) & 1) {
+                            continue;
+                        }
+
+                        vector<int> odd;
+                        for (auto c : od) {
+                            odd.eb(c);
+                        }
+
+                        int x = fre - SZ(od);
+                        REP1 (j, x) {
+                            ans[i+j] = '9';
+                        }
+                        REP (j, SZ(od)) {
+                            ans[j+x+i+1] = odd.back() + '0';
+                            odd.pop_back();
+                        }
+
+                        debug(i);
+                        cout << ans << endl;
+                        flag = true;
+                        break;
+                    }
+                }
+                if (flag) {
+                    break;
+                }
+            }
+        }
+    }
     return 0;
 }

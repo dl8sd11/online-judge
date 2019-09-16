@@ -73,10 +73,62 @@ const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
 // const ll MAXN = 
 
+struct File {
+    vector<string> item;
+    File (string s) {
+        REP (i, SZ(s)) {
+            string cur;
+            if (s[i] >= '0' && s[i] <= '9') {
+                while (i < SZ(s) && s[i] >= '0' && s[i] <= '9') {
+                    cur += s[i];
+                    i++;
+                }
+                i--;
+
+                int fl = 13 - SZ(cur);
+                REP (j, fl) {
+                    cur = '0' + cur;
+                }
+            } else {
+                cur += s[i];
+            }
+            item.eb(cur);
+        }
+    }
+
+    bool operator < (const File &f) const {
+        REP (i, min(SZ(item), SZ(f.item))) {
+            if (SZ(item[i]) != SZ(f.item[i])) {
+                return SZ(item[i]) > SZ(f.item[i]);
+            } else if (item[i] != f.item[i]) {
+                return item[i] < f.item[i];
+            }
+        }
+        return SZ(item) < SZ(f.item);
+    }
+};
+
 /********** Good Luck :) **********/
 int main () {
     TIME(main);
     IOS();
 
+    vector<File> files;
+    int n;
+    cin >> n;
+    REP (i, n+1) {
+        string str;
+        cin >> str;
+        files.eb(str);
+    }
+
+    debug(files[0].item);
+    REP1 (i, n) {
+        if (files[i] < files[0]) {
+            cout << '-' << endl;
+        } else {
+            cout << '+' << endl;
+        }
+    }
     return 0;
 }

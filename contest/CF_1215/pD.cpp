@@ -73,10 +73,72 @@ const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
 // const ll MAXN = 
 
+int n;
+int p, s, qp, qs, tt;
+
+bool slv (int pp, int ss, int qpp, int qss) {
+    debug(pp, ss, qpp, qss);
+    if (pp > ss) {
+        debug((pp - ss + 8) / 9 <= qss);
+        return (pp - ss + 8) / 9 <= qss;
+    } else {
+        debug((ss - pp + 8) / 9 <= qpp);
+        return (ss - pp + 8) / 9 <= qpp;
+    }
+}
+
+bool checkb () {
+    int tp = p, ts = s, tqp = qp, tqs = qs;
+
+    int stp = min(tt/2, tqp);
+    tp += stp * 9;
+    tqp -= stp;
+    tqs -= tt/2 - stp;
+
+    return slv(tp, ts, tqp, tqs);
+}
+
+bool checks () {
+    int tp = p, ts = s, tqp = qp, tqs = qs;
+
+    int stp = min(tt/2, tqs);
+    ts += stp * 9;
+    tqs -= stp;
+    tqp -= tt/2 - stp;
+
+    return slv(tp, ts, tqp, tqs);
+}
 /********** Good Luck :) **********/
 int main () {
     TIME(main);
     IOS();
+
+    cin >> n;
+    REP (i, n/2) {
+        char c;
+        cin >> c;
+        if (c == '?') {
+            qp++;
+        } else {
+            p += c - '0';
+        }
+    }
+    REP (i, n/2) {
+        char c;
+        cin >> c;
+        if (c == '?') {
+            qs++;
+        } else {
+            s += c - '0';
+        }
+    }
+    tt = qp + qs;
+
+    if (!checkb() || !checks()) {
+        cout << "Monocarp" << endl;
+    } else {
+        cout << "Bicarp" << endl;
+    }
 
     return 0;
 }

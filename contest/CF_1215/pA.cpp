@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
-typedef pair<int, int> pii;
+typedef pair<ll, int> pii;
 typedef pair<ll, ll> pll;
 typedef pair<int, ll> pil;
 typedef pair<int, ll> pli;
@@ -73,10 +73,31 @@ const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
 // const ll MAXN = 
 
+ll a1, a2, k1, k2, n;
 /********** Good Luck :) **********/
 int main () {
     TIME(main);
     IOS();
+
+    cin >> a1 >> a2 >> k1 >> k2 >> n;
+
+    ll mn = min(a1+a2, max(0LL, n-(k1-1)*a1-(k2-1)*a2));
+    ll mx = 0;
+    if (k1 > k2) {
+        ll cur = max(0LL, min(a2, n/k2));
+        n -= cur*k2;
+        debug(n);
+        assert(n >= 0);
+        mx = cur + min(a1, n/k1);
+    } else {
+        ll cur = max(0LL, min(a1, n/k1));
+        n -= cur*k1;
+        debug(n);
+        assert(n >= 0);
+        mx = cur + min(a2, n/k2);
+    }
+
+    cout << mn << " " << mx << endl;
 
     return 0;
 }

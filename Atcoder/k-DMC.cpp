@@ -45,6 +45,13 @@ template<typename _a> ostream &operator << (ostream &_s,deque<_a> &_c){return _O
 template<typename _a,typename _b> ostream &operator << (ostream &_s,map<_a,_b> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS()
+#else
+#define TIME(i)
+#define debug(...)
+#define pary(...)
+#define endl '\n'
+#define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
+#endif
 class Timer {
 private:
     string scope_name;
@@ -60,23 +67,61 @@ public:
         debug(scope_name, mlength);
     }
 };
-#else
-#define TIME(i)
-#define debug(...)
-#define pary(...)
-#define endl '\n'
-#define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
-#endif
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
 // const ll MAXN = 
 
+int n, q;
+string s;
+vector<int> d;
+vector<pair<char, int> > mc;
+
 /********** Good Luck :) **********/
 int main () {
     TIME(main);
     IOS();
 
+    cin >> n >> s >> q;
+    REP (i, n) {
+        if (s[i] == 'D') {
+            d.eb(i);
+        } else if (s[i] == 'M' || s[i] == 'C') {
+            mc.eb(s[i], i);
+        }
+    }
+    while (q--) {
+        int k;
+        cin >> k;
+        ll ans = 0;
+        int l = 0, r = 0, mcnt = 0, ccnt = 0;
+        ll cur = 0;
+        REP (i, SZ(d)) {
+            while (r < SZ(mc) && mc[r].Y - d[i] < k) {
+                if (mc[r].X == 'M') {
+                    mcnt++;
+                } else {
+                    ccnt++;
+                    cur += mcnt;
+                }
+                r++;
+            }
+            while (l!=r && mc[l].Y < d[i]) {
+                if (mc[l].X == 'M') {
+                    cur -= ccnt;
+                    mcnt--;
+                } else {
+                    ccnt--;
+                }
+                l++;
+            }
+
+            ans += cur;
+
+        }
+
+        cout << ans << endl;
+    }
     return 0;
 }

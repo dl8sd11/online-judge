@@ -71,45 +71,52 @@ public:
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-const ll MAXN = 1000006;
+// const ll MAXN = 
 
-
-ll ans, n;
-vector<int> v;
-void dfs (int idx) {
-    if (idx == n) {
-        vector<int> nw;
-        nw = v;
-        REP (i, n+3) {
-            nw.eb(v.back());
+int q, k, n;
+ll mpow(ll base,ll ep) {
+    ep = ep % (MOD - 1);
+    ll ret = 1;
+    while (ep > 0) {
+        if (ep & 1) {
+            ret = ret * base % MOD;
         }
-        debug(v);
-        debug(nw);
-
-        bool flag = true;
-        REP (i, n) {
-            REP1 (j, nw[i]) {
-                if (nw[i+1] != nw[i+j]) {
-                    flag = false;
-                }
-            }
-        }
-        ans += flag;
-    } else {
-        for (int i=1; i<=n; i++) {
-            v.eb(i);
-            dfs(idx+1);
-            v.pop_back();
-        }
+        base = base * base % MOD;
+        ep >>= 1;
     }
+    return ret;
 }
 /********** Good Luck :) **********/
 int main () {
     TIME(main);
     IOS();
+    cin >> q >> k;
+    while (q--) {
+        cin >> n;
+        if (n < k) {
+            cout << 0 << endl;
+            continue;
+        }
+        vector<int> can;
+        REP1 (i, n) {
+            can.eb(i);
+        }
 
-    cin >> n;
-    dfs(0);
-    cout << ans << endl;
+        ll sum = 0, cnt = 0;
+        do {
+            int gcd = 0;
+            REP (i, k) {
+                gcd = __gcd(gcd, can[i]);
+            }
+            (sum += gcd) %= MOD;
+            cnt++;
+        } while (next_permutation(ALL(can)));
+
+        debug(sum, cnt);
+        ll g = __gcd(sum, cnt);
+        debug(sum / g, cnt / g);
+        cout << sum * mpow(cnt, MOD-2) % MOD << endl;
+    }
+
     return 0;
 }

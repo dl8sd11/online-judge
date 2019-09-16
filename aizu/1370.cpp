@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
-typedef pair<int, int> pii;
+typedef pair<ll, ll> pii;
 typedef pair<ll, ll> pll;
 typedef pair<int, ll> pil;
 typedef pair<int, ll> pli;
@@ -68,15 +68,88 @@ public:
 #define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
 #endif
 
-const ll MOD = 1000000007;
+const pll MOD = {1000000007, 1000000009};
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
 // const ll MAXN = 
 
+string s, t;
+
+
+const pii aa = {880301, 20020607};
+
+const int csz = 31;
+pii pw[csz];
+
+void build () {
+    pw[0] = {1, 1};
+    REP1 (i, csz-1) {
+        pw[i].X = pw[i-1].X * aa.X % MOD.X;
+        pw[i].Y = pw[i-1].Y * aa.Y % MOD.Y;
+    }
+    pary(pw, pw+3);
+}
+
+void add (pii &a, pii b) {
+    (a.X += b.X) %= MOD.X;
+    (a.Y += b.Y) %= MOD.Y;
+}
+void sub (pii &a, pii b) {
+    (a.X -= b.X) %= MOD.X;
+    (a.Y -= b.Y) %= MOD.Y;
+    if (a.X < 0) {
+        a.X += MOD.X;
+    }
+    if (a.Y < 0) {
+        a.Y += MOD.Y;
+    }
+}
+vector<pii> hs(const string &S, const int len) {
+    vector<pii> ret;
+    pii cur = {0, 0};
+    REP (i, SZ(S)) {
+        add(cur, pw[S[i]-'a']);
+        if (i >= len-1) {
+            ret.eb(cur);
+            sub(cur,pw[S[i-len+1]-'a']);
+        }
+    }
+
+    return ret;
+}
+bool check (int len) {
+    if (len == 0) {
+        return true;
+    }
+    vector<pii> sh = hs(s, len);
+    vector<pii> th = hs(t, len);
+
+    debug(sh);
+    debug(th);
+
+    sort(ALL(sh));
+    for (auto v : th) {
+        auto ptr = lower_bound(ALL(sh), v);
+        if (ptr != sh.end() && *ptr == v) {
+            return true;
+        }
+    }
+
+    return false;
+}
 /********** Good Luck :) **********/
 int main () {
     TIME(main);
     IOS();
 
+    build();
+
+    cin >> s >> t;
+    RREP (i, min(SZ(s), SZ(t))) {
+        if (check(i)) {
+            cout << i << endl;
+            break;
+        }
+    }
     return 0;
 }

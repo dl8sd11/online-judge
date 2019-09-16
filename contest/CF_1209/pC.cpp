@@ -73,10 +73,64 @@ const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
 // const ll MAXN = 
 
+int t, n;
+string d;
+string ans;
+
+bool check (int l) {
+    char cl = l + '0';
+    vector<char> x, y;
+    for (auto c : d) {
+        if (c == cl) {
+            if (y.empty() || y.back() <= c) {
+                y.eb(c);
+                ans += '2';
+            } else {
+                x.eb(c);
+                ans += '1';
+            }
+        } else if (c > cl) {
+            if (y.empty() || y.back() <= c) {
+                ans += '2';
+                y.eb(c);
+            } else {
+                return false;
+            }
+        } else {
+            if (x.empty() || x.back() <= c) {
+                x.eb(c);
+                ans += '1';
+            } else {
+                return false;
+            }
+        }
+    }
+    debug(x, y);
+    return true;
+}
 /********** Good Luck :) **********/
 int main () {
     TIME(main);
     IOS();
 
+    cin >> t;
+    while (t--) {
+        cin >> n;
+        cin >> d;
+        bool flag = false;
+        REP1 (i, 9) {
+            ans.clear();
+            if (check(i)) {
+                flag = true;
+                cout << ans << endl;
+                break;
+            }
+        }
+        if (!flag) {
+            cout << "-" << endl;
+        }
+    }
+
     return 0;
 }
+/**********Meow***********/

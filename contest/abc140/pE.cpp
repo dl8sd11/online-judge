@@ -45,6 +45,13 @@ template<typename _a> ostream &operator << (ostream &_s,deque<_a> &_c){return _O
 template<typename _a,typename _b> ostream &operator << (ostream &_s,map<_a,_b> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS()
+#else
+#define TIME(i)
+#define debug(...)
+#define pary(...)
+#define endl '\n'
+#define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
+#endif
 class Timer {
 private:
     string scope_name;
@@ -60,23 +67,101 @@ public:
         debug(scope_name, mlength);
     }
 };
-#else
-#define TIME(i)
-#define debug(...)
-#define pary(...)
-#define endl '\n'
-#define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
-#endif
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-// const ll MAXN = 
+const ll MAXN = 100005;
+
+int n, p[MAXN];
+ll ans;
+
+int dt[MAXN*2];
+
+const int les = 0;
+inline int opr(int v1,int v2) {
+    return max(v1,v2);
+}
+inline void up(int &x,int val) {
+    x = val;
+}
+
+void init() {
+    for (int i=n-1;i>0;i--) {
+        dt[i] = opr(dt[i<<1],dt[i<<1|1]);
+    }
+}
+
+int qry(int l,int r) {
+    int ret = les;
+    for (l+=n,r+=n;l<r;l>>=1,r>>=1) {
+        if (l&1) {
+            ret = opr(ret,dt[l++]);
+        }
+        if (r&1) {
+            ret = opr(ret,dt[--r]);
+        }
+    }
+    return ret;
+}
+
+int find_lft (int idx, int val) {
+    int l = -1, r = idx;
+    while (l < r - 1) {
+        int m = (l + r) >> 1;
+        if (qry(m, idx) > val) {
+            l = m;
+        } else {
+            r = m;
+        }
+    }
+    return l;
+}
+
+int find_rgt (int idx, int val) {
+    int l = idx, r = n;
+    while (l < r - 1) {
+        int m = (l + r) >> 1;
+        if (qry(idx+1, m+1) > val) {
+            r = m;
+        } else {
+            l = m;
+        }
+    }
+    return r;
+}
+
 
 /********** Good Luck :) **********/
 int main () {
     TIME(main);
     IOS();
 
+    cin >> n;
+    REP (i, n) {
+        cin >> p[i];
+        dt[i+n] = p[i];
+    }
+    init();
+
+    REP (i, n) {
+        int l1 = find_lft(i, p[i]);
+        int r1 = find_rgt(i, p[i]);
+        debug(l1, r1);
+        if (l1 != -1) {
+            int l2 = find_lft(l1, p[i]);
+            ans += ll(l1 - l2) * (r1 - i) * p[i];
+            debug(l2);
+        }
+
+        if (r1 != n) {
+            int r2 = find_rgt(r1, p[i]);
+            debug(r2);
+            ans += ll(r2 - r1) * (i - l1) * p[i];
+        }
+        debug(ans);
+    }
+
+    cout << ans << endl;
     return 0;
 }

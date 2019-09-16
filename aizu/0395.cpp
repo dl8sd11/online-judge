@@ -71,12 +71,46 @@ public:
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-// const ll MAXN = 
+const ll MAXN = 11;
 
+int n;
+bool lf[MAXN];
+int w[MAXN];
 /********** Good Luck :) **********/
 int main () {
     TIME(main);
     IOS();
 
+    cin >> n;
+    REP (i, n) {
+        cin >> lf[i];
+    }
+    REP (i, n) {
+        cin >> w[i];
+    }
+
+    vector<int> idx;
+    REP (i, n) {
+        idx.eb(i);
+    }
+
+    int ans = iNF;
+    do {
+        int cur = 0;
+        REP (i, n) {
+            if (lf[idx[i]]) {
+                if (!lf[idx[(i+n-1)%n]]) {
+                    cur += w[idx[(i+n-1)%n]];
+                }
+            } else {
+                if (lf[idx[(i+1)%n]]) {
+                    cur += w[idx[(i+1)%n]];
+                }
+            }
+        }
+        ans = min(ans, cur);
+    } while (next_permutation(ALL(idx)));
+
+    cout << ans << endl;
     return 0;
 }

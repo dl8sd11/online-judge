@@ -45,6 +45,13 @@ template<typename _a> ostream &operator << (ostream &_s,deque<_a> &_c){return _O
 template<typename _a,typename _b> ostream &operator << (ostream &_s,map<_a,_b> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS()
+#else
+#define TIME(i)
+#define debug(...)
+#define pary(...)
+#define endl '\n'
+#define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
+#endif
 class Timer {
 private:
     string scope_name;
@@ -60,23 +67,113 @@ public:
         debug(scope_name, mlength);
     }
 };
-#else
-#define TIME(i)
-#define debug(...)
-#define pary(...)
-#define endl '\n'
-#define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
-#endif
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-// const ll MAXN = 
+const ll MAXN = 10004;
 
+int n, m, k;
+vector<pii> lit;
+vector<int> edge[MAXN*3];
+
+int getID (int r, int c) {
+    auto ptr = lower_bound(ALL(lit), pii(r, c));
+    if (ptr == lit.end() || *ptr != pii(r, c)) {
+        return -1;
+    } else {
+        return ptr - lit.begin();
+    }
+}
+
+void build_row (int idx, int id) {
+    if (id >= 1 && id <= m) {
+        edge[idx].eb(k+n+id-1);
+        edge[k+n+id-1].eb(idx);
+    }
+}
+
+void build_col (int idx, int id) {
+    if (id >= 1 && id <= n) {
+        edge[idx].eb(k+id-1);
+        edge[k+id-1].eb(idx);
+    }
+}
+
+int dx[] = {1, 0, -1, 0};
+int dy[] = {0, -1, 0, 1};
+
+int dis[MAXN*3];
+bool vis[MAXN*3];
 /********** Good Luck :) **********/
 int main () {
     TIME(main);
     IOS();
 
+    cin >> n >> m >> k;
+    REP (i, k) {
+        int r, c;
+        cin >> r >> c;
+        lit.eb(r, c);
+    }
+
+    sort(ALL(lit));
+    /* node id
+    [0, k) = light
+    [k, k+n) = row
+    [k+n, k+n+m) = col
+
+
+    */
+
+    REP (i, k) {
+        REP (d, 4) {
+            int cx = lit[i].X + dx[d];
+            int cy = lit[i].Y + dy[d];
+
+            int id = getID(cx, cy);
+            if (id != -1) {
+                edge[i].eb(id);
+            }
+
+
+        }
+        build_col(i, lit[i].X);
+        build_row(i, lit[i].Y);
+        build_col(i, lit[i].X+1);
+        build_row(i, lit[i].Y+1);
+        build_col(i, lit[i].X-1);
+        build_row(i, lit[i].Y-1);
+    }
+
+    priority_queue<pii, vector<pii>, greater<pii> > pq;
+    assert(lit[0] == pii(1, 1));
+    MEM(dis, iNF);
+    dis[0] = 0;
+    pq.emplace(0, 0);
+
+    while (!pq.empty()) {
+        pii cur = pq.top();
+        pq.pop();
+        if (vis[cur.Y]) {
+            continue;
+        }
+        debug(cur);
+        vis[cur.Y] = true;
+
+        for (auto v : edge[cur.Y]) {
+            int nd = dis[cur.Y] + (v >= k ? 1 : 0);
+            if (nd < dis[v]) {
+                dis[v] = nd;
+                pq.emplace(nd, v);
+            }
+        }
+    }
+    debug(edge[9]);
+
+    int bdis = getID(n, m) == -1 ? iNF : dis[getID(n, m)];
+    int ans = min({dis[k+n-1], dis[k+n+m-1], bdis});
+    debug(dis[k+n-1], dis[k+n+m-1], bdis);
+    cout << (ans == iNF ? -1 : ans) << endl;
     return 0;
 }

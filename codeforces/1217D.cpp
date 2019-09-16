@@ -71,12 +71,58 @@ public:
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-// const ll MAXN = 
+const ll MAXN = 5003;
 
+int n, m, tid[MAXN], tp;
+vector<int> edge[MAXN];
+vector<pii> ine;
+bool vis[MAXN];
+
+void dfs (int nd) {
+    vis[nd] = true;
+    for (auto v : edge[nd]) {
+        if (!vis[v]) {
+            dfs(v);
+        }
+    }
+    tid[nd] = tp++;
+}
+
+int ans[MAXN];
 /********** Good Luck :) **********/
 int main () {
     TIME(main);
     IOS();
 
+    cin >> n >> m;
+    REP (i, m) {
+        int u, v;
+        cin >> u >> v;
+        ine.eb(u, v);
+        edge[u].eb(v);
+    }
+
+    REP1 (i, n) {
+        if (!vis[i]) {
+            dfs(i);
+        }
+    }
+
+    bool tw = false;
+    REP (i, m) {
+        int u, v;
+        tie(u, v) = ine[i];
+        if (tid[u] > tid[v]) {
+            ans[i] = 1;
+        } else {
+            ans[i] = 2;
+            tw = true;
+        }
+    }
+
+    cout << (tw ? 2 : 1) << endl;
+    REP (i, m) {
+        cout << ans[i] << " \n"[i==m-1];
+    }
     return 0;
 }

@@ -71,12 +71,70 @@ public:
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-// const ll MAXN = 
+const ll MAXN = 400005;
+const int MAXC = 20;
 
+int n, a[MAXN];
+ll tr[MAXC][MAXC];
+ll dp[MAXC][1<<MAXC];
+
+ll solve (int idx, int st) {
+    if (dp[idx][st] != -1) {
+        return dp[idx][st];
+    } else if (idx == 0) {
+        return dp[idx][st] = 0;
+    } else {
+        dp[idx][st] = INF;
+        REP (i, MAXC) {
+            if (st & (1<<i)) {
+                ll cur = 0;
+                REP (j, MAXC) {
+                    if (j != i && (st & (1<<j))) {
+                        cur += tr[i][j];
+                    }
+                }
+                dp[idx][st] = min(dp[idx][st], solve(idx-1, st^(1<<i)) + cur);
+            }
+        }
+
+        return dp[idx][st];
+    }
+}
 /********** Good Luck :) **********/
 int main () {
     TIME(main);
     IOS();
 
+    cin >> n;
+    REP (i, n) {
+        cin >> a[i];
+        a[i]--;
+    }
+
+    {
+        int cnt[MAXC] = {};
+        RREP (i, n-1) {
+            cnt[a[i]]++;
+            REP (j, MAXC) {
+                tr[a[i]][j] += cnt[j];
+            }
+        }
+    }
+
+
+    MEM(dp, -1);
+
+    ll ans = solve(MAXC-1, (1<<MAXC)-1);
+
+
+    cout << ans << endl;
     return 0;
 }
+
+/*
+13
+5 5 4 4 3 5 7 6 5 4 4 6 5
+
+13
+3 3 2 2 1 3 5 4 3 2 2 4 3
+*/

@@ -73,10 +73,31 @@ const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
 // const ll MAXN = 
 
+int n;
+priority_queue<double, vector<double>, greater<double>> d;
 /********** Good Luck :) **********/
 int main () {
     TIME(main);
     IOS();
+
+    cin >> n;
+    REP (i, n) {
+        double x;
+        cin >> x;
+        d.emplace(x);
+    }
+
+    REP (i, n-1) {
+        double a, b;
+        a = d.top();
+        d.pop();
+        b = d.top();
+        d.pop();
+
+        d.emplace((a+b)/2);
+    }
+
+    cout << fixed << setprecision(10) << d.top() << endl;
 
     return 0;
 }

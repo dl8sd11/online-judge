@@ -73,10 +73,19 @@ const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
 // const ll MAXN = 
 
+ll h, a, b, ans;
 /********** Good Luck :) **********/
 int main () {
     TIME(main);
     IOS();
 
+    cin >> h >> a >> b;
+
+    for (int i=a; i<=b; i++) {
+        ans += h % i == 0;
+    }
+
+    cout << ans << endl;
+    
     return 0;
 }

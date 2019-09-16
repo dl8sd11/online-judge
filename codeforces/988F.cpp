@@ -45,6 +45,13 @@ template<typename _a> ostream &operator << (ostream &_s,deque<_a> &_c){return _O
 template<typename _a,typename _b> ostream &operator << (ostream &_s,map<_a,_b> &_c){return _OUTC(_s,ALL(_c));}
 template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS()
+#else
+#define TIME(i)
+#define debug(...)
+#define pary(...)
+#define endl '\n'
+#define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
+#endif
 class Timer {
 private:
     string scope_name;
@@ -60,23 +67,89 @@ public:
         debug(scope_name, mlength);
     }
 };
-#else
-#define TIME(i)
-#define debug(...)
-#define pary(...)
-#define endl '\n'
-#define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
-#endif
 
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
-const int iNF = 0x3f3f3f3f;
-// const ll MAXN = 
+const int iNF = 0X7F7F7F7F;
+const ll MAXN = 2003;
+const int MAXW = 100005;
 
+int a, n, m;
+bool rain[MAXN];
+int dp[2][MAXW];
+set<int> ub[MAXN];
 /********** Good Luck :) **********/
 int main () {
     TIME(main);
     IOS();
 
+    cin >> a >> n >> m;
+    REP (i, n) {
+        int l, r;
+        cin >> l >> r;
+        for (int ps=l+1; ps<=r; ps++) {
+            rain[ps] = true;
+        }
+    }
+
+    REP (i, m) {
+        int p, w;
+        cin >> p >> w;
+        ub[p].insert(w);
+    }
+
+    REP (i, a+1) {
+        ub[i].insert(0);
+    }
+
+    MEM(dp, iNF);
+    for (auto u : ub[0]) {
+        dp[0][u] = 0;
+    }
+
+    REP1 (i, a) {
+        int p = (i&1) ^ 1;
+        REP (j, MAXW) {
+            int &cur = dp[i&1][j];
+            cur = iNF;
+            if (rain[i]) {
+                if (ub[i].count(j)) {
+                    for (int k=1; k<MAXW-1; k++) {
+                        if (dp[p][k] != iNF) {
+                            cur = min(cur, dp[p][k] + k);
+                        }
+                    }
+                } else {
+                    if (dp[p][j] != iNF) {
+                        cur = min(cur, dp[p][j]+j);
+                    }
+                }
+            } else {
+                if (ub[i].count(j)) {
+                    if (i == 8 && j == 1) {
+                        debug(dp[p][2]);
+                    }
+                    for (int k=0; k<MAXW-1; k++) {
+                        if (dp[p][k] != iNF) {
+                            cur = min(cur, dp[p][k]);
+                        }
+                    }
+                } else {
+                    if (dp[p][j] != iNF) {
+                        cur = min(cur, dp[p][j]+j);
+                    }
+                }
+            }
+        }
+        pary(dp[i&1], dp[i&1] + 12);
+    }
+
+    int ans = iNF;
+
+    REP (i, MAXW) {
+        ans = min(dp[a&1][i], ans);
+    }
+
+    cout << (ans == iNF ? -1 : ans) << endl;
     return 0;
 }

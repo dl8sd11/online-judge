@@ -71,12 +71,43 @@ public:
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-// const ll MAXN = 
+const ll MAXN = 200005;
 
+int n, q, tag[MAXN], ans[MAXN];
+vector<int> edge[MAXN];
+
+void dfs (int nd, int par, int pr = 0) {
+    pr += tag[nd];
+    ans[nd] = pr;
+    for (auto v : edge[nd]) {
+        if (v != par) {
+            dfs(v, nd, pr);
+        }
+    }
+}
 /********** Good Luck :) **********/
 int main () {
     TIME(main);
     IOS();
 
+    cin >> n >> q;
+    REP (i, n-1) {
+        int u, v;
+        cin >> u >> v;
+        edge[u].eb(v);
+        edge[v].eb(u);
+    }
+
+    while (q--) {
+        int p, x;
+        cin >> p >> x;
+        tag[p] += x;
+    }
+
+    dfs(1, 1);
+
+    REP1 (i, n) {
+        cout << ans[i] << " \n"[i==n];
+    }
     return 0;
 }
