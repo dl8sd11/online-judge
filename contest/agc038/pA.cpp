@@ -71,79 +71,32 @@ public:
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-const ll MAXN = 1000006; 
+const ll MAXN = 1003;
 
-int n, m;
-vector<int> edge[MAXN][10];
-int cnt;
-ll dis[MAXN];
-
-void add_edge (int f, int t, string str) {
-    int lst = f;
-    REP (i, SZ(str)) {
-        if (i == SZ(str)-1) {
-            edge[lst][str[i]-'0'].eb(t);
-        } else {
-            cnt++;
-            edge[lst][str[i]-'0'].eb(cnt);
-            lst = cnt;
-        }
-    }
-}
+int n, m, a, b;
+int ans[MAXN][MAXN];
 /********** Good Luck :) **********/
 int main () {
     TIME(main);
     IOS();
-
-    cin >> n >> m;
-    cnt = n;
-    REP1 (i, m) {
-        int cur = i;
-        int u, v;
-        cin >> u >> v;
-        string str;
-        stringstream ss;
-        ss << cur;
-        ss >> str;
-        add_edge(u, v, str);
-        add_edge(v, u, str);
-    }
-
-    assert(cnt < MAXN);
-    debug(cnt);
-
-    MEM(dis, INF);
-    vector<vector<int> > bfs(1, {1});
-    dis[1] = 0;
-
-    while (!bfs.empty()) {
-        vector<vector<int> > nw;
-
-        for (const auto &v : bfs) {
-            REP (i, 10) {
-                vector<int> cv;
-                for (auto from : v) {
-                    for (auto t : edge[from][i]) {
-                        if (dis[t] == INF) {
-                            dis[t] = (dis[from] * 10 + i) % MOD;
-                            cv.eb(t);
-                        }
-                    }
-                }
-                if (!cv.empty()) {
-                    nw.eb(cv);
-                }
-            }
+    cin >> n >> m >> a >> b;
+    
+    REP (i, b) {
+        REP (j, a) {
+            ans[i][j] = true;
         }
-
-        bfs.swap(nw);
     }
-
-    REP1 (i, n) {
-        if (i != 1) {
-            cout << dis[i] << endl;
+    for (int i=b; i<n; i++) {
+        for (int j=a; j<m;j++) {
+            ans[i][j] = true;
         }
     }
 
+    REP (i, n) {
+        REP (j, m) {
+            cout << ans[i][j];
+        }
+        cout << endl;
+    }
     return 0;
 }

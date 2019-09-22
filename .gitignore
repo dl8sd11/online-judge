@@ -10,5 +10,5 @@ test/standard.cpp
 test/target.cpp
 test/testcase.in
 tmp.cpp
-contest/MAY19A/*
 .vscode
+contest/cir_sep19/

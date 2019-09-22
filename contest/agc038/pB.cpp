@@ -71,79 +71,45 @@ public:
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-const ll MAXN = 1000006; 
+const ll MAXN = 200005;
 
-int n, m;
-vector<int> edge[MAXN][10];
-int cnt;
-ll dis[MAXN];
-
-void add_edge (int f, int t, string str) {
-    int lst = f;
-    REP (i, SZ(str)) {
-        if (i == SZ(str)-1) {
-            edge[lst][str[i]-'0'].eb(t);
-        } else {
-            cnt++;
-            edge[lst][str[i]-'0'].eb(cnt);
-            lst = cnt;
-        }
-    }
-}
+int n, k, p[MAXN], ans = 1, cnt, srt;
+set<int> st;
 /********** Good Luck :) **********/
 int main () {
     TIME(main);
     IOS();
-
-    cin >> n >> m;
-    cnt = n;
-    REP1 (i, m) {
-        int cur = i;
-        int u, v;
-        cin >> u >> v;
-        string str;
-        stringstream ss;
-        ss << cur;
-        ss >> str;
-        add_edge(u, v, str);
-        add_edge(v, u, str);
-    }
-
-    assert(cnt < MAXN);
-    debug(cnt);
-
-    MEM(dis, INF);
-    vector<vector<int> > bfs(1, {1});
-    dis[1] = 0;
-
-    while (!bfs.empty()) {
-        vector<vector<int> > nw;
-
-        for (const auto &v : bfs) {
-            REP (i, 10) {
-                vector<int> cv;
-                for (auto from : v) {
-                    for (auto t : edge[from][i]) {
-                        if (dis[t] == INF) {
-                            dis[t] = (dis[from] * 10 + i) % MOD;
-                            cv.eb(t);
-                        }
-                    }
-                }
-                if (!cv.empty()) {
-                    nw.eb(cv);
-                }
-            }
-        }
-
-        bfs.swap(nw);
-    }
-
+    cin >> n >> k;
+    
+    bool lst = false;
     REP1 (i, n) {
-        if (i != 1) {
-            cout << dis[i] << endl;
+        cin >> p[i];
+        st.insert(p[i]);
+        if (i >= k+1) {
+            debug(i, cnt);
+            if (cnt == 0) {
+                if (!lst) {
+                    debug(i);
+                    srt++;
+                }
+                lst = true;
+            } else {
+                lst = false;
+            }
+            if (*st.begin()!=p[i-k] || *prev(st.end()) != p[i]) {
+                ans++;
+            }
+            st.erase(p[i-k]);
+            cnt -= p[i-k] > p[i-k+1];
         }
+        cnt += p[i] < p[i-1];
     }
+    if (!lst) {
+        srt += cnt == 0;
+    }
+    debug(srt);
+
+    cout << ans - max(0, srt-1) << endl;
 
     return 0;
 }

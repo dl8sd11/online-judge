@@ -1,4 +1,6 @@
 #include <bits/stdc++.h>
+#pragma GCC optimize("Ofast,unroll-loops,no-stack-protector")
+#pragma GCC target("sse,sse2,sse3,ssse3,sse4,popcnt,abm,mmx,avx,tune=native")
 using namespace std;
 typedef long long ll;
 typedef pair<int, int> pii;
@@ -68,82 +70,96 @@ public:
 #define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
 #endif
 
-const ll MOD = 1000000007;
+const int MOD = 998244353;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-const ll MAXN = 1000006; 
+const ll MAXN = 200005;
+const int MAXC = 1000006;
 
-int n, m;
-vector<int> edge[MAXN][10];
-int cnt;
-ll dis[MAXN];
+int n, a[MAXN], inv[MAXC];
+int divi[MAXN][256], dcnt[MAXN];
+int sum[MAXC], dp[256];
 
-void add_edge (int f, int t, string str) {
-    int lst = f;
-    REP (i, SZ(str)) {
-        if (i == SZ(str)-1) {
-            edge[lst][str[i]-'0'].eb(t);
-        } else {
-            cnt++;
-            edge[lst][str[i]-'0'].eb(cnt);
-            lst = cnt;
+int mpow(ll base,int ep) {
+    int ret = 1;
+    while (ep > 0) {
+        if (ep & 1) {
+            ret = ret * base % MOD;
         }
+        base = base * base % MOD;
+        ep >>= 1;
+    }
+    return ret;
+}
+
+void add (int &x, int y) {
+    x += y;
+    if (x >= MOD) {
+        x -= MOD;
     }
 }
+void sub (int &x, int y) {
+    x -= y;
+    if (x < 0) {
+        x += MOD;
+    }
+}
+
+int dl[251], dr[251], lc, rc;
 /********** Good Luck :) **********/
 int main () {
     TIME(main);
     IOS();
+    
 
-    cin >> n >> m;
-    cnt = n;
-    REP1 (i, m) {
-        int cur = i;
-        int u, v;
-        cin >> u >> v;
-        string str;
-        stringstream ss;
-        ss << cur;
-        ss >> str;
-        add_edge(u, v, str);
-        add_edge(v, u, str);
-    }
-
-    assert(cnt < MAXN);
-    debug(cnt);
-
-    MEM(dis, INF);
-    vector<vector<int> > bfs(1, {1});
-    dis[1] = 0;
-
-    while (!bfs.empty()) {
-        vector<vector<int> > nw;
-
-        for (const auto &v : bfs) {
-            REP (i, 10) {
-                vector<int> cv;
-                for (auto from : v) {
-                    for (auto t : edge[from][i]) {
-                        if (dis[t] == INF) {
-                            dis[t] = (dis[from] * 10 + i) % MOD;
-                            cv.eb(t);
-                        }
-                    }
+    cin >> n;
+    REP (i, n) {
+        cin >> a[i];
+        lc = rc = dcnt[i] = 0;
+        for (int j=1; j*j<= a[i]; j++) {
+            if (a[i] % j == 0) {
+                if (inv[j] == 0) {
+                    inv[j] = mpow(j, MOD-2);
                 }
-                if (!cv.empty()) {
-                    nw.eb(cv);
+                add(sum[j], a[i]);
+                dl[lc++] = j;
+                if (j * j != a[i]) {
+                    int k = a[i] / j;
+                    dr[rc++] = k;
+                    add(sum[k], a[i]);
+                    if (inv[k] == 0) {
+                        inv[k] = mpow(k, MOD-2);
+                    }
                 }
             }
         }
-
-        bfs.swap(nw);
+        REP (j, lc) {
+            divi[i][dcnt[i]++] = dl[j];
+        }
+        RREP (j, rc-1) {
+            divi[i][dcnt[i]++] = dr[j];
+        }
+        
     }
 
-    REP1 (i, n) {
-        if (i != 1) {
-            cout << dis[i] << endl;
+    int ans = 0;
+    REP (i, n) {
+        RREP (x, dcnt[i]-1) {
+            dp[x] = sum[divi[i][x]];
+            for (int y=x+1; y<dcnt[i]; y++) {
+                if (divi[i][x] != divi[i][y] && divi[i][y] % divi[i][x] == 0) {
+                    sub(dp[x], dp[y]);
+                }
+            }
+            int cur = dp[x];
+            if (a[i] == divi[i][x]) {
+                sub(cur, a[i]);
+            }
+            add(ans, ll(cur)*inv[divi[i][x]]%MOD*a[i]%MOD);
         }
     }
+
+    cout << ll(ans) * inv[2] % MOD << endl;
 
     return 0;
 }

@@ -71,79 +71,102 @@ public:
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-const ll MAXN = 1000006; 
+const ll MAXN = 1<<20;
+const int MAXC = 500005;
+typedef complex<double> cd;
+const double pi = acos(-1);
+int t;
+cd a[MAXN], b[MAXN], c[MAXN], omg[MAXN+1];
 
-int n, m;
-vector<int> edge[MAXN][10];
-int cnt;
-ll dis[MAXN];
-
-void add_edge (int f, int t, string str) {
-    int lst = f;
-    REP (i, SZ(str)) {
-        if (i == SZ(str)-1) {
-            edge[lst][str[i]-'0'].eb(t);
-        } else {
-            cnt++;
-            edge[lst][str[i]-'0'].eb(cnt);
-            lst = cnt;
+void FFT (cd *v, int d) {
+    for (int i=1,j=MAXN>>1; i<MAXN-1; i++) {
+        if (i < j) {
+            swap(v[i], v[j]);
+        }
+        int k = MAXN>>1;
+        while (k <= j) {
+            j -= k;
+            k >>= 1;
+        }
+        if (k > j) {
+            j += k;
         }
     }
+
+    for (int h=2; h<=MAXN; h<<=1) {
+        for (int i=0; i<MAXN; i+=h) {
+            for (int k=i; k<i+h/2; k++) {
+                int idx = k-i;
+                int r = k+h/2;
+                cd x = v[k] - omg[d > 0 ? idx*(MAXN/h) : MAXN-idx*(MAXN/h)] * v[r];
+                v[k] = v[k] + omg[d > 0 ? idx*(MAXN/h) : MAXN-idx*(MAXN/h)] * v[r];
+                v[r] = x;
+            }
+        }
+    }
+
+    if (d < 0) {
+        REP (i, MAXN) {
+            c[i] /= MAXN;
+        }
+    }
+}
+
+void build_omg() {
+    omg[0] = omg[MAXN] = 1;
+    REP1 (i, MAXN-1) {
+        omg[i] = polar(1.0, i*pi*2/MAXN);
+    }
+}
+
+int cnt[MAXC];
+ll ans[MAXC];
+
+void solve () {
+    build_omg();
+    for (int i=1; i<MAXC; i++) {
+        for (int j=i; j<MAXC; j+=i) {
+            cnt[j]++;
+        }
+    }
+
+    REP (i, MAXC) {
+        a[i] = cnt[i];
+        b[i] = cnt[i];
+    }
+
+    FFT(a, 1);
+    FFT(b, 1);
+    REP (i, MAXN) {
+        c[i] = a[i] * b[i];
+    }
+    FFT(c, -1);
+
+    REP (i, MAXC) {
+        ans[i] = round(c[i].real());
+    }
+
 }
 /********** Good Luck :) **********/
 int main () {
     TIME(main);
     IOS();
 
-    cin >> n >> m;
-    cnt = n;
-    REP1 (i, m) {
-        int cur = i;
-        int u, v;
-        cin >> u >> v;
-        string str;
-        stringstream ss;
-        ss << cur;
-        ss >> str;
-        add_edge(u, v, str);
-        add_edge(v, u, str);
-    }
+    solve();
+    cin >> t;
 
-    assert(cnt < MAXN);
-    debug(cnt);
-
-    MEM(dis, INF);
-    vector<vector<int> > bfs(1, {1});
-    dis[1] = 0;
-
-    while (!bfs.empty()) {
-        vector<vector<int> > nw;
-
-        for (const auto &v : bfs) {
-            REP (i, 10) {
-                vector<int> cv;
-                for (auto from : v) {
-                    for (auto t : edge[from][i]) {
-                        if (dis[t] == INF) {
-                            dis[t] = (dis[from] * 10 + i) % MOD;
-                            cv.eb(t);
-                        }
-                    }
-                }
-                if (!cv.empty()) {
-                    nw.eb(cv);
-                }
+    while (t--) {
+        int l, r;
+        cin >> l >> r;
+        int bst = l;
+        debug(l, r);
+        for (int i=l; i<=r; i++) {
+            if (ans[i] > ans[bst]) {
+                bst = i;
             }
         }
 
-        bfs.swap(nw);
+        cout << bst << " " << ans[bst] << endl;
     }
-
-    REP1 (i, n) {
-        if (i != 1) {
-            cout << dis[i] << endl;
-        }
-    }
-
     return 0;
 }
