@@ -44,6 +44,7 @@
         "random": "cpp",
         "limits": "cpp",
         "iomanip": "cpp",
-        "set": "cpp"
+        "set": "cpp",
+        "regex": "cpp"
     }
 }

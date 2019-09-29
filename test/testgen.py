@@ -9,9 +9,12 @@ def randomString(stringLength=10):
     return ''.join(random.choice(letters) for i in range(stringLength))
 
 
-q = 10
-k = randint(2, 10)
+n = 1000000
+print(n)
+for i in range(n):
+    print(randint(1, 1000001), end=" ")
+print()
 
-print("{} {}".format(q, k))
-for i in range(q):
-    print(i+1)
+for i in range(2, n+1):
+    print(randint(1, i), end=" ")
+print()
