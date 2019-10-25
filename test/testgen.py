@@ -7,14 +7,20 @@ def randomString(stringLength=10):
     """Generate a random string of fixed length """
     letters = string.ascii_lowercase
     return ''.join(random.choice(letters) for i in range(stringLength))
+n = 2
+q = 1
 
-
-n = 1000000
-print(n)
+print(n, q)
 for i in range(n):
-    print(randint(1, 1000001), end=" ")
-print()
+    if i == 0:
+        continue
+    u = i+1
+    v = randint(1, u-1)
+    print("{} {} {}".format(u, v, randint(1, 20000)))
 
-for i in range(2, n+1):
-    print(randint(1, i), end=" ")
-print()
+for i in range(q):
+    u = randint(1, n)
+    v = randint(1, n)
+    while v == u:
+        v = randint(1, n)
+    print("{} {} {}".format(u, v, randint(1, 20000)))

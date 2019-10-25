@@ -1,111 +1,114 @@
 #include <bits/stdc++.h>
+
 using namespace std;
+
 typedef long long ll;
-#define REP(i,n) for(int i=0;i<n;i++)
-#define REP1(i,n) for(int i=1;i<=n;i++)
-#define SZ(i) int(i.size())
-#ifdef tmd
-#define IOS()
-#else
-#define IOS() ios_base::sync_with_stdio(0);cin.tie(0);
-#define endl '\n'
-#define debug(...)
-#endif
-    
-const int MAXN = 1000006;
-const ll MOD = 1000000007;
-    
-int n, a[MAXN], p[MAXN];
-double sum[MAXN], sz[MAXN];
-vector<int> edge[MAXN];
-    
-void dfs (int nd) {
-    sum[nd] = a[nd];
-    sz[nd] = 1;
-    for (auto v : edge[nd]) {
-        dfs(v);
-        sum[nd] += sum[v];
-        sz[nd] += sz[v];
-    }
-    sum[nd] /= sz[nd];
+typedef pair <int , int> pii;
+
+const int N = 1e5+10 , mod = 1e9+7 , L = 18 , M = 2e4+10 , Sq = 200;
+
+vector <pii> g[N];
+int par[N][L] , h[N] , ans[N] , fen[N] , s[Sq];
+vector < pair <pii , int> > q[N];
+
+void pre_dfs(int v , int p){
+   h[v] = h[p] + 1;
+   par[v][0] = p;
+   for(int i = 1 ; i < L ; i++)
+      par[v][i] = par[par[v][i - 1]][i - 1];
+   for(auto x : g[v]){
+      int u = x.first , w = x.second;
+      if(u != p){
+         pre_dfs(u , v);
+      }
+   }
 }
 
-#ifdef tmd
-vector<int> ord;
-bool vis[MAXN];
-void pre_dfs (int nd) {
-    vis[nd] = true;
-    ord.emplace_back(a[nd]);
-    for (auto v : edge[nd]) {
-        if (!vis[v]) {
-            pre_dfs(v);
-        }
-    }
+int pr(int v , int x){
+   for(int i = 0 ; i < L ; i++)
+      if((1 << i) & x)
+         v = par[v][i];
+   return v;
 }
 
-namespace BIT {
-    ll bit[MAXN];
-    void add (int pos, ll val) {
-        pos++;
-        for (;pos<MAXN;pos+=-pos&pos) {
-            bit[pos] += val;
-        }
-    }
-
-    ll qry (int pos) {
-        ll ret = 0;
-        pos++;
-        for (;pos>0;pos-=-pos&pos) {
-            ret += bit[pos];
-        }
-        return ret;
-    }
+int lca(int u , int v){
+   if(h[u] > h[v])
+      swap(u , v);
+   v = pr(v , h[v] - h[u]);
+   if(v == u)
+      return v;
+   for(int i = L - 1 ; i >= 0 ; i--)
+      if(par[v][i] != par[u][i])
+         v = par[v][i] , u = par[u][i];
+   return par[v][0];
 }
-ll eval () {
-    ll ret = 0;
-    for (auto v : ord) {
-        ret += BIT::qry(MAXN-2) - BIT::qry(v);
-        BIT::add(v, 1);
-    }
-    return ret;
-}
-#endif
-/*********************GoodLuck***********************/
-int main () {
-    IOS();
-    srand(time(0));
-    
-    cin >> n;
-    REP1 (i, n) {
-        cin >> a[i];
-    }
-    for (int j=2; j<=n; j++) {
-        cin >> p[j];
-        edge[p[j]].emplace_back(j);
-    }
-    dfs(1);
-    
-    REP1 (i, n) {
-        if (edge[i].empty()) {
-#ifndef tmd
-            cout << 0 << endl;
-#endif
-        } else {
-            sort(edge[i].begin(), edge[i].end(), [&](int x, int y) {
-                return
-                    sum[x] < sum[y];
-            });
-            REP (j, SZ(edge[i])) {
-#ifndef tmd
-                cout << edge[i][j] << " \n"[j==SZ(edge[i])-1];
-#endif
-            }
-        }
-    }
 
-#ifdef tmd
-    pre_dfs(1);
-    cout << "Sort: " << eval() << endl;
-#endif
-    return 0;
+void add(int x , int mul){
+   if(!x)
+      return;
+   for(int i = 1 ; i < Sq ; i++)
+      s[i] += mul * x / i;
+   for( ; x < M ; x += x & -x)
+      fen[x] += mul;
+}
+
+int get(int x){
+   int ret = 0;
+   for( ; x ; x -= x & -x)
+      ret += fen[x];
+   return ret;
+}
+
+void dfs(int v , int p){
+   for(auto x : g[v]){
+      int u = x.first , w = x.second;
+      if(u != p){
+         add(w , 1);
+         dfs(u , v);
+         add(w , -1);
+      }
+   }
+   for(auto x : q[v]){
+      int t = x.first.first , mul = x.first.second , id = x.second;
+      if(t < Sq)
+         ans[id] += mul * s[t];
+      else{
+         int nw = 0;
+         for(int i = 1 ; (i - 1) * t < M ; i++){
+            int a = get(min(i * t - 1 , M - 1));
+            a -= nw;
+            ans[id] += a * (i - 1) * mul;
+            nw += a;
+         }
+      }
+   }
+   //cout << v << " " << ans[0] << endl;
+}
+
+int32_t main(){
+   ios_base::sync_with_stdio(false); cin.tie(0); cout.tie(0);
+   int n , m;
+   cin >> n >> m;
+   for(int i = 0 ; i < n - 1 ; i++){
+      int u , v , w;
+      cin >> u >> v >> w;
+      u--; v--; w--;
+      g[u].push_back({v , w});
+      g[v].push_back({u , w});
+   }
+   pre_dfs(0 , 0);
+   for(int i = 0 ; i < m ; i++){
+      int u , v , t;
+      cin >> u >> v >> t;
+      u--; v--;
+      int p = lca(u , v);
+      q[p].push_back({{t , -2} , i});
+      q[u].push_back({{t , 1} , i});
+      q[v].push_back({{t , 1} , i});
+      ans[i] = h[u] + h[v] - 2 * h[p] + 1;
+   }
+   dfs(0 , 0);
+   for(int i = 0 ; i < m ; i++)
+      cout << ans[i] << "\n";
+   return 0;
 }

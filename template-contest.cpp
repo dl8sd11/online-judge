@@ -15,12 +15,11 @@ template<typename T, typename ...S> void _do(T &&x, S &&...y){cerr<<x<<", ";_do(
 #define debug(...)
 #endif
 
-const int MAXN = 1000006;
+const int MAXN = 500005;
 const ll MOD = 1000000007;
 
 /*********************GoodLuck***********************/
 int main () {
     IOS();
 
-    return 0;
 }

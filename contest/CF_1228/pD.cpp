@@ -101,13 +101,30 @@ int main () {
     if (SZ(vs) != 3) {
         cout << -1 << endl;
     } else {
+        int gp[3] = {};
+        int ans[MAXN];
         REP (i, n) {
             REP (j, 3) {
                 if (vs[j] == edge[i]) {
-                    cout << j + 1 << " \n"[i==n-1];
+                    ans[i] = j + 1;
+                    gp[j]++;
                     break;
                 }
             }
+        }
+
+        REP (i, 3) {
+            for (auto v : vs[i]) {
+                gp[i]++;
+            }
+            if (gp[i] != n) {
+                cout << -1 << endl;
+                return 0;
+            }
+        }
+
+        REP (i ,n) {
+            cout << ans[i] << " \n"[i==n-1];
         }
     }
 

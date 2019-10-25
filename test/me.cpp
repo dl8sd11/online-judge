@@ -1,180 +1,204 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
-#define REP(i,n) for(int i=0;i<n;i++)
-#define REP1(i,n) for(int i=1;i<=n;i++)
+#define REP(i, n) for(int i=0; i<n;i++)
+#define REP1(i,n) for(int i=1; i<=n;i++)
 #define SZ(i) int(i.size())
-#define ALL(i) i.begin(), i.end()
 #ifdef tmd
-#define IOS()
-#define TIME(i) Timer i(#i)
 #define debug(...) fprintf(stderr,"%s - %d (%s) = ",__PRETTY_FUNCTION__,__LINE__,#__VA_ARGS__);_do(__VA_ARGS__);
+#define IOS()
 template<typename T> void _do(T &&x){cerr<<x<<endl;}
-template<typename T, typename ...S> void _do(T &&x, S &&...y){cerr<<x<<", ";_do(y...);}
-class Timer {
-private:
-    string scope_name;
-    chrono::high_resolution_clock::time_point start_time;
-public:
-    Timer (string name) : scope_name(name) {
-        start_time = chrono::high_resolution_clock::now();
-    }
-    ~Timer () {
-        auto stop_time = chrono::high_resolution_clock::now();
-        auto length = chrono::duration_cast<chrono::microseconds>(stop_time - start_time).count();
-        double mlength = double(length) * 0.001;
-        debug(scope_name, mlength);
-    }
-};
+template<typename T, typename ...S> void _do(T &&x, S &&...t){cerr<<x<<", ";_do(t...);}
 #else
-#define IOS() ios_base::sync_with_stdio(0);cin.tie(0);
-#define TIME(i)
-#define endl '\n'
 #define debug(...)
+#define IOS() ios_base::sync_with_stdio(0);cin.tie(0);
+#define endl '\n'
 #endif
 
-const int MAXN = 1000006;
-const ll MOD = 1000000007;
+const int MAXN = 150005;
 
-vector<int> node[MAXN];
-void mrg(vector<int> &x, vector<int> &y) {
-    auto it = x.size();
-    x.insert(x.end(), y.begin(), y.end());
-    inplace_merge(x.begin(), x.begin()+it, x.end());
-    y.clear();
+struct Modify {
+	int t;
+	int id;
+};
+
+vector<Modify> modify;
+
+struct Edge {
+	int u, v, w;
+};
+vector<Edge> edge;
+
+struct Query {
+	int u, v, t, id;
+};
+vector<Query> query;
+
+vector<int> edg[MAXN];
+
+int n, q, dep[MAXN], in[MAXN], sz[MAXN], tp[MAXN], ft[MAXN], son[MAXN];
+ll ans[MAXN];
+
+void dfs_pre (int nd, int par) {
+	sz[nd] = 1;
+	dep[nd] = dep[par] + 1;
+	ft[nd] = par;
+	son[nd] = 0;
+	
+	for (auto v : edg[nd]) {
+		if (v != par) {
+			dfs_pre(v, nd);
+			if (sz[v] > sz[son[nd]]) {
+				son[nd] = v;
+			}
+			sz[nd] += sz[v];
+		} 
+	}
 }
 
-int n, a[MAXN], p[MAXN], cnt[MAXN];
-vector<int> edge[MAXN];
-
-const int L = 1;
-
-void build (int nd) {
-    node[nd].emplace_back(a[nd]);
-    for (auto v : edge[nd]) {
-        build(v);
-    }
-    for (auto v : edge[nd]) {
-        mrg(node[nd], node[v]);
-    }
+int tme;
+void dfs_hld (int nd, int hd) {
+	tp[nd] = hd;
+	in[nd] = tme++;
+	
+	if (son[nd] != 0) {
+		dfs_hld(son[nd], hd);
+	}
+	for (auto v : edg[nd]) {
+		if (v != ft[nd] && v != son[nd]) {
+			dfs_hld(v, v);
+		}
+	}
 }
 
-void arrg (int nd) {
-    sort(edge[nd].begin(), edge[nd].end(), [](int x, int y) {
-        ll l = 0, r = 0;
-        if (SZ(node[x]) > SZ(node[y])) {
-            for (auto e : node[x]) {
-                l += lower_bound(node[y].begin(), node[y].end(), e) - node[y].begin();
-                r += node[y].end() - upper_bound(node[y].begin(), node[y].end(), e);
-            }
-        } else {
-            for (auto e : node[y])  {
-                l += node[x].end() - upper_bound(node[x].begin(), node[x].end(), e);
-                r += lower_bound(node[x].begin(), node[x].end(), e) - node[x].begin();
-            }
-        }
-        return l < r;
-    });
-}
-#ifdef tmd
-vector<int> ord;
-bool vis[MAXN];
-void pre_dfs (int nd) {
-    vis[nd] = true;
-    ord.emplace_back(a[nd]);
-    for (auto v : edge[nd]) {
-        if (!vis[v]) {
-            pre_dfs(v);
-        }
-    }
+ll bit[MAXN];
+
+void add (int x, int val) {
+	for (x++;x<MAXN; x+=-x&x) {
+		bit[x] += val;
+	}
 }
 
-namespace BIT {
-    ll bit[MAXN];
-    void add (int pos, ll val) {
-        pos++;
-        for (;pos<MAXN;pos+=-pos&pos) {
-            bit[pos] += val;
-        }
-    }
+ll qry (int x) {
+	ll ret = 0;
+	for (x++;x>0; x-=-x&x) {
+		ret += bit[x];
+	}
+	return ret;
+}
 
-    ll qry (int pos) {
-        ll ret = 0;
-        pos++;
-        for (;pos>0;pos-=-pos&pos) {
-            ret += bit[pos];
-        }
-        return ret;
-    }
+ll qry (int l, int r) {
+	return qry(r) - qry(l-1);
 }
-ll eval () {
-    ll ret = 0;
-    for (auto v : ord) {
-        ret += BIT::qry(MAXN-2) - BIT::qry(v);
-        BIT::add(v, 1);
-    }
-    return ret;
-}
-#endif
 
-inline int redi() {
-    int ret = 0,f = 0;char ch = getchar_unlocked();
-    while (!isdigit (ch)) {
-        if (ch == '-') f = 1;
-        ch = getchar_unlocked();
-    }
-    while (isdigit (ch)) {
-        ret = ret*10  + ch - 48;
-        ch = getchar_unlocked();
-    }
-    return f?-ret:ret;
+ll qpath (int u, int v) {
+	ll ret = 0;
+	while (tp[u] != tp[v]) {
+		if (dep[tp[u]] > dep[tp[v]]) {
+			swap(u, v);
+		}
+		ret += qry(in[tp[v]], in[v]);
+		v = ft[tp[v]];
+	}
+	if(dep[u] > dep[v]) {
+		swap(u, v);
+	}
+	return ret + qry(in[u]+1, in[v]);
 }
-inline void print(int x) {
-    if(x<0) {putchar_unlocked('-');x=-x;}
-    int y=10,len=1;
-    while(y<=x)    {y*=10;len++;}
-    while(len--){y/=10;putchar_unlocked(x/y+48);x%=y;}
-}
-/*********************GoodLuck***********************/
+
+int edg_lst[MAXN], edg_wei[MAXN];
+/**************GOOD*LUCK****************/
 int main () {
-    // IOS();
-{TIME(mai);
-    n = redi();
-    {
-        TIME(ipt);
-        REP1 (i, n) {
-            a[i] = redi();
-        }
-
-        for (int j=2; j<=n; j++) {
-            p[j] = redi();
-            cnt[p[j]]++;
-        }
-
-        for (int j=2; j<=n; j++) {
-            if (edge[p[j]].empty()) {
-                edge[p[j]].resize(cnt[p[j]]);
-                cnt[p[j]] = 0;
-            }
-            edge[p[j]][cnt[p[j]]++] = j;
-        }
-    }
-    build(1);
-
-    REP1 (i, n) {
-        if (edge[i].empty()) {
-            putchar_unlocked('0');
-            putchar_unlocked('\n');
-        } else {
-            REP (j, SZ(edge[i])) {
-                print(edge[i][j]);
-                putchar_unlocked(" \n"[j==SZ(edge[i])-1]);
-            }
-        }
-    }}
-#ifdef tmd
-    pre_dfs(1);
-    cout << "Algo: " << eval() << endl;
-#endif
-    return 0;
+	IOS();
+	
+	cin >> n >> q;
+	REP (i, n-1) {
+		int u, v, w;
+		cin >> u >> v >> w;
+		w--;
+		edg[u].emplace_back(v);
+		edg[v].emplace_back(u);
+		edge.push_back({u, v, w});
+	}
+	
+	dfs_pre(1, 1);
+	dfs_hld(1, 1);
+	
+    debug(dep[1], dep[2]);
+	for (auto &E : edge) {
+		if (dep[E.u] < dep[E.v]) {
+			swap(E.u, E.v);
+		}
+        edg_wei[in[E.u]] = E.w;
+		int lst = 0;
+		for (int i=1, j; i<=20001; i=j+1) {
+			modify.push_back({i, in[E.u]});
+			debug(E.w/i, i);
+			lst = E.w/i+1;
+			if (E.w / i == 0) {
+				break;
+			}
+			j = E.w/(E.w/i);
+		}
+	}
+    debug(edg_wei[in[2]]);
+	
+	REP (i, q) {
+		int u, v, t;
+		cin >> u >> v >> t;
+		query.push_back({u, v, t, i});
+	}
+	
+	sort(query.begin(), query.end(), [](Query &q1, Query &q2) {
+		return q1.t < q2.t;	
+	});
+	
+	sort(modify.begin(), modify.end(), [](Modify &q1, Modify &q2) {
+		return q1.t < q2.t;	
+	});
+	
+	#ifdef BTCd
+	REP1 (i, n) {
+		cout << in[i] << " \n"[i==n];
+	}
+	#endif
+	int idx = 0;
+	
+	REP (i, n) {
+		add(i, 1);
+	}
+	for (auto &Q : query) {
+		debug(Q.id);
+		while (idx < SZ(modify) && modify[idx].t <= Q.t) {
+			int cur = edg_wei[modify[idx].id]/modify[idx].t;
+			add(modify[idx].id, cur-edg_lst[modify[idx].id]);
+			edg_lst[modify[idx].id] = cur;
+			debug(edg_wei[modify[idx].id],modify[idx].id, cur);
+			idx++;
+		}
+		
+		if (Q.u == Q.v) {
+			ans[Q.id] = 1;
+		} else {
+			ans[Q.id] = qpath(Q.u, Q.v) + 1;
+		}
+	}
+	
+	REP (i, q) {
+		cout << ans[i] << endl;
+	}
+	return 0;
 }
+
+/*
+5 3
+1 2 3
+2 3 5
+3 4 7
+4 5 9
+1 5 4
+1 5 5
+1 4 1
+
+*/
+ 

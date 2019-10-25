@@ -100,6 +100,9 @@ int main () {
             }
             a[i][j] = 1;
         }
+        if (a[d][j] == 1) {
+            flag = true;
+        }
         a[d][j] = -1;
     }
     if (flag) {
