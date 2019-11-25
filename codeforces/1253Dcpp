@@ -1,0 +1,98 @@
+#include <bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+#define REP(i,n) for(int i=0;i<n;i++)
+#define REP1(i,n) for(int i=1;i<=n;i++)
+#define SZ(i) int(i.size())
+#ifdef tmd
+#define IOS()
+#define debug(...) fprintf(stderr,"%s - %d (%s) = ",__PRETTY_FUNCTION__,__LINE__,#__VA_ARGS__);_do(__VA_ARGS__);
+template<typename T> void _do(T &&x){cerr<<x<<endl;}
+template<typename T, typename ...S> void _do(T &&x, S &&...y){cerr<<x<<", ";_do(y...);}
+#else
+#define IOS() ios_base::sync_with_stdio(0);cin.tie(0);
+#define endl '\n'
+#define debug(...)
+#endif
+
+const int MAXN = 200005;
+const ll MOD = 1000000007;
+
+template<int MAX_SZ>
+struct DisjointSet {
+    int subtreeSize[MAX_SZ], parent[MAX_SZ], L[MAX_SZ], R[MAX_SZ];
+    DisjointSet (int n) {            // init every node as a tree
+        for (int i = 0; i < n; ++i) {
+            parent[i] = i;           // root point to itself
+            subtreeSize[i] = 1;
+            L[i] = R[i] = i;
+        }
+    }
+
+    int getTreeRootAndCompressRoute (int nd) {
+        if (nd == parent[nd]) {
+            return nd;
+        } else {
+            parent[nd] = getTreeRootAndCompressRoute(parent[nd]);
+        }
+        return parent[nd];
+    }
+
+    void unionXAndY (int x,int y) {
+        x = getTreeRootAndCompressRoute(x);
+        y = getTreeRootAndCompressRoute(y);
+
+        if (subtreeSize[x] > subtreeSize[y]) {
+            swap(x,y);
+        }
+        parent[x] = y;
+
+        // subtreeSize[x] is not defined
+        subtreeSize[y] += subtreeSize[x];
+
+        L[y] = min(L[x], L[y]);
+        R[y] = max(R[x], R[y]);
+    }
+
+    int operator [] (const int nd) {
+        return getTreeRootAndCompressRoute(nd);
+    }
+
+    pair<int,int> getRange (int nd) {
+        nd = getTreeRootAndCompressRoute(nd);
+        return {L[nd], R[nd]};
+    }
+};
+
+/*********************GoodLuck***********************/
+int main () {
+    IOS();
+
+    int n, m;
+    cin >> n >> m;
+    DisjointSet<MAXN> djs(n);
+
+    REP (i, m) {
+        int u, v;
+        cin >> u >> v;
+        u--, v--;
+        djs.unionXAndY(u, v);
+    }
+
+    int nd = 0, ans = 0;
+    while (nd != n) {
+        pair<int,int> rng = djs.getRange(nd);
+
+        for (int i=rng.first; i<rng.second; i++) {
+            if (djs[i] != djs[i+1]) {
+                djs.unionXAndY(i, i+1);
+                rng = djs.getRange(i);
+
+                ans++;
+            }
+        }
+        nd = rng.second + 1;
+    }
+
+    cout << ans << endl;
+}

@@ -48,19 +48,46 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #endif
 
 const ll MOD = 1000000007;
-const ll INF = 0x3f3f3f3f3f3f3f3f;
 const ll MAXN = 81;
 
 typedef bitset<MAXN> bs;
-bs edge[MAXN];
-ll n,m;
 
-ll ans = 0;
+bs edge[MAXN], emp;
+int n, m, p[MAXN], ans;
 
+void max_clique (bs R, bs P, bs X) {
+    debug(R, P, X);
+    if(P==emp && X==emp) {
+        ans=max(ans,(int)R.count());
+        return;
+    }
+    if (double(clock())/CLOCKS_PER_SEC > 1.899) return;
+    if((R|P|X).count()<=ans) {
+        return;
+    }
+
+    bs uni=P|X;
+    int u, v;
+    REP (uu, n){
+        u=p[uu];
+        if(uni[u]==1) break;
+    }
+
+    bs now2=P&~edge[u];
+    for(int vv=0;vv<n;++vv){
+        v=p[vv];
+        if(now2[v]==1){
+            R[v]=1;
+            max_clique(R,P&edge[v],X&edge[v]);
+            R[v]=0,P[v]=0,X[v]=1;
+        }
+    }
+}
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
+    srand(time(0));
     cin >> n >> m;
     REP (i,m) {
         ll u,v;
@@ -68,24 +95,22 @@ int main()
         edge[u][v] = true;
         edge[v][u] = true;
     }
-    vector<ll> permu;
-    REP (i,n) {
-        permu.eb(i);
-    }
-    ll ans = 0;
-    while (double(clock())/CLOCKS_PER_SEC < 1.8) {
-        random_shuffle(ALL(permu));
-        bs ban;
-        ll tmp = 0;
-        REP (i,n) {
-            if (!ban[permu[i]]) {
-                ban |= edge[permu[i]];
-                tmp++;
-            }
+    REP (i, n) {
+        edge[i][i] = true;
+        REP (j, n) {
+            edge[i][j] = !edge[i][j];
         }
-        ans = max(ans,tmp);
-
     }
+
+    bs R, P, X;
+    P.flip();
+    REP (i, n) {
+        p[i] = i;
+    }
+    random_shuffle(p, p+n);
+    max_clique(R, P, X);
+
     cout << ans << endl;
+
     return 0;
 }

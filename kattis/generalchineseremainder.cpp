@@ -50,7 +50,18 @@ template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 
-ll t,a,n,b,m;
+
+ll mod;
+ll mul(ll v1,ll v2,ll md=mod) {
+    return v1 * v2 % md;
+}
+
+void normal(ll &v1) {
+    v1 %= mod;
+    if (v1 < 0) {
+        v1 += mod;
+    }
+}
 
 ll extGCD(ll n1,ll n2,ll &x1,ll &x2) {
     if (n1 == 0) {
@@ -65,38 +76,29 @@ ll extGCD(ll n1,ll n2,ll &x1,ll &x2) {
     return ret;
 }
 
-ll mod;
-ll mul(ll v1,ll v2,ll md=mod) {
-    return v1 * v2 % md;
-}
-
-void normal(ll &v1) {
-    v1 %= mod;
-    if (v1 < 0) {
-        v1 += mod;
+void crt (ll a, ll n, ll b, ll m) {
+    ll r1,r2;
+    ll gcd = extGCD(n,m,r1,r2);
+    if ((b-a) % gcd != 0) {
+        cout << "no solution" << endl;
+        return;
     }
+    mod = n * m / gcd;
+
+    ll ans = mul(mul(r1,(b-a)/gcd,m/gcd),n) + a;
+    normal(ans);
+    cout << ans << " " << mod <<  endl;
 }
 /********** Good Luck :) **********/
 int main()
 {
     IOS();
 
+    ll t,a,n,b,m;
     cin >> t;
     while (t--) {
         cin >> a >> n >> b >> m;
-        ll r1,r2;
-        ll gcd = extGCD(n,m,r1,r2);
-        if ((b-a) % gcd != 0) {
-            cout << "no solution" << endl;
-            continue;
-        }
-        mod = n * m / gcd;
-
-        ll ans = mul(mul(r1,(b-a)/gcd,m/gcd),n) + a;
-        normal(ans);
-
-        cout << ans << " " << mod <<  endl;
-
+        crt(a, n, b, m);
     }
     return 0;
 }

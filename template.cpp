@@ -4,13 +4,13 @@ typedef long long ll;
 typedef pair<int, int> pii;
 typedef pair<ll, ll> pll;
 typedef pair<int, ll> pil;
-typedef pair<int, ll> pli;
+typedef pair<ll, int> pli;
 typedef pair<double,double> pdd;
 #define SQ(i) ((i)*(i))
 #define MEM(a, b) memset(a, (b), sizeof(a))
 #define SZ(i) int(i.size())
-#define FOR(i, j, k, in) for (int i=j ; i<k ; i+=in)
-#define RFOR(i, j, k, in) for (int i=j ; i>=k ; i-=in)
+#define FOR(i, j, k, in) for (int i=j ; i<(k) ; i+=in)
+#define RFOR(i, j, k, in) for (int i=j ; i>=(k) ; i-=in)
 #define REP(i, j) FOR(i, 0, j, 1)
 #define REP1(i,j) FOR(i, 1, j+1, 1)
 #define RREP(i, j) RFOR(i, j, 0, 1)
