@@ -10,23 +10,21 @@ def randomString(stringLength=10):
 
 def randomTree(sz):
     edg = []
-    for i in range(2, sz+1):
-        edg.append((i, randint(1, i-1)))
+    for i in range(1, sz):
+        edg.append((i, randint(0, i-1)))
     return edg
 
-n = 3
-q = 10
+def get_perm(sz):
+    a = [x for x in range(1,sz+1)]
+    shuffle(a)
+    return a
 
 def genInt ():
-    return randint(-50,50)
+    return randint(1,50)
 
-print(n, q)
-for i in range(n):
-    print(genInt(), end=' ')
-print()
-for i in range(n):
-    print(randint(1,n), end=' ')
-print()
+n = 2000
+print(n)
+edg = randomTree(n)
 
-for i in range(q):
-    print(genInt(), genInt())
+for e in edg:
+    print(e[1],e[0])

@@ -116,8 +116,8 @@ vector<ll> CentroidDecomposition(const vector<vector<ll>> &edge,const vector<vec
             }
         };
 
-
         add_dist(c,c,0,true);
+
         for (auto it : query[c]) {
             ll dd, qid;
             tie(dd,qid) = it;
@@ -134,7 +134,7 @@ vector<ll> CentroidDecomposition(const vector<vector<ll>> &edge,const vector<vec
         dead[c] = false;
     };
 
-    rec(0); 
+    rec(0);
     return ans;
 }
 /********** Good Luck :) **********/
@@ -151,7 +151,7 @@ int main()
         edge[u].emplace_back(v);
         edge[v].emplace_back(u);
     }
-    
+
 
     vector<vector<pii>> query(n);
     REP (i,q) {

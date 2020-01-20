@@ -102,7 +102,11 @@ int main () {
         }
     }
 
-    REP (i, SZ(ans)) {
-        cout << ans[i] << " \n"[i==SZ(ans)-1];
+    if (ans.empty()) {
+        cout << "None" << endl;
+    } else {
+        REP (i, SZ(ans)) {
+            cout << ans[i] << " \n"[i==SZ(ans)-1];
+        }
     }
 }
