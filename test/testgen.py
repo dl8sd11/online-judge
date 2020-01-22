@@ -22,9 +22,11 @@ def get_perm(sz):
 def genInt ():
     return randint(1,50)
 
-n = 2000
-print(n)
-edg = randomTree(n)
+n = randint(1, 20)
+k = randint(1, n)
 
-for e in edg:
-    print(e[1],e[0])
+print(n,k)
+for i in range(n):
+    print(randint(1,20),end=' ')
+
+print()
