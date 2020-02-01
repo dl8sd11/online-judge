@@ -1,6 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
+#define int long long
 typedef pair<int, int> pii;
 typedef pair<ll, ll> pll;
 typedef pair<int, ll> pil;
@@ -73,10 +74,58 @@ const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
 // const ll MAXN =
 
-int main () {
+int t, n, x;
+map<int,int> cnt;
+signed main () {
     TIME(main);
     IOS();
 
+    cin >> t;
+    while (t--) {
+        cnt.clear();
+        cin >> n >> x;
 
+        string bin;
+        cin >> bin;
+
+        int sum = 0;
+        for (int i=0;i<n; i++) {
+            sum += bin[i] == '0' ? 1 : -1;
+            cnt[sum]++;
+        }
+
+        if (sum == 0) {
+            
+            if (cnt[x] == 0) {
+                if (x == 0)  {
+                    cout << 1 << endl;
+                } else {
+                    cout << 0 << endl;
+                }
+            } else {
+                cout << -1 << endl;
+            }
+        } else {
+            int ans = x == 0;
+            for (auto p : cnt) {
+                if ((x - p.X) / sum >= 0 && (x - p.X) % sum == 0) {
+                    ans += p.Y;
+                }
+            }
+
+            cout << ans << endl;
+        }
+    }
     return 0;
 }
+/*
+4
+6 10
+010010
+5 3
+10101
+1 0
+0
+2 0
+01
+*/

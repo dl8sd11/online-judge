@@ -73,10 +73,77 @@ const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
 // const ll MAXN =
 
+int t;
+ll a, m;
+vector<ll> pd;
+
+void dfs (ll idx, ll cur, ll cnt, ll &res, ll x) {
+    if (idx == SZ(pd)) {
+        res += (x / cur) * ((cnt & 1) ? -1 : 1);
+    } else {
+        dfs(idx+1, cur, cnt, res, x);
+        dfs(idx+1, cur*pd[idx], cnt+1, res, x);
+    }
+}
+
+ll solve (ll x) {
+    ll res = 0;
+    dfs(0, 1, 0, res, x);
+    return res;
+}
+
 int main () {
     TIME(main);
     IOS();
 
+    cin >> t;
+    while (t--) {
+        #ifdef tmdd
+        a = rand()% 100+1;
+        m = rand() % 100+1;
+        debug(a, m);
+        #else
+        cin >> a >> m;
+        #endif
+
+        ll g = __gcd(a, m);
+
+        pd.clear();
+        ll tm = m/g;
+        for (ll i=2; i*i<=m/g; i++) {
+            if (tm % i == 0) {
+                pd.eb(i);
+                while (tm % i == 0) {
+                    tm /= i;
+                }
+            }
+        }
+        if (tm != 1) {
+            pd.eb(tm);
+        }
+
+
+        ll y = a / g;
+        ll k = (m-1) / g + y;
+        k = max(k, y);
+
+        debug(k, y, solve(k), solve(y-1));
+        ll ans = solve(k) - solve(y-1);
+
+        #ifdef tmdd
+
+        ll ck = 0;
+        for (int i=0; i<m; i++) {
+            if (g == __gcd(a+i, m)) {
+                ck++;
+            }
+        }
+        debug(ck, ans);
+        assert(ck == ans);
+
+        #endif
+        cout << ans << endl;
+    }
 
     return 0;
 }

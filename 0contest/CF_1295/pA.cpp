@@ -73,10 +73,25 @@ const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
 // const ll MAXN =
 
+int t;
 int main () {
     TIME(main);
     IOS();
 
+    cin >> t;
+    while (t--) {
+        int n;
+        cin >> n;
 
+        string ans;
+        REP (i, n/2) {
+            ans += '1';
+        }
+        if (n & 1) {
+            ans[0] = '7';
+        }
+
+        cout << ans << endl;
+    }
     return 0;
 }

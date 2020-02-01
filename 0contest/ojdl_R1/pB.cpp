@@ -71,12 +71,42 @@ public:
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-// const ll MAXN =
+const ll MAXN = 1003;
 
+int n, c[MAXN][MAXN], dp[MAXN][MAXN];
 int main () {
     TIME(main);
     IOS();
 
+    cin >> n;
+    REP (i, n) {
+        REP (j, n) {
+            #ifdef tmdd
+            c[i][j] = rand()%1000;
+            #else
+            cin >> c[i][j];
+            #endif
+        }
+    }
 
+    for (int r=0; r<n ;r++) {
+        for (int l=r-1; l>=0; l--) {
+            dp[r][l] = dp[r][l+1];
+            for (int k=l+1; k<=r; k++) {
+                dp[r][l] = max(dp[r][l], c[l][k]+ dp[r][k+1] + dp[k-1][l+1]);
+            }
+        }
+    }
+
+    cout << dp[n-1][0] << endl;
     return 0;
 }
+/*
+6
+0 0 0 1 0 0
+0 0 1 0 0 0
+0 1 0 0 0 0
+1 0 0 0 0 0
+0 0 0 0 0 1
+0 0 0 0 1 0 
+*/

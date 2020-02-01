@@ -71,12 +71,47 @@ public:
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-// const ll MAXN =
+const ll MAXN = 100005;
 
+
+int T, nxt[MAXN][26], lst[26];
+string s, t;
 int main () {
     TIME(main);
     IOS();
 
+    cin >> T;
+    while (T--) {
+        cin >> s >> t;
 
+        fill(lst, lst+26, SZ(s)+1);
+        for (int i=SZ(s)-1;i>=0;i--) {
+            REP (j, 26) {
+                nxt[i+1][j] = lst[j];
+            }
+            lst[s[i]-'a'] = i+1;
+        }
+        REP (i, 26) {
+            nxt[0][i] = lst[i];
+        }
+
+        int ptr = 0;
+        int ans = 1;
+
+        for (auto c : t) {
+            if (nxt[ptr][c - 'a'] == SZ(s) + 1) {
+                ans++;
+                ptr = 0;
+            }
+            ptr = nxt[ptr][c-'a'];
+
+            if (ptr == SZ(s) + 1) {
+                ans = -1;
+                break;
+            }
+        }
+
+        cout << ans << endl;
+    }
     return 0;
 }

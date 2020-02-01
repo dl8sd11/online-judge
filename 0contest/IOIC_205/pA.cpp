@@ -71,12 +71,75 @@ public:
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-// const ll MAXN =
+const ll MAXN = 100005;
 
+int n, m;
+vector<int> edge[MAXN];
+bool g[903][903];
+bool x[903], vis[903];
+
+ll clc (ll sz) {
+    return sz * (sz - 1) / 2;
+}
+
+bool ans = true;
+
+void dfs (int nd, bool cl) {
+    vis[nd] = true;
+    x[nd] = cl;
+    debug(nd, cl);
+
+    REP1 (v, n) {
+        if (v != nd && g[nd][v]) {
+            if (!vis[v]) {
+                dfs(v, 1 - cl);
+            } else {
+                if (cl == x[v]) {
+                    ans = false;
+                }
+            }
+        }
+    }
+}
 int main () {
     TIME(main);
     IOS();
 
+    cin >> n >> m;
+    REP (i, m) {
+        int u, v;
+        cin >> u >> v;
+        edge[u].eb(v);
+        edge[v].eb(u);
+    }
+
+    ll mn = INF;
+    REP1 (i, n) {
+        mn = min(clc(i)+clc(n-i), mn);
+    }
+    debug(mn);
+
+
+    if (m < mn) {
+        cout << "No" << endl;
+        return 0;
+    }
+    REP1 (i, n) {
+        REP1 (j, n) {
+            g[i][j] = true;
+        }
+        for (auto v : edge[i]) {
+            g[i][v] = false;
+        }
+    }
+    
+    REP1 (i, n) {
+        if (!vis[i]) {
+            dfs(i, 1);
+        }
+    }
+
+    cout << (ans ? "Yes" : "No") << endl;
 
     return 0;
 }

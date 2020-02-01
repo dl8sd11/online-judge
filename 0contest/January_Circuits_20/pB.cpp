@@ -71,12 +71,39 @@ public:
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-// const ll MAXN =
+const ll MAXN = 100005;
 
+int n, k, a[MAXN];
 int main () {
     TIME(main);
     IOS();
 
+    cin >> n >> k;
+    REP (i, n) {
+        cin >> a[i];
+    }
 
+    deque<pair<int,int> > mx;
+    ll sum = 0;
+    int ans = 0;
+    for (int l=0,r=0;r<n;r++) {
+        while (SZ(mx) && mx.back().Y <= a[r]) {
+            mx.pop_back();
+        }
+        sum += a[r];
+        mx.emplace_back(r, a[r]);
+        
+        while (1LL*mx.front().Y*(r-l+1) - sum > k) {
+            sum -= a[l];
+            if (mx.front().X == l) {
+                mx.pop_front();
+            }
+            l++;
+        }
+
+        ans = max(ans, r-l+1);
+    }
+
+    cout << ans << endl;
     return 0;
 }

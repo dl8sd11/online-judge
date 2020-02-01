@@ -71,12 +71,63 @@ public:
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-// const ll MAXN =
+const ll MAXN = 17;
 
+int n, h, w, a[MAXN];
+
+int aid[MAXN];
+pair<int,int> ans[MAXN];
+bool vis[MAXN];
+
+double tl = 0.7, st;
+int tk = 0;
+void dfs (int idx,int x, int y) {
+    double cur = clock();
+    if ((cur - st) / CLOCKS_PER_SEC >= tl) {
+        cout << "No" << endl;
+        exit(0);
+    }
+    if (idx == n) {
+        cout << "Yes" << endl;
+        for (int i=0;i<n;i++) {
+            cout << aid[i] + 1 << " " << ans[i].X << " " << ans[i].Y << endl;
+        }
+        exit(0);
+    } else {
+        REP (i, n) {
+            if (!vis[i]) {
+                if (a[i] % x == 0) {
+                    if (a[i] / x <= y) {
+                        ans[idx] = {x, a[i]/x};
+                        aid[idx] = i;
+                        vis[i] = true;
+                        dfs(idx+1, x, y-a[i]/x);
+                        vis[i] = false;
+                    }
+                } else if (a[i] % y == 0) {
+                    if (a[i] / y <= x) {
+                        ans[idx] = {a[i]/y, y};
+                        aid[idx] = i;
+                        vis[i] = true;
+                        dfs(idx+1, x-a[i]/y, y);
+                        vis[i] = false;
+                    }
+                }
+            }
+        }
+    }
+}
 int main () {
     TIME(main);
     IOS();
+    st = clock();
 
+    cin >> n >> h >> w;
+    REP (i, n) {
+        cin >> a[i];
+    }
 
+    dfs(0, h, w);
+    cout << "No" << endl;
     return 0;
 }

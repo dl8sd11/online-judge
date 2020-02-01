@@ -71,12 +71,132 @@ public:
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-// const ll MAXN =
+const ll MAXN = 200005;
+
+int n, V[MAXN];
+vector<int> edge[MAXN];
+vector<int> val[MAXN];
+
+int in[MAXN], out[MAXN], tme, p[MAXN];
+void dfs (int nd, int par) {
+    p[nd] = par;
+    in[nd] = tme++;
+    for (auto v : edge[nd]) {
+        if (v != par) {
+            dfs(v, nd);
+        }
+    }
+    out[nd] = tme;
+}
+
+int bit[MAXN];
+void add (int x,int y) {
+    for (x+=2;x<MAXN;x+=-x&x) {
+        bit[x] += y;
+    }
+}
+
+int qry (int x) {
+    int ret = 0;
+    for (x+=2;x>0;x-=-x&x) {
+        ret += bit[x];
+    }
+    return ret;
+}
+
+int qrySum (int l, int r) {
+    return qry(r-1) - qry(l-1);
+}
+
+ll mpow (ll bs, ll ep) {
+    ll ret = 1;
+    while (ep) {
+        if (ep & 1) {
+            ret = ret * bs % MOD;
+        }
+        bs = bs * bs % MOD;
+        ep >>= 1;
+    }
+    return ret;
+}
+
+ll tpw[MAXN], trv[MAXN];
+
+void msub (ll &x, ll y) {
+    x -= y;
+    if (x < 0) {
+        x += MOD;
+    }
+}
+
+void madd (ll &x, ll y) {
+    x += y;
+    if (x >= MOD) {
+        x -= MOD;
+    }
+}
+
+ll sub1 (ll x) {
+    return x == 0 ? MOD-1 : x-1;
+}
+
+ll cnt = 0, ans = 0;
+void build (int nd) {
+    ll sum = sub1(tpw[qrySum(in[nd], out[nd])]);
+
+    debug(nd, qrySum(in[nd], out[nd]), in[nd], out[nd]);
+    for (auto v : edge[nd]) {
+        if (v != p[nd]) {
+            msub(sum, sub1(tpw[qrySum(in[v], out[v])]));
+            debug(v, qrySum(in[v], out[v]));
+        }
+    }
+    madd(cnt, sum);
+    madd(ans, sum*nd%MOD);
+}
+
 
 int main () {
     TIME(main);
     IOS();
 
+    tpw[0] = 1;
+    for (int i=1;i<MAXN;i++) {
+        tpw[i] = tpw[i-1];
+        madd(tpw[i], tpw[i-1]);
+    }
+
+    cin >> n;
+    REP (i, n-1) {
+        int u, v;
+        cin >> u >> v;
+        edge[u].eb(v);
+        edge[v].eb(u);
+    }
+
+    dfs(1,0);
+    REP1 (i, n) {
+        cin >> V[i];
+        val[V[i]].eb(i);
+    }
+
+    REP (i, MAXN) {
+        for (auto v : val[i]) {
+            build(v);
+        }
+
+        for (auto v : val[i]) {
+            debug(in[v]);
+            add(in[v], 1);
+        }
+    }
+
+    ll sz = tpw[n] == 0 ? MOD-1 : tpw[n] - 1;
+    msub(sz, cnt);
+    madd(ans,sz);
+
+    debug(ans);
+    cout << ans * mpow(tpw[n], MOD-2) % MOD << endl;
 
     return 0;
 }

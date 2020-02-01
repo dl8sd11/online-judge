@@ -73,10 +73,20 @@ const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
 // const ll MAXN =
 
+int t, n;
 int main () {
     TIME(main);
     IOS();
 
-
+    cin >> t;
+    while (t--) {
+        cin >> n;
+        int b = __builtin_popcount(n), d =__lg(n);
+        if (b > d) {
+            cout << n << endl;
+        } else {
+            cout << (1<<d) - 1 << endl;
+        }
+    }
     return 0;
 }

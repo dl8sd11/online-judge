@@ -73,10 +73,121 @@ const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
 // const ll MAXN =
 
+int n, k;
+
+vector<array<int,5> > state;
+vector<array<int,4> > cstate;
+map<array<int,4>, int> cnt;
+int rcnt[102];
+vector<int> tran[102];
+bool ban[102];
+
+void build () {
+    REP (a, 4) {
+        REP (b, 4) {
+            REP (c, 4) {
+                REP (d, 4) {
+                    REP (e, 4) {
+                        array<int,4> cur = {};
+                        cur[a]++;
+                        cur[b]++;
+                        cur[c]++;
+                        cur[d]++;
+                        cur[e]++;
+                        cnt[cur]++;
+                        cstate.pb(cur);
+                    }
+                }
+            }
+        }
+    }
+
+    sort(ALL(cstate));
+    cstate.resize(unique(ALL(cstate))-cstate.begin());
+
+    REP (i, SZ(cstate)) {
+        rcnt[i] += cnt[cstate[i]];
+    }
+    REP (i, SZ(cstate)) {
+        for (int K=0;K<4;K++) {
+            if (cstate[i][K] > k) {
+                ban[i] = true;
+            }
+        }
+        REP (j, SZ(cstate)) {
+            bool valid = true;
+            for (int K=0;K<4;K++) {
+                if (cstate[i][K]+cstate[j][K] > k) {
+                    valid = false;
+                }
+            }
+
+            if (valid) {
+                tran[i].eb(j);
+            }
+        }
+    }
+}
+
+ll dp[1003][57];
 int main () {
     TIME(main);
     IOS();
 
+    cin >> n >> k;
+    {
+        TIME(bd);
+        build();
+    }
 
+    
+    for (int i=0;i<SZ(cstate);i++) {
+        if (!ban[i]) {
+            dp[1][i] = 1;
+        }
+    }
+
+    {
+        TIME(dpc);
+        int tk = 0;
+        for (int i=2;i<=n;i++) {
+            for (int j=0;j<SZ(cstate);j++) {
+                if (!ban[j]) {
+                    for (auto v : tran[j]) {
+                        tk++;
+                        dp[i][j] += dp[i-1][v] * rcnt[v] % MOD;
+                        if (dp[i][j] >= MOD) {
+                            dp[i][j] -= MOD;
+                        }
+                        // _OUTC(cerr, ALL(cstate[j]));
+                        // _OUTC(cerr, ALL(cstate[v]));
+                        // cerr<<endl;
+                    }
+                }
+            }
+        }
+        debug(tk);
+    }
+
+
+    ll sum = 0;
+    {
+        TIME(fnl);
+        for (int i=0;i<SZ(cstate);i++) {
+            sum += dp[n][i] * rcnt[i] % MOD;
+            sum %= MOD;
+        }
+    }
+    cout << sum << endl;
+
+    // #ifdef tmd
+    // ll tmp = 0;
+    // REP (i, SZ(cstate)) {
+    //     for (auto v : tran[i]) {
+    //         tmp += cnt[cstate[i]] * cnt[cstate[v]];
+    //     }
+    // }
+    // cout << tmp << endl;
+    // #endif
     return 0;
 }

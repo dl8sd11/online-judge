@@ -1,30 +1,71 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
-#define REP(i,n) for(int i=0;i<n;++i)
-#define REP1(i,n) for(int i=1;i<=n;++i)
+typedef pair<int, int> pii;
+typedef pair<ll, ll> pll;
+typedef pair<int, ll> pil;
+typedef pair<ll, int> pli;
+typedef pair<double,double> pdd;
+#define SQ(i) ((i)*(i))
+#define MEM(a, b) memset(a, (b), sizeof(a))
 #define SZ(i) int(i.size())
+#define FOR(i, j, k, in) for (int i=j ; i<(k) ; i+=in)
+#define RFOR(i, j, k, in) for (int i=j ; i>=(k) ; i-=in)
+#define REP(i, j) FOR(i, 0, j, 1)
+#define REP1(i,j) FOR(i, 1, j+1, 1)
+#define RREP(i, j) RFOR(i, j, 0, 1)
+#define ALL(_a) _a.begin(),_a.end()
+#define mp make_pair
+#define pb push_back
+#define eb emplace_back
+#define X first
+#define Y second
 #ifdef tmd
-#define IOS()
-#define debug(...) fprintf(stderr,"#%d: %s = ",__LINE__,#__VA_ARGS__),_do(__VA_ARGS__);
-template<typename T> void _do(T &&x){cerr<<x<<endl;}
-template<typename T, typename ...S> void _do(T &&x, S &&...y){cerr<<x<<", ";_do(y...);}
-template<typename It> ostream& _printRng(ostream &os,It bg,It ed)
+#define TIME(i) Timer i(#i)
+#define debug(...) do{\
+    fprintf(stderr,"%s - %d (%s) = ",__PRETTY_FUNCTION__,__LINE__,#__VA_ARGS__);\
+    _do(__VA_ARGS__);\
+}while(0)
+template<typename T>void _do(T &&_x){cerr<<_x<<endl;}
+template<typename T,typename ...S> void _do(T &&_x,S &&..._t){cerr<<_x<<" ,";_do(_t...);}
+template<typename _a,typename _b> ostream& operator << (ostream &_s,const pair<_a,_b> &_p){return _s<<"("<<_p.X<<","<<_p.Y<<")";}
+template<typename It> ostream& _OUTC(ostream &_s,It _ita,It _itb)
 {
-    os<<"{";
-    for(It it=bg;it!=ed;it++) {
-        os<<(it==bg?"":",")<<*it;
+    _s<<"{";
+    for(It _it=_ita;_it!=_itb;_it++)
+    {
+        _s<<(_it==_ita?"":",")<<*_it;
     }
-    os<<"}";
-    return os;
+    _s<<"}";
+    return _s;
 }
-template<typename T> ostream &operator << (ostream &os,vector<T> &v){return _printRng(os,v.begin(), v.end());}
-template<typename T> void pary(T bg, T ed){_printRng(cerr,bg,ed);cerr<<endl;}
+template<typename _a> ostream &operator << (ostream &_s,vector<_a> &_c){return _OUTC(_s,ALL(_c));}
+template<typename _a> ostream &operator << (ostream &_s,set<_a> &_c){return _OUTC(_s,ALL(_c));}
+template<typename _a> ostream &operator << (ostream &_s,deque<_a> &_c){return _OUTC(_s,ALL(_c));}
+template<typename _a,typename _b> ostream &operator << (ostream &_s,map<_a,_b> &_c){return _OUTC(_s,ALL(_c));}
+template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
+#define IOS()
+class Timer {
+private:
+    string scope_name;
+    chrono::high_resolution_clock::time_point start_time;
+public:
+    Timer (string name) : scope_name(name) {
+        start_time = chrono::high_resolution_clock::now();
+    }
+    ~Timer () {
+        auto stop_time = chrono::high_resolution_clock::now();
+        auto length = chrono::duration_cast<chrono::microseconds>(stop_time - start_time).count();
+        double mlength = double(length) * 0.001;
+        debug(scope_name, mlength);
+    }
+};
 #else
-#define IOS() ios_base::sync_with_stdio(0);cin.tie(0);
-#define endl '\n'
+#define TIME(i)
 #define debug(...)
 #define pary(...)
+#define endl '\n'
+#define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
 #endif
 
 const int MAXN = 100005;
@@ -71,7 +112,7 @@ void build_time (int nd, int par) {
     out[nd] = dfn;
 }
 
-bool is_anc (int a, int s) {
+inline bool is_anc (int a, int s) {
     return in[a] <= in[s] && out[s] <= out[a];
 }
 
@@ -94,7 +135,8 @@ struct Modify {
 struct SQuery {
     int x, p, v, id;
 };
-vector<SQuery> sq[MAXN];
+vector<SQuery> sq;
+vector<int> bk[MAXN];
 
 ll ans[MAXN];
 
@@ -102,11 +144,11 @@ void solve_small () {
     init();
 
     int ptr =  0;
+
     REP (i, MAXN) {
-        for (auto qu : sq[i]) {
-            if (qu.x == 4 && qu.p == 1) {
-                debug(qu.id, qu.v, i);
-            }
+
+        for (auto idx : bk[i]) {
+            const SQuery &qu = sq[idx];
             if (fnd(qu.x) == fnd(qu.p)) {
                 ans[qu.id] += qu.v;
             }
@@ -117,9 +159,10 @@ void solve_small () {
             ptr++;
         }
     }
+
 }
 
-const int K = 1296;
+const int K = 1569;//3;
 
 struct Node {
     Node *l, *r;
@@ -138,21 +181,18 @@ struct Node {
         tag = 0;
     }
 };
-Node *root[MAXN];
+Node *root[MAXN], pool[MAXN];
 
 Node *mrg (Node *a, Node *b) {
-//    debug(a, b);
     if (!a || !b) {
         return a ? a : b;
     } else {
         if (a->pri > b->pri) {
             a->push();
-            assert(a->r != a);
             a->r = mrg(a->r, b);
             return a;
         } else {
             b->push();
-            assert(b->l != b);
             b->l = mrg(a, b->l);
             return b;
         }
@@ -176,7 +216,6 @@ void split (Node *o, Node *&a, Node *&b, int k) { // r >= k
 }
 
 void dfs_push (Node *nd) {
-    debug(rin[nd->key]);
     nd->push();
     val[rin[nd->key]] += nd->v;
 
@@ -186,46 +225,30 @@ void dfs_push (Node *nd) {
     if (nd->r) {
         dfs_push(nd->r);
     }
-    delete(nd);
 }
 
-void dfs_dbug (Node *nd) {
-    if (!nd) {
-        return;
-    }
-    debug(nd->key);
-    dfs_dbug(nd->l);
-    dfs_dbug(nd->r);
-}
 
 vector<Modify> queued;
+
+
 void rebuild () {
     init();
 
     REP1 (i, n) {
-        root[i] = new Node{0,0,in[i],0,0,rand()};
+        pool[i] = Node{0,0,in[i],0,0,rand()};
+        root[i] = &pool[i];
     }
 
-    pary(in+1, in+1+n);
-    pary(out+1, out+1+n);
-
+    sort(queued.begin(), queued.end());
 
     int ptr = 0;
-    for (Modify md : queued) {
+    for (const Modify &md : queued) {
         while (ptr < n-1 && edges[ptr].w < md.y) {
             int xp = rt[fnd(edges[ptr].u)];
-            debug(ptr, edges[ptr].u, edges[ptr].v, xp);
 
             Node *l, *r;
-//            debug(root[xp]->key);
             split(root[xp], l, r, in[edges[ptr].v]);
 
-//            debug("L");
-//            dfs_dbug(l);
-//            debug("R");
-//            dfs_dbug(r);
-//            debug("NW");
-//            dfs_dbug(root[edges[ptr].v]);
 
             root[xp] = mrg(l, mrg(root[edges[ptr].v], r));
 
@@ -238,7 +261,6 @@ void rebuild () {
         split(root[r], L, M, in[md.v]);
         split(M, M, R, out[md.v]);
 
-        assert(M);
         M->tag += md.x;
 
         root[r] = mrg(L, mrg(M, R));
@@ -246,7 +268,6 @@ void rebuild () {
 
     REP1 (i, n) {
         if (rt[fnd(i)] == i) {
-            debug(i);
             dfs_push(root[i]);
         }
     }
@@ -257,6 +278,7 @@ void rebuild () {
 /*********************GoodLuck***********************/
 int main () {
     IOS();
+    TIME(man);
 
     cin >> n >> q;
     REP1 (i, n) {
@@ -284,19 +306,22 @@ int main () {
 //    srand(time(0));
 
     int qcnt = 0;
+
     REP (i, q) {
         int cmd, x, y, v;
         cin >> cmd;
+
         if (cmd == 1) {
             cin >> v;
-            debug(queued.size());
-//            if (queued.size() >= K) {
-//                rebuild();
-//            }
+
+           if (queued.size() >= K) {
+               rebuild();
+           }
 
             for (auto m : queued) {
                 if (is_anc(m.v, v)) {
-                    sq[m.y].push_back({v, m.v, m.x, qcnt});
+                    bk[m.y].emplace_back(sq.size());
+                    sq.push_back({v, m.v, m.x, qcnt});
                 }
             }
 
@@ -309,21 +334,16 @@ int main () {
         }
     }
 
-    solve_small();
+    {
+        TIME(SM);
+        solve_small();
+    }
+
+    debug(qcnt);
+    #ifndef tmdd
 
     REP (i, qcnt) {
         cout << ans[i] << endl;
     }
+    #endif
 }
-/*
-5 4
-0 0 0 0 0 
-2 1 5
-3 1 8
-4 2 9
-5 1 5
-2 11 3 3
-2 11 10 3
-2 3 10 1
-1 5
-*/

@@ -20,13 +20,25 @@ def get_perm(sz):
     return a
 
 def genInt ():
-    return randint(1,50)
+    return randint(1,10)
 
-n = randint(1, 20)
-k = randint(1, n)
+n = 100000
+q = 100000
+W = 100000
 
-print(n,k)
-for i in range(n):
-    print(randint(1,20),end=' ')
+print(n, q)
+edg = randomTree(n)
 
+for x in range(n):
+    print(0, end=' ')
 print()
+
+for e in edg:
+    print(e[0]+1, e[1]+1, randint(1, W))
+
+
+for qq in range(q):
+    if qq > 1000:
+        print(1, randint(1, n))
+    else:
+        print(2, randint(1, 1000000000), randint(1, W), 1)

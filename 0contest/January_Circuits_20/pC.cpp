@@ -73,10 +73,23 @@ const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
 // const ll MAXN =
 
+int t;
+ll c, n;
 int main () {
     TIME(main);
     IOS();
 
+    cin >> t;
+    while (t--) {
+        cin >> c >> n;
 
+        ll sum = (n+1)*n / 2;
+        
+        if (sum > c) {
+            cout << c << endl;
+        } else {
+            cout << (c-sum) % n << endl;
+        }
+    }
     return 0;
 }

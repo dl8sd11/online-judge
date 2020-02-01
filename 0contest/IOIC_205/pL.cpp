@@ -1,4 +1,5 @@
 #include <bits/stdc++.h>
+#pragma GCC optimize("O3","unroll-loops")
 using namespace std;
 typedef long long ll;
 typedef pair<int, int> pii;
@@ -71,12 +72,66 @@ public:
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-// const ll MAXN =
+const ll MAXN = 5003;
+
+int n;
+ll dp[MAXN][MAXN];
+struct Nut {
+    int a, w;
+    bool operator < (const Nut &oth) const {
+        return a < oth.a;
+    }
+} nt[MAXN];
 
 int main () {
     TIME(main);
     IOS();
 
+    cin >> n;
+    REP (i, n) {
+        #ifdef tmd
+        if (i < 2) {
+            nt[i].a = 1,
+            nt[i].w = 1000000000;
+        } else {
+            nt[i].a = nt[i-1].a + nt[i-2].a;
+            if (nt[i].a >= 1000000000) {
+                nt[i].a = 1;
+            }
+            nt[i].w = 1000000000;
+        }
+        #else
+        cin >> nt[i].a >> nt[i].w;
+        #endif
+    }
+    sort(nt, nt+n);
+
+    ll ans = 0;
+
+    
+
+    REP (r, n) {
+        int ptr = 0;
+        for (int l=r-1;l>=0;l--) {
+            while (ptr<l&&nt[ptr].a+nt[l].a<=nt[r].a) {
+                ptr++;
+            }
+
+            dp[l][r] = nt[l].w + nt[r].w;
+            if (ptr > 0 && l > 0) {
+                dp[l][r] = max(dp[l][r], dp[min(l-1,ptr-1)][l]+nt[r].w);
+            }
+            ans = max(ans, dp[l][r]);
+        }
+
+        ll mx = 0;
+        for (int l=0;l<r;l++) {
+            mx = max(dp[l][r], mx);
+            dp[l][r] = mx;
+        }
+    }
+
+    cout << ans << endl;
 
     return 0;
 }

@@ -73,10 +73,73 @@ const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
 // const ll MAXN =
 
+vector<int> dv;
+map<int, vector<int> > mdv;
+map<pair<int,int>, ll> dp;
+
+vector<int> getDiv (int x) {
+    vector<int> res;
+    for (int i=1; i*i<=x; i++) {
+        if (x % i == 0) {
+            res.eb(i);
+            if (i * i != x) {
+                res.eb(x/i);
+            }
+        }
+    }
+    sort(ALL(res));
+    return res;
+}
+
+
+ll solve (int n, int lst) {
+    if (n == 1) {
+        return 1;
+    }
+    pair<int,int> st = {n, lst};
+    if (dp.count(st)) {
+        return dp[st];
+    }
+    const vector<int> &cur =mdv[lst];
+
+    ll res = 0;
+    for (auto v : cur) {
+        if (v == 1) {
+            continue;
+        }
+        if (v > lst) {
+            break;
+        }
+        if (n % v == 0) {
+            res += solve(n/v, v);
+        }
+    }
+
+    // debug(st, res);
+
+    return dp[st] = res;
+}
 int main () {
     TIME(main);
     IOS();
 
+    int n;
+    cin >> n;
+
+    dv = getDiv (n);
+    for (auto v : dv) {
+        mdv[v] = getDiv(v);
+    }
+
+    ll ans = 0;
+    for (auto v : dv) {
+        if (v > 1) {
+            ans += solve(n/v, v);
+            debug(v, solve(n/v, v));
+        }
+    }
+
+    cout << ans << endl;
 
     return 0;
 }

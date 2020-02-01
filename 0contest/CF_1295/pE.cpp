@@ -71,12 +71,91 @@ public:
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-// const ll MAXN =
+const ll MAXN = 200005;
+
+
+ll seg[MAXN*4], tag[MAXN*4];
+
+ll get (int o) {
+    return seg[o] + tag[o];
+}
+
+void pull (int o) {
+    seg[o] = min(get(o<<1), get(o<<1|1));
+}
+
+void push (int o) {
+    if (tag[o] != 0) {
+        tag[o<<1] += tag[o];
+        tag[o<<1|1] += tag[o];
+        seg[o] += tag[o];
+        tag[o] = 0;
+    }
+}
+
+void add (int qL, int qR, ll val, int o, int nL, int nR) {
+    if (qL >= nR || qR <= nL || qL >= qR) {
+        return;
+    } else if (qL <= nL && nR <= qR) {
+        tag[o] += val;
+    } else {
+        int nM = (nL + nR) >> 1;
+        push(o);
+        add(qL, qR, val, o<<1, nL, nM);
+        add(qL, qR, val, o<<1|1, nM, nR);
+        pull(o);
+    }
+}
+
+// ll qry (int qL, int qR, int o, int nL, int nR) {
+//     if (qL >= nL || qR <= nL || qL >= qR) {
+//         return INF;
+//     } else if (qL <= nL && nR <= qR) {
+//         return get(o);
+//     } else {
+//         int nM = (nL + nR) >> 1;
+//         push(o);
+//         return min(qry(qL, qR, o<<1, nL, nM), \
+//                     qry(qL, qR, o<<1|1, nM, nR));
+//     }
+// }
+
+int n, p[MAXN], x[MAXN];
+ll a[MAXN];
 
 int main () {
     TIME(main);
     IOS();
 
+    cin >> n;
+    REP (i, n) {
+        cin >> p[i];
+        x[p[i]] = i;
 
+    }
+
+    REP (i, n) {
+        cin >> a[i];
+    }
+
+    REP (i, n) {
+        int c = p[i];
+        debug(i, n-1, a[i]);
+        add(i, n-1, a[i], 1, 0, n-1);
+    }
+
+    debug(seg[1], tag[1]);
+    ll ans = INF;
+    for (int l=0; l<=n; l++) {
+        ans = min(ans, get(1));
+        debug(l, get(1));
+
+        debug(x[l+1], n-1, -a[x[l+1]]);
+        add(x[l+1], n-1, -a[x[l+1]], 1, 0, n-1);
+        debug(0, x[l+1], a[x[l+1]]);
+        add(0, x[l+1], a[x[l+1]], 1, 0, n-1);
+    }
+
+    cout << ans << endl;
     return 0;
 }

@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
-typedef pair<int, int> pii;
+typedef pair<ll, ll> pii;
 typedef pair<ll, ll> pll;
 typedef pair<int, ll> pil;
 typedef pair<ll, int> pli;
@@ -71,12 +71,90 @@ public:
 const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
-// const ll MAXN =
+const ll MAXN = 1502;
+
+int n;
+pii pts[MAXN];
+map<pii, vector<pii> > cen;
+
+ll ans;
+
+pii getMid (pii p1, pii p2) {
+    return {p1.X + p2.X >> 1, p1.Y + p2.Y >> 1};
+}
+
+pii operator - (const pii &p1, const pii &p2) {
+    return {p1.X - p2.X, p1.Y - p2.Y};
+}
+
+bool hf (const pii &p) {
+    if (p.Y == 0) {
+        return p.X < 0;
+    } else {
+        return p.Y > 0;
+    }
+}
+
+ll operator * (const pii &p1, const pii &p2) {
+    return 1LL * p1.X * p2.Y - 1LL * p1.Y * p2.X;
+}
+
+ll operator % (const pii &p1, const pii &p2) {
+    return 1LL * p1.X * p2.X + 1LL * p1.Y * p2.Y;
+}
+
+void solve (vector<pii> vec) {
+    sort(ALL(vec), [&](pii &p1, pii &p2) {
+        bool h1 = hf(p1);
+        bool h2 = hf(p2);
+        if (h1 != h2) {
+            return h1 < h2;
+        } else {
+            return p1 * p2 > 0;
+        }
+    });
+
+    vector<pii> nv = vec;
+    for (auto v : vec) {
+        nv.eb(v);
+    }
+
+    int sz = SZ(vec);
+    for (int i=0,l=0,r=0;i<sz;i++) {
+        l =  min(l, i);
+        r =  min(r, i);
+        while (l<i+sz && nv[i]*nv[l]>=0 &&nv[i]%nv[l]>0) {
+            l++;
+        }
+        while (r<i+sz && nv[i]*nv[r]>=0 && nv[i]%nv[r]>=0) {
+            r++;
+        }
+        ans += r-l;
+    }
+}
 
 int main () {
     TIME(main);
     IOS();
 
+    cin >> n;
+    REP (i, n) {
+        cin >> pts[i].X >> pts[i].Y;
+        pts[i].X *= 2;
+        pts[i].Y *= 2;
+    }
 
+    REP (i, n) {
+        REP (j, i) {
+            pii mid = getMid(pts[i], pts[j]);
+            cen[mid].emplace_back(pts[i] - mid);
+        }
+    }
+
+    for (auto p : cen) {
+        solve(p.Y);
+    }
+
+    cout << ans << endl;
     return 0;
 }
