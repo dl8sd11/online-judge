@@ -1,176 +1,166 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
-typedef pair<ll, ll> pii;
-typedef pair<double,double> pdd;
-#define MEM(a, b) memset(a, (b), sizeof(a))
-#define SZ(i) ll(i.size())
-#define FOR(i, j, k, in) for (ll i=j ; i<k ; i+=in)
-#define RFOR(i, j, k, in) for (ll i=j ; i>=k ; i-=in)
-#define REP(i, j) FOR(i, 0, j, 1)
-#define REP1(i,j) FOR(i, 1, j+1, 1)
-#define RREP(i, j) RFOR(i, j, 0, 1)
-#define ALL(_a) _a.begin(),_a.end()
-#define mp make_pair
-#define pb push_back
+typedef pair<int,int> pii;
+typedef pair<ll,ll> pll;
+#define REP(i,n) for(int i=0;i<n;++i)
+#define REP1(i,n) for(int i=1;i<=n;++i)
+#define SZ(i) int(i.size())
 #define eb emplace_back
+#define ALL(i) i.begin(),i.end()
 #define X first
 #define Y second
 #ifdef tmd
-#define debug(...) do{\
-    fprintf(stderr,"%s - %d (%s) = ",__PRETTY_FUNCTION__,__LINE__,#__VA_ARGS__);\
-    _do(__VA_ARGS__);\
-}while(0)
-template<typename T>void _do(T &&_x){cerr<<_x<<endl;}
-template<typename T,typename ...S> void _do(T &&_x,S &&..._t){cerr<<_x<<" ,";_do(_t...);}
-template<typename _a,typename _b> ostream& operator << (ostream &_s,const pair<_a,_b> &_p){return _s<<"("<<_p.X<<","<<_p.Y<<")";}
-template<typename It> ostream& _OUTC(ostream &_s,It _ita,It _itb)
-{
-    _s<<"{";
-    for(It _it=_ita;_it!=_itb;_it++)
-    {
-        _s<<(_it==_ita?"":",")<<*_it;
-    }
-    _s<<"}";
-    return _s;
-}
-template<typename _a> ostream &operator << (ostream &_s,vector<_a> &_c){return _OUTC(_s,ALL(_c));}
-template<typename _a> ostream &operator << (ostream &_s,set<_a> &_c){return _OUTC(_s,ALL(_c));}
-template<typename _a> ostream &operator << (ostream &_s,deque<_a> &_c){return _OUTC(_s,ALL(_c));}
-template<typename _a,typename _b> ostream &operator << (ostream &_s,map<_a,_b> &_c){return _OUTC(_s,ALL(_c));}
-template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
 #define IOS()
+#define debug(...) fprintf(stderr,"#%d: %s = ",__LINE__,#__VA_ARGS__),_do(__VA_ARGS__);
+template<typename T> void _do(T &&x){cerr<<x<<endl;}
+template<typename T, typename ...S> void _do(T &&x, S &&...y){cerr<<x<<", ";_do(y...);}
+template<typename It> ostream& _printRng(ostream &os,It bg,It ed)
+{
+    os<<"{";
+    for(It it=bg;it!=ed;it++) {
+        os<<(it==bg?"":",")<<*it;
+    }
+    os<<"}";
+    return os;
+}
+template<typename T> ostream &operator << (ostream &os,vector<T> &v){return _printRng(os,v.begin(), v.end());}
+template<typename T> void pary(T bg, T ed){_printRng(cerr,bg,ed);cerr<<endl;}
 #else
+#define IOS() ios_base::sync_with_stdio(0);cin.tie(0);
+#define endl '\n'
 #define debug(...)
 #define pary(...)
-#define endl '\n'
-#define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
 #endif
 
+const int MAXN = 200005;
 const ll MOD = 1000000007;
-const ll INF = 0x3f3f3f3f3f3f3f3f;
-const ll MAXN = 100003;
 
-ll n;
-vector<ll> px,py;
-struct Event {
-    ll l,r,y,w;
-}e[MAXN*2];
+int n;
 
-struct Node {
-    ll l,r;
-    Node *lc,*rc;
-    ll data,tag;
-
-    ll get() {
-        return data + tag;
-    }
-
-    void push() {
-        if (lc && rc) {
-            lc->tag += tag;
-            rc->tag += tag;
-        }
-        data += tag;
-        tag = 0;
-    }
-
-    void pull() {
-        if (lc && rc) {
-            data = max(lc->get(),rc->get());
-        }
-    }
+struct Rect {
+    int r0, c0, r1, c1, w;
 };
-Node *root;
+Rect rect[MAXN];
 
-Node *build(ll l,ll r) {
-    if (r == l + 1) {
-        return new Node {l,r,0,0,0,0};
-    }
-    ll mid = (l + r) >> 1;
-    return new Node {l,r,build(l,mid),build(mid,r),0,0};
+void dc (int &x, vector<int> &srt) {
+    x = lower_bound(ALL(srt), x)-srt.begin();
 }
 
-void add(ll l,ll r,ll val,Node *nd=root) {
-    if (l == nd->l && r == nd->r) {
-        nd->tag += val;
-        return;
-    }
-    nd->push();
-    ll mid = (nd->l + nd->r) >> 1;
-    if (l >= mid) {
-        add(l,r,val,nd->rc);
-    } else if (r <= mid) {
-        add(l,r,val,nd->lc);
-    } else {
-        add(l,mid,val,nd->lc);
-        add(mid,r,val,nd->rc);
-    }
-    nd->pull();
-}
+vector<int> add[MAXN], sub[MAXN];
 
-ll query(ll l,ll r,Node *nd=root) {
-    if (l == nd->l && r == nd->r) {
-        return nd->get();
+int line[MAXN];
+
+struct RMQ {
+    int mx[MAXN*4], tag[MAXN*4];
+
+    int get (int o) {
+        return mx[o] + tag[o];
     }
-    nd->push();
-    ll mid = (nd->l + nd->r) >> 1;
-    if (l >= mid) {
-        return query(l,r,nd->rc);
-    } else if (r <= mid) {
-        return query(l,r,nd->lc);
-    } else {
-        return max(query(l,mid,nd->lc),query(mid,r,nd->rc));
+
+    void pull (int o) {
+        mx[o] = max(get(o<<1), get(o<<1|1));
     }
-}
-/********** Good Luck :) **********/
-int main()
-{
+
+    void push (int o) {
+        if (tag[o]) {
+            mx[o] += tag[o];
+            tag[o<<1] += tag[o];
+            tag[o<<1|1] += tag[o];
+            tag[o] = 0;
+        }
+    }
+
+    void build (int o, int nL, int nR) {
+        if (nL == nR - 1) {
+            mx[o] = line[nL];
+            tag[o] = 0;
+        } else {
+            int nM = (nL + nR) >> 1;
+            build(o<<1, nL, nM);
+            build(o<<1|1, nM, nR);
+            pull(o);
+        }
+    }
+
+    void add (int qL, int qR, int val, int o, int nL, int nR) {
+        if (qL >= nR || qR <= nL || qL >= qR) {
+            return;
+        } else if (qL <= nL && nR <= qR) {
+            tag[o] += val;
+        } else {
+            push(o);
+            int nM = (nL + nR) >> 1;
+            add(qL, qR, val, o<<1, nL, nM);
+            add(qL, qR, val, o<<1|1, nM, nR);
+            pull(o);
+        }
+    }
+
+    int qry () {
+        return get(1);
+    }
+} rmq;
+/*********************GoodLuck***********************/
+int main () {
     IOS();
+
     cin >> n;
-    REP (i,n) {
-        ll px1,py1,px2,py2,w;
-        cin >> px1 >> py1 >> px2 >> py2 >> w;
-        e[i<<1] = {px1,px2,py1,-w};
-        e[i<<1|1] = {px1,px2,py2+1,w};
-        px.eb(px1);
-        px.eb(px2);
-        py.eb(py1);
-        py.eb(py2+1);
+
+    vector<int> x, y;
+    REP (i, n) {
+        cin >> rect[i].r0 >> rect[i].c0 >> rect[i].r1 >> rect[i].c1 >> rect[i].w;
+        x.eb(rect[i].r0);
+        x.eb(rect[i].r1);
+        y.eb(rect[i].c0);
+        y.eb(rect[i].c1);
     }
 
-    sort(ALL(px));
-    sort(ALL(py));
-    px.resize(unique(ALL(px))-px.begin());
-    py.resize(unique(ALL(py))-py.begin());
+    sort(ALL(x));
+    sort(ALL(y));
+    x.resize(unique(ALL(x))-x.begin());
+    y.resize(unique(ALL(y))-y.begin());
 
-    root = build(0,SZ(px)+3);
-    REP (i,n*2) {
-        e[i].l = lower_bound(ALL(px),e[i].l) - px.begin();
-        e[i].r = lower_bound(ALL(px),e[i].r) - px.begin();
-        e[i].y = lower_bound(ALL(py),e[i].y) - py.begin();
-        if (e[i].w > 0) {
-            add(e[i].l,e[i].r+1,e[i].w);
-        }
+    REP (i, n) {
+        dc(rect[i].r0, x);
+        dc(rect[i].r1, x);
+        dc(rect[i].c0, y);
+        dc(rect[i].c1, y);
     }
 
-    sort(e,e+n*2,[&](Event &e1,Event &e2){
-        return e1.y < e2.y;
-    });
+    REP (i, n) {
+        debug(rect[i].c0, rect[i].c1);
+        line[rect[i].c0]+=rect[i].w;
+        line[rect[i].c1+1]-=rect[i].w;
+    }
 
-    ll ptr = 0;
-    ll sum = 0;
-    ll ans = 0;
-    debug(query(0,SZ(px)));
-    REP (i,SZ(py)) {
-        while (ptr < n*2 && e[ptr].y <= i) {
-            add(e[ptr].l,e[ptr].r+1,e[ptr].w);
-            sum += -e[ptr].w;
-            ptr++;
+    int sum = 0;
+    REP (i, SZ(y)) {
+        sum += line[i];
+        line[i] = sum;
+    }
+    pary(line, line+SZ(y));
+
+    REP (i, n) {
+        add[rect[i].r0].eb(i);
+        sub[rect[i].r1].eb(i);
+    }
+
+    int sz = SZ(y);
+    rmq.build(1, 0, sz);
+
+    int ans = 0, cur = 0;
+    REP (i, SZ(x)) {
+        for (auto v : add[i]) {
+            rmq.add(rect[v].c0, rect[v].c1+1, -rect[v].w, 1, 0, sz);
+            cur += rect[v].w;
         }
-        ans = max(ans,sum+query(0,SZ(px)+3));
+        ans = max(ans, rmq.qry()+cur);
+        for (auto v : sub[i]) {
+            rmq.add(rect[v].c0, rect[v].c1+1, rect[v].w, 1, 0, sz);
+            cur -= rect[v].w;
+        }
     }
 
     cout << ans << endl;
-    return 0;
 }

@@ -14,7 +14,11 @@ int main(){
     for(ll j=0;j<=n;j++)
       dis[i][j] = INF;
 
-  for(ll i=0;i<m;i++)cin>>a>>b>>v,dis[a][b] = v;
+  for(ll i=0;i<m;i++) {
+    cin>>a>>b>>v,dis[a][b] = v;
+    assert(a>=1 && a<=n);
+    assert(b>=1 && b<=n);
+  }
 
   for (ll i=1; i<=n; i++)
     dis[i][i] = 0;

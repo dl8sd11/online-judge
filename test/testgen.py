@@ -11,7 +11,7 @@ def randomString(stringLength=10):
 def randomTree(sz):
     edg = []
     for i in range(1, sz):
-        edg.append((i, randint(0, i-1)))
+        edg.append((i+1, randint(0, i-1)+1))
     return edg
 
 def get_perm(sz):
@@ -22,23 +22,19 @@ def get_perm(sz):
 def genInt ():
     return randint(1,10)
 
-n = 100000
-q = 100000
-W = 100000
-
-print(n, q)
-edg = randomTree(n)
-
-for x in range(n):
-    print(0, end=' ')
+n = 10
+print(n)
+for id in range(1, n+1):
+    if id % 2 == 0:
+        print(2, end=" ")
+    else:
+        print(1, end=" ")
+    
 print()
 
-for e in edg:
-    print(e[0]+1, e[1]+1, randint(1, W))
+q = 10
+print(q)
 
-
-for qq in range(q):
-    if qq > 1000:
-        print(1, randint(1, n))
-    else:
-        print(2, randint(1, 1000000000), randint(1, W), 1)
+for id in range(1, q+1):
+    print(id)
+print()
