@@ -37,36 +37,6 @@ vector<pair<ll,ll> > pts;
 set<pair<ll,ll> > can;
 
 #define SQ(i) (1.0*(i)*(i))
-
-inline char readchar()
-{
-    static const size_t bufsize = 65536;
-    static char buf[bufsize];
-    static char *p = buf, *end = buf;
-    if (p == end) end = buf + fread_unlocked(buf, 1, bufsize, stdin), p = buf;
-    return *p++;
-}
-
-template <class T> void input(T& a)
-{
-    static char p;
-    bool neg = false;
-    while (true) {
-        p = readchar();
-        if (p == '-') {
-            neg = true;
-            break;
-        } else if (p >= '0') {
-            a = p ^ '0';
-            break;
-        }
-    }
-    while ((p = readchar()) >= '0') a *= 10, a += p ^ '0';
-    if (neg) {
-        a = -a;
-    }
-
-}
 /*********************GoodLuck***********************/
 int main () {
     IOS();
@@ -77,8 +47,7 @@ int main () {
 
         REP (i, n) {
             ll x, y;
-            input(x);
-            input(y);
+            cin >> x >> y;
             pts.emplace_back(x, y);
         }
 
@@ -106,7 +75,6 @@ int main () {
             can.insert({y,x});
         }
 
-        printf()
         cout << fixed << setprecision(6) << mn << endl;
     }
 }

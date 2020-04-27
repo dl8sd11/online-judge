@@ -77,12 +77,6 @@ int main () {
     TIME(main);
     IOS();
 
-    for (int i=0;i<5;i++) {
-        for (int i=2; i<7; i++) {
-            
-        }
-    }
-
 
     return 0;
 }

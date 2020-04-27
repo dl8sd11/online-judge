@@ -1,0 +1,76 @@
+#include "grader.h"
+#include <bits/stdc++.h>
+using namespace std;
+
+const int MAXN = 100005;
+const int MAXLG = __lg(MAXN) + 3;
+
+int n;
+vector<int> edge[MAXN];
+
+int x[MAXN], y[MAXN], sz[MAXN], dfs_clock = 1;
+int anc[MAXLG][MAXN], dep[MAXN];
+
+void dfs (int nd, int par) {
+    sz[nd] = 1;
+    x[nd] = dfs_clock++;
+    anc[0][nd] = par;
+    dep[nd] = dep[par] + 1;
+
+    for (auto v : edge[nd]) {
+        if (v != par) {
+            dfs(v, nd);
+            sz[nd] += sz[v];
+        }
+    }
+
+    y[nd] = x[nd] + sz[nd] - 1;
+}
+
+void addRoad (int u, int v) {
+    edge[u].emplace_back(v);
+    edge[v].emplace_back(u);
+}
+
+void buildFarms () {
+    n = getN();
+    dfs(0, 0);
+    for (int i=0; i<n; i++) {
+        setFarmLocation(i, x[i], y[i]);
+    }
+    for (int i=1; i<MAXLG; i++) {
+        for (int j=0; j<n; j++) {
+            anc[i][j] = anc[i-1][anc[i-1][j]];
+        }
+    }
+}
+
+void shout (int p1, int p2) {
+    addBox(min(x[p1],x[p2]), min(y[p1], y[p2]), max(x[p1],x[p2]), max(y[p1],y[p2]));
+}
+
+void notifyFJ (int a, int b) {
+    int ta = a, tb = b;
+    if (dep[ta] > dep[tb]) {
+        swap(ta, tb);
+    }
+    for (int i=MAXLG-1; i>=0; i--) {
+        if (dep[anc[i][tb]] >= dep[ta]) {
+            tb = anc[i][tb];
+        }
+    }
+    if (tb == ta) {
+        shout(a, b);
+    } else {
+        for (int i=MAXLG-1; i>=0; i--) {
+            if (anc[i][ta] != anc[i][tb]) {
+                ta = anc[i][ta];
+                tb = anc[i][tb];
+            }
+        }
+
+        shout(a, ta);
+        shout(b, anc[0][tb]);
+    }
+    
+}

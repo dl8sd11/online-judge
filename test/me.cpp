@@ -1,5 +1,3 @@
-//#pragma GCC optimize("O3","unroll-loops")
-//#pragma GCC target("avx","avx2","fma")
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
@@ -35,119 +33,171 @@ template<typename T> void pary(T bg, T ed){_printRng(cerr,bg,ed);cerr<<endl;}
 #define pary(...)
 #endif
 
-const int MAXN = 1000005;
-const int MOD = 1000000007;
+const int MAXN = 1000006;
+const ll MOD = 1000000007;
 
-int n, d[MAXN], q;
+vector<pair<int,int> > G[MAXN];
 
-const int sz = 5;
+int n, q;
+int a[MAXN], b[MAXN];
+ll sum[MAXN];
 
-template<typename T>
-struct DEQUE {
-    T dt[MAXN];
-    int hd = 0, ed = 0;
+vector<pair<int,int> > cases;
 
-    DEQUE() {
-        hd = ed = 0;
+const int MAXLG = __lg(MAXN) + 2;
+int anc[MAXLG][MAXN];
+int dep[MAXN];
+
+void dfs (int nd, int par) {
+    sum[nd]  = a[nd] - b[nd];
+    dep[nd] = dep[par] + 1;
+    anc[0][nd] = par;
+    for (auto v : G[nd]) {
+        if (v.X != par) {
+            dfs(v.X, nd);
+            sum[nd] += sum[v.X];
+        }
     }
 
-    void clear () {
-        hd = ed = 0;
+}
+
+
+void build_anc () {
+    for (int i=1;i<MAXLG; i++) {
+        for (int j=1; j<=n; j++) {
+            anc[i][j] = anc[i-1][anc[i-1][j]];
+        }
+    }
+}
+
+int LCA (int u, int v) {
+    if (dep[u] > dep[v]) {
+        swap(u,v);
+    }
+    for (int i=MAXLG-1; i>=0; i--) {
+        if (dep[anc[i][v]] >= dep[u]) {
+            v = anc[i][v];
+        }
+    }
+    if (v == u) {
+        return u;
+    }
+    for (int i=MAXLG-1;i>=0; i--) {
+        if (anc[i][v] != anc[i][u]) {
+            v = anc[i][v];
+            u = anc[i][u];
+        }
+    }
+    return anc[0][u];
+}
+
+pair<ll,ll> path[MAXN];
+void dfs_path (int nd, int par, int wei, int cap) {
+
+    path[nd] = path[par];
+    path[nd].X += (abs(sum[nd]) - abs(sum[nd]-cap)) * wei;
+    path[nd].Y += (abs(sum[nd]) - abs(sum[nd]+cap)) * wei;
+
+    for (auto p : G[nd]) {
+        if (p.X != par) {
+            dfs_path(p.X, nd, p.Y, cap);
+        }
     }
 
-    void eb (int x, int y) {
-        dt[ed] = {x,y};
-        ed++;
+}
+
+int lca[MAXN];
+ll save (int cap) {
+    // worst case: min
+    
+    ll worst = 1e18;
+    dfs_path(1, 0, 0, cap);
+    pary(sum+1,sum+1+n);
+    for (int i=0; i<q; i++) {
+        auto p = cases[i];
+        int ca = lca[i];
+        debug(p.X, p.Y, ca);
+        debug(path[p.X].X, path[ca].X, path[p.Y].X);
+
+        pair<ll,ll> res;
+        ll sub = path[ca].X + path[ca].Y;
+        res.X = path[p.X].X + path[p.Y].Y - sub;
+        res.Y = path[p.X].Y + path[p.Y].X - sub;
+
+        worst = min(worst, max(res.X, res.Y));
     }
 
-    int size () {
-        return ed - hd;
-    }
 
-    bool empty () {
-        return size() == 0;
-    }
-
-    T front () {
-        return dt[hd];
-    }
-
-    T back () {
-        return dt[ed-1];
-    }
-
-    void pop_back() {
-        ed--;
-    }
-
-    void pop_front() {
-        hd++;
-    }
-};
-DEQUE<pii> deq[sz];
+    return worst;
+}
 /*********************GoodLuck***********************/
-
 int main () {
     IOS();
 
-    cin >> n;
+    cin >> n >> q;
 
-
-    REP1 (i, n) {
-        cin >> d[i];
-    }
-
-    cin >> q;
-
-    int dp = 0;
-    REP1 (_u_, q) {
-        int k;
-        cin >> k;
-
-        REP (i, sz) {
-            deq[i].clear();
+    for (int i=0;i<n-1;i++) {
+        int u, v, w;
+        cin >> u >> v >> w;
+        if (u > v) {
+            swap(u, v);
         }
 
+        G[u].eb(v, w);
+        G[v].eb(u, w);
 
-
-        deq[0].eb(d[1], 1);
-        int mn = 0;
-        int mx = 0;
-
-        for (int i=2; i<=n; i++) {
-            pii bst = {mn, MOD};
-
-            assert(mn >= mx - 2);
-            for (int j=mn; j<=mx; j++) {
-                while (deq[j%sz].size() && deq[j%sz].front().Y <= i-k-1) {
-                    deq[j%sz].pop_front();
-                }
-                int cur = MOD;
-                if (deq[j%2].size()) {
-                    if (deq[j%sz].front().X > d[i]) {
-                        cur = j;
-                    } else {
-                        cur = j + 1;
-                    }
-                }
-                if (cur < bst.Y) {
-                    bst = {j, cur};
-                }
-            }
-            debug(bst.X, bst.Y);
-
-            dp = bst.Y;
-            while (deq[dp%sz].size() && deq[dp%sz].back().X <= d[i]) {
-                deq[dp%sz].pop_back();
-            }
-
-            while (deq[mn%sz].empty()) {
-                mn++;
-            }
-            deq[dp%sz].eb(d[i], i);
-            mx = max(mx, dp);
-        }
-
-        cout << dp << '\n';
     }
+    for (int i=1; i<=n; i++) {
+        cin >> a[i] >> b[i];
+    }
+    dfs(1, 0);
+    build_anc();
+
+
+
+    for (int i=0; i<q; i++) {
+        int u, v;
+        cin >> u >> v;
+        cases.eb(u, v);
+        lca[i] = LCA(u, v);
+    }
+
+
+    int L = 0, R = MOD;
+
+
+    while (L < R - 5) {
+        int len = (R - L) / 3;
+        int M1 = L + len;
+        int M2 = L + 2 * len;
+
+        ll s1 = save(M1);
+        ll s2 = save(M2);
+        if (s1 == s2) {
+            L = M1;
+            R = M2;
+        } else if (s1 > s2) {
+            R = M2;
+        } else {
+            L = M1;
+        }
+    }
+
+
+    ll mx = save(L);
+    ll bst = L;
+    debug(L, R);
+
+    for (int i=L; i<=R; i++) {
+        ll res = save(i);
+        debug(i, res);
+        if (res > mx) {
+            bst = i;
+            mx = res;
+        }
+    }
+
+    cout << bst << " " << mx << endl;
 }
+
+
