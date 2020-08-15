@@ -23,7 +23,7 @@ for root, dirs, files in os.walk(".", topdown=False):
       if is_exec(path):
         del_file(path)
       else:
-        for template in ['template.cpp','templatenbits.cpp','templateold.cpp']:
+        for template in ['template.cpp','templatenbits.cpp','templateold.cpp', './template-contest.cpp', './template-clear.cpp']:
           if filecmp.cmp(template,path) and root != '.':
             del_file(path)
             break

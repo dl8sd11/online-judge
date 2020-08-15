@@ -1,203 +1,205 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
-typedef pair<int,int> pii;
-typedef pair<ll,ll> pll;
-#define REP(i,n) for(int i=0;i<n;++i)
-#define REP1(i,n) for(int i=1;i<=n;++i)
-#define SZ(i) int(i.size())
+#ifdef tmd
+typedef __int128 lll;
+#else
+typedef __int128 lll;
+#endif
+typedef pair<int, int> pii;
+typedef pair<ll, ll> pll;
+typedef pair<int, ll> pil;
+typedef pair<ll, int> pli;
+typedef pair<double, double> pdd;
+#define SQ(i) ((i)*(i))
+#define MEM(a, b) memset(a, (b), sizeof(a))
+#define SZ(i) static_cast<int>(i.size())
+#define FOR(i, j, k, in) for (int i=j; i < (k) ; i+=in)
+#define RFOR(i, j, k, in) for (int i=j; i >= (k) ; i-=in)
+#define REP(i, j) FOR(i, 0, j, 1)
+#define REP1(i, j) FOR(i, 1, j+1, 1)
+#define RREP(i, j) RFOR(i, j, 0, 1)
+#define ALL(_a) _a.begin(), _a.end()
+#define mp make_pair
+#define pb push_back
 #define eb emplace_back
-#define ALL(i) i.begin(),i.end()
 #define X first
 #define Y second
-#ifdef tmd
-#define IOS()
-#define debug(...) fprintf(stderr,"#%d: %s = ",__LINE__,#__VA_ARGS__),_do(__VA_ARGS__);
-template<typename T> void _do(T &&x){cerr<<x<<endl;}
-template<typename T, typename ...S> void _do(T &&x, S &&...y){cerr<<x<<", ";_do(y...);}
-template<typename It> ostream& _printRng(ostream &os,It bg,It ed)
-{
-    os<<"{";
-    for(It it=bg;it!=ed;it++) {
-        os<<(it==bg?"":",")<<*it;
-    }
-    os<<"}";
-    return os;
+template<typename T, typename S>
+istream &operator >> (istream &is, pair<T, S> &p) {
+    return is >> p.X >> p.Y;
 }
-template<typename T> ostream &operator << (ostream &os,vector<T> &v){return _printRng(os,v.begin(), v.end());}
-template<typename T> void pary(T bg, T ed){_printRng(cerr,bg,ed);cerr<<endl;}
+#ifdef tmd
+#define TIME(i) Timer i(#i)
+#define debug(...) do {\
+    fprintf(stderr, "%s - %d (%s) = ", __PRETTY_FUNCTION__, __LINE__, #__VA_ARGS__);\
+    _do(__VA_ARGS__);\
+}while(0)
+template<typename T> void _do(T &&_x) {cerr<<_x<<endl;}
+template<typename T,typename ...S> void _do(T &&_x, S &&..._t) {cerr <<_x <<" ,"; _do(_t...);}
+template<typename _a,typename _b> ostream& operator << (ostream &_s, const pair<_a, _b> &_p) {return _s << "(" << _p.X << "," << _p.Y << ")";}
+template<typename It> ostream& _OUTC(ostream &_s, It _ita, It _itb)
+{
+    _s << "{";
+    for (It _it=_ita; _it != _itb; _it++) {
+        _s <<(_it == _ita?"":",")<< *_it;
+    }
+    _s << "}";
+    return _s;
+}
+template<typename _a> ostream &operator << (ostream &_s, const vector<_a> &_c) {return _OUTC(_s,ALL(_c));}
+template<typename _a> ostream &operator << (ostream &_s, const array<_a,2> &_c) {return _OUTC(_s, ALL(_c));}
+template<typename _a> ostream &operator << (ostream &_s, const array<_a,3> &_c) {return _OUTC(_s, ALL(_c));}
+template<typename _a> ostream &operator << (ostream &_s, const array<_a,4> &_c) {return _OUTC(_s, ALL(_c));}
+template<typename _a> ostream &operator << (ostream &_s, const array<_a,5> &_c) {return _OUTC(_s, ALL(_c));}
+template<typename _a> ostream &operator << (ostream &_s, const set<_a> &_c) {return _OUTC(_s, ALL(_c));}
+template<typename _a> ostream &operator << (ostream &_s, const deque<_a> &_c) {return _OUTC(_s, ALL(_c));}
+template<typename _a,typename _b> ostream &operator << (ostream &_s, const map<_a,_b> &_c) {return _OUTC(_s,ALL(_c));}
+template<typename _t> void pary(_t _a,_t _b){_OUTC(cerr,_a,_b);cerr<<endl;}
+#define IOS()
+class Timer {
+private:
+    string scope_name;
+    chrono::high_resolution_clock::time_point start_time;
+public:
+    Timer (string name) : scope_name(name) {
+        start_time = chrono::high_resolution_clock::now();
+    }
+    ~Timer () {
+        auto stop_time = chrono::high_resolution_clock::now();
+        auto length = chrono::duration_cast<chrono::microseconds>(stop_time - start_time).count();
+        double mlength = double(length) * 0.001;
+        debug(scope_name, mlength);
+    }
+};
 #else
-#define IOS() ios_base::sync_with_stdio(0);cin.tie(0);
-#define endl '\n'
+#define TIME(i)
 #define debug(...)
 #define pary(...)
+#define endl '\n'
+#define IOS() ios_base::sync_with_stdio(0);cin.tie(0)
 #endif
 
-const int MAXN = 1000006;
 const ll MOD = 1000000007;
+const ll INF = 0x3f3f3f3f3f3f3f3f;
+const int iNF = 0x3f3f3f3f;
+const ll MAXN = 2e5 + 5;
 
-vector<pair<int,int> > G[MAXN];
-
-int n, q;
-int a[MAXN], b[MAXN];
-ll sum[MAXN];
-
-vector<pair<int,int> > cases;
-
-const int MAXLG = __lg(MAXN) + 2;
-int anc[MAXLG][MAXN];
-int dep[MAXN];
-
-void dfs (int nd, int par) {
-    sum[nd]  = a[nd] - b[nd];
-    dep[nd] = dep[par] + 1;
-    anc[0][nd] = par;
-    for (auto v : G[nd]) {
-        if (v.X != par) {
-            dfs(v.X, nd);
-            sum[nd] += sum[v.X];
-        }
+void extGCD(lll A,lll B,lll &x,lll &y) { // A p coprime
+    if (B == 0) {
+        x = 1;
+        y = 0;
+        assert(A == 1);
+        return;
     }
-
+    lll xx,yy;
+    extGCD(B,A%B,xx,yy);
+    x = yy;
+    y = xx - A/B*yy;
+    return;
 }
 
-
-void build_anc () {
-    for (int i=1;i<MAXLG; i++) {
-        for (int j=1; j<=n; j++) {
-            anc[i][j] = anc[i-1][anc[i-1][j]];
-        }
+lll ext_inv (lll a, lll p) { // a, p co-prime
+    lll x, y;
+    extGCD(a,p, x, y);
+    x %= p;
+    if (x < 0) {
+        x += p;
     }
+    assert(a * x % p);
+    return x;
 }
 
-int LCA (int u, int v) {
-    if (dep[u] > dep[v]) {
-        swap(u,v);
+lll di (lll a, lll b, lll md) {
+    if (a == 0) {
+        return 0;
     }
-    for (int i=MAXLG-1; i>=0; i--) {
-        if (dep[anc[i][v]] >= dep[u]) {
-            v = anc[i][v];
-        }
-    }
-    if (v == u) {
-        return u;
-    }
-    for (int i=MAXLG-1;i>=0; i--) {
-        if (anc[i][v] != anc[i][u]) {
-            v = anc[i][v];
-            u = anc[i][u];
-        }
-    }
-    return anc[0][u];
-}
+    assert(b != 0);
+    lll cd = __gcd(a, b);
+    a /= cd;
+    b /= cd;
+    assert(__gcd(a, b) == 1);
 
-pair<ll,ll> path[MAXN];
-void dfs_path (int nd, int par, int wei, int cap) {
-
-    path[nd] = path[par];
-    path[nd].X += (abs(sum[nd]) - abs(sum[nd]-cap)) * wei;
-    path[nd].Y += (abs(sum[nd]) - abs(sum[nd]+cap)) * wei;
-
-    for (auto p : G[nd]) {
-        if (p.X != par) {
-            dfs_path(p.X, nd, p.Y, cap);
-        }
-    }
-
-}
-
-int lca[MAXN];
-ll save (int cap) {
-    // worst case: min
+    lll cd_2 = __gcd(b, md);
+    b /= cd_2;
+    md /= cd_2;
     
-    ll worst = 1e18;
-    dfs_path(1, 0, 0, cap);
-    pary(sum+1,sum+1+n);
-    for (int i=0; i<q; i++) {
-        auto p = cases[i];
-        int ca = lca[i];
-        debug(p.X, p.Y, ca);
-        debug(path[p.X].X, path[ca].X, path[p.Y].X);
-
-        pair<ll,ll> res;
-        ll sub = path[ca].X + path[ca].Y;
-        res.X = path[p.X].X + path[p.Y].Y - sub;
-        res.Y = path[p.X].Y + path[p.Y].X - sub;
-
-        worst = min(worst, max(res.X, res.Y));
-    }
-
-
-    return worst;
+    return ext_inv(b,md) * a % md;
 }
-/*********************GoodLuck***********************/
-int main () {
+signed main () {
+    TIME(main);
     IOS();
 
-    cin >> n >> q;
+    debug(RAND_MAX);
+    while (true) {
 
-    for (int i=0;i<n-1;i++) {
-        int u, v, w;
-        cin >> u >> v >> w;
-        if (u > v) {
-            swap(u, v);
-        }
+    ll n, a, b;
+#ifdef tmd
+    n = rand() % 10000+1;
+    //a = ( ( ll(rand())<<32 ) + rand() ) % ll( 1e18 );
+    a = rand()%100 + 1;
+    b = rand()%3 + 1;
+#else
+    cin >> n >> a >> b;
+#endif
+    debug(n, a, b);
 
-        G[u].eb(v, w);
-        G[v].eb(u, w);
-
-    }
-    for (int i=1; i<=n; i++) {
-        cin >> a[i] >> b[i];
-    }
-    dfs(1, 0);
-    build_anc();
-
-
-
-    for (int i=0; i<q; i++) {
-        int u, v;
-        cin >> u >> v;
-        cases.eb(u, v);
-        lca[i] = LCA(u, v);
+    lll sz = b*lll(a/__gcd(a,b+1));
+    if (sz == 1) {
+        cout << 1 << endl;
+        continue;
     }
 
+    vector<pair<lll,lll>> seg;
+    lll g = (b+1) % a;
 
-    int L = 0, R = MOD;
-
-
-    while (L < R - 5) {
-        int len = (R - L) / 3;
-        int M1 = L + len;
-        int M2 = L + 2 * len;
-
-        ll s1 = save(M1);
-        ll s2 = save(M2);
-        if (s1 == s2) {
-            L = M1;
-            R = M2;
-        } else if (s1 > s2) {
-            R = M2;
+    lll LS = 0;
+    bool gg= false;
+    for (int i=0; i<n; i++) {
+        ll l, r;
+#ifdef tmd
+        l = LS + rand();
+        r = l + rand() % (sz-1);
+        LS = r;
+#else        
+        cin >> l >> r;
+#endif
+        if (r-l+1 >= sz) {
+            cout << ll(sz) << endl;
+            gg = true;
+            break;
         } else {
-            L = M1;
+            lll sft = (a+l%a+(l/b)%a-l%b%a)%a;
+            lll rw = di(sft, g, a);
+            lll st = l%b + b*rw;
+            lll ed = st + r-l;
+            st %= sz;
+            ed %= sz;
+            if (ed < st) {
+                seg.eb(0, ed);
+                seg.eb(st, sz-1);
+            } else {
+                seg.eb(st, ed);
+            }
+
         }
+    }
+    if (gg) {
+        continue;
+    }
+    sort(ALL(seg));
+
+    lll lst = -1;
+    lll ans = 0;
+    for (auto p : seg) {
+        ans += max(lll(0), p.Y - max(lst+1, p.X) + 1);
+        lst = max(lst, p.Y);
+    }
+
+    cout << ll(ans) << endl;
     }
 
 
-    ll mx = save(L);
-    ll bst = L;
-    debug(L, R);
-
-    for (int i=L; i<=R; i++) {
-        ll res = save(i);
-        debug(i, res);
-        if (res > mx) {
-            bst = i;
-            mx = res;
-        }
-    }
-
-    cout << bst << " " << mx << endl;
+    return 0;
 }
-
 

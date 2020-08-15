@@ -22,26 +22,14 @@ def get_perm(sz):
 def genInt ():
     return randint(1,10)
 
-n = 1000000
-q = 1000000
-print(n,q)
-edg = randomTree(n)
+n, a, b = 3, randint(1, 5), randint(1, 5)
 
+lst = -1 
+print(n, a, b)
 
-for e in edg:
-    print(e[0], e[1], randint(1,2))
+for i in range(n):
+    l = randint(lst+1, lst+5)
+    r = randint(l, l+10)
+    print(l, r)
+    lst = r
 
-a = 0
-b = 0
-
-for i in range(n-1):
-    u = randint(1,10)
-    v = randint(1,10)
-    print(u,v)
-    a += u
-    b += v;
-print(b, a)
-
-for i in range(q):
-    [u,v] = random.sample(range(1,n+1), 2)
-    print(u,v)
