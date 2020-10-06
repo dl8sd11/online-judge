@@ -22,14 +22,32 @@ def get_perm(sz):
 def genInt ():
     return randint(1,10)
 
-n, a, b = 3, randint(1, 5), randint(1, 5)
+n, k, q = 3, 5, 3 
 
-lst = -1 
-print(n, a, b)
+print(n, k, q)
+res = [x+1 for x in range(100)]
+shuffle(res)
+
+ptr = 0
+def get_next ():
+    global ptr
+    ptr +=1
+    return res[ptr]
 
 for i in range(n):
-    l = randint(lst+1, lst+5)
-    r = randint(l, l+10)
-    print(l, r)
-    lst = r
+    print(get_next(), end=' ')
+
+print()
+
+r = []
+for i in range(k):
+    r.append(randint(1, n))
+    print(r[-1], end=' ')
+    for x in range(r[-1]):
+        print(get_next(), end=' ')
+    print()
+
+for i in range(q):
+    rid = randint(0, k-1)
+    print(rid+1, randint(1, r[rid]), get_next())
 

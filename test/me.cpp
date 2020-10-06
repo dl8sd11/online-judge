@@ -1,11 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
-#ifdef tmd
-typedef __int128 lll;
-#else
-typedef __int128 lll;
-#endif
 typedef pair<int, int> pii;
 typedef pair<ll, ll> pll;
 typedef pair<int, ll> pil;
@@ -84,122 +79,143 @@ const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
 const ll MAXN = 2e5 + 5;
+const int maxn = 100005;
 
-void extGCD(lll A,lll B,lll &x,lll &y) { // A p coprime
-    if (B == 0) {
-        x = 1;
-        y = 0;
-        assert(A == 1);
+
+//}}}
+ll mypow(ll a,ll b){
+	ll res=1LL;
+	while(b){
+		if(b&1) res=res*a%MOD;
+		a=a*a%MOD;
+		b>>=1;
+	}
+	return res;
+}
+
+int seg[maxn*4], tag[maxn*4], mn[maxn*4];
+
+void push (int o) {
+    if (tag[o]) {
+        tag[o<<1] += tag[o];
+        tag[o<<1|1] += tag[o];
+        mn[o] += tag[o];
+        tag[o] = 0;
+    }
+}
+
+int get (int o) {
+    return mn[o] + tag[o];
+}
+
+void pull (int o) {
+    mn[o] = min(get(o<<1), get(o<<1|1));
+}
+
+int n, m, q;
+void add (int qL, int qR, int val, int o, int nL, int nR) {
+    if (qL >= nR || qR <= nL || qL >= qR) {
         return;
+    } else if (qL <= nL && nR <= qR) {
+        debug(o, nL, nR, val);
+        tag[o] += val;
+        debug(get(o));
+    } else {
+        push(o);
+        int nM = (nL + nR) >> 1;
+        add(qL, qR, val, o<<1, nL, nM);
+        add(qL, qR, val, o<<1|1, nM, nR);
+        pull(o);
     }
-    lll xx,yy;
-    extGCD(B,A%B,xx,yy);
-    x = yy;
-    y = xx - A/B*yy;
-    return;
 }
 
-lll ext_inv (lll a, lll p) { // a, p co-prime
-    lll x, y;
-    extGCD(a,p, x, y);
-    x %= p;
-    if (x < 0) {
-        x += p;
-    }
-    assert(a * x % p);
-    return x;
+void add (int qL, int qR, int val) {
+    debug(qL, qR, val);
+    add(qL, qR, val, 1, 0, m);
 }
 
-lll di (lll a, lll b, lll md) {
-    if (a == 0) {
-        return 0;
-    }
-    assert(b != 0);
-    lll cd = __gcd(a, b);
-    a /= cd;
-    b /= cd;
-    assert(__gcd(a, b) == 1);
-
-    lll cd_2 = __gcd(b, md);
-    b /= cd_2;
-    md /= cd_2;
-    
-    return ext_inv(b,md) * a % md;
-}
-signed main () {
-    TIME(main);
-    IOS();
-
-    debug(RAND_MAX);
-    while (true) {
-
-    ll n, a, b;
-#ifdef tmd
-    n = rand() % 10000+1;
-    //a = ( ( ll(rand())<<32 ) + rand() ) % ll( 1e18 );
-    a = rand()%100 + 1;
-    b = rand()%3 + 1;
-#else
-    cin >> n >> a >> b;
-#endif
-    debug(n, a, b);
-
-    lll sz = b*lll(a/__gcd(a,b+1));
-    if (sz == 1) {
-        cout << 1 << endl;
-        continue;
-    }
-
-    vector<pair<lll,lll>> seg;
-    lll g = (b+1) % a;
-
-    lll LS = 0;
-    bool gg= false;
-    for (int i=0; i<n; i++) {
-        ll l, r;
-#ifdef tmd
-        l = LS + rand();
-        r = l + rand() % (sz-1);
-        LS = r;
-#else        
-        cin >> l >> r;
-#endif
-        if (r-l+1 >= sz) {
-            cout << ll(sz) << endl;
-            gg = true;
-            break;
+int qone (int x, int o=1, int nL=0, int nR=m) {
+    if (nL == nR - 1) {
+        return get(o);
+    } else {
+        int nM = (nL + nR) >> 1;
+        if (x >=  nM) {
+            return tag[o] + qone(x, o<<1|1, nM, nR);
         } else {
-            lll sft = (a+l%a+(l/b)%a-l%b%a)%a;
-            lll rw = di(sft, g, a);
-            lll st = l%b + b*rw;
-            lll ed = st + r-l;
-            st %= sz;
-            ed %= sz;
-            if (ed < st) {
-                seg.eb(0, ed);
-                seg.eb(st, sz-1);
-            } else {
-                seg.eb(st, ed);
-            }
-
+            return tag[o] + qone(x, o<<1, nL, nM);
         }
     }
-    if (gg) {
-        continue;
-    }
-    sort(ALL(seg));
-
-    lll lst = -1;
-    lll ans = 0;
-    for (auto p : seg) {
-        ans += max(lll(0), p.Y - max(lst+1, p.X) + 1);
-        lst = max(lst, p.Y);
-    }
-
-    cout << ll(ans) << endl;
-    }
-
-
-    return 0;
 }
 
+int qry () {
+    debug(mn[1], tag[1]);
+    return get(1);
+}
+
+void build (int o, int l, int r) {
+    if (r == l + 1) {
+        mn[o] = seg[l];
+    } else {
+        int M = (l + r) >> 1;
+        build(o<<1, l, M);
+        build(o<<1|1, M, r);
+        pull(o);
+    }
+}
+
+void build () {
+    build(1, 0, m);
+}
+int main(){
+	IOS();
+    cin >> n >> m >> q;
+    vector<int> a(n);
+
+    int ip = 0; // 0 - indexed
+    for (int i=0; i<n; i++) {
+        cin >> a[i];
+        if (a[i] < a[0]) {
+            ip++;
+        }
+    }
+	
+    vector<int> x(m), y(m);
+    vector<vector<int> > b(m);
+
+    memset(seg, 0x3f, sizeof(seg));
+    for (int i=0; i<m; i++) {
+        int r, d;
+        cin >> r;
+        for (int j=0; j<r; j++) {
+            cin >> d;
+            b[i].eb(d);
+            if (d > a[0]) {
+                y[i]++;
+            }
+        }
+        x[i] = r;
+        seg[i] = ip + 1 - r;
+    }
+
+
+    build();
+    for (int X=0; X<m; X++) {
+        add(X+1, m, -y[X]);
+    }
+
+    for (int i=0; i<q; i++) {
+        int X, Y, Z;
+        cin >> X >> Y >> Z;
+        X--;
+        Y--;
+        add(X+1, m, y[X]);
+        y[X] -= (b[X][Y] > a[0]);
+        b[X][Y] = Z;
+        y[X] += (b[X][Y] > a[0]);
+        add(X+1, m, -y[X]);
+
+        cout << (qry() > 0) << endl;
+    }
+
+	return 0;
+}

@@ -1,33 +1,34 @@
 #include <bits/stdc++.h>
+#include "jngen.h"
 using namespace std;
 
-const int MAXN = 100004;
-int p[MAXN], q[MAXN];
-int main () {
-    int n = 1000, k = 0;
-    cout << n << " " << k << endl;
-    for (int i=0; i<n; i++) {
-        p[i] = q[i] = n-i;
-    }
+int main (int argc, char *argv[]) {
+    parseArgs(argc, argv);
 
-    // int lst = -1;
-    // for (int i=0; i<n; i++) {
-    //     if (rand() % 10 == 0)  {
-    //         random_shuffle(q+lst+1, q+i+1);
-    //         lst =i;
-    //     }
-    // }
+    int n = 10000, q = 10000;
+    jngen::getPositional(n, q);
+    auto t = Tree::random(n).shuffled();
+    t.setEdgeWeights(Array::random(n-1, 1, 1000000000));
 
-    vector<pair<int,int> > vp;
-    for (int i=0; i<n; i++) {
-        vp.emplace_back(p[i], q[i]);
-    }
-    // random_shuffle(vp.begin(), vp.end());
+    cout << n << " " << q << endl;
+    cout << t.add1() << endl;
 
-    for (int i=0; i<n; i++) {
-        cout << vp[i].first << " \n"[i==n-1];
-    }
-    for (int i=0; i<n; i++) {
-        cout << vp[i].second << " \n"[i==n-1];
+    vector<int> on(n, 0);
+    int cnt = 0;
+    for (int i=0; i<q; i++) {
+        if (cnt == 0 || rand() % 2 == 0) {
+            int idx = rnd.next(0, n-1);
+            on[idx] ^= 1;
+            if (on[idx]) {
+                cnt ++;
+                cout << 1 << " " << idx + 1 << endl;
+            } else {
+                cnt --;
+                cout << 2 << " " << idx + 1 << endl;
+            }
+        } else {
+            cout << 3 << " " << rnd.next(1,n) << " " << rnd.next(1, cnt) << endl;
+        }
+
     }
 }
