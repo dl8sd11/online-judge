@@ -1,5 +1,5 @@
 set -e
-g++ -std=c++17 me.cpp -o me.out
+g++ -std=c++17 me.cpp -fsanitize=address -fsanitize=undefined -o me.out
 g++ -std=c++17 ans.cpp -o ans.out
 while [ 1 ]
 do
