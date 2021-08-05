@@ -75,11 +75,52 @@ const ll MOD = 1000000007;
 const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
 const ll MAXN = 2e5 + 5;
-
+void bad () {
+    cout << -1 << endl;
+    exit(0);
+}
 signed main () {
     TIME(main);
     IOS();
 
+    ll n;
+    cin >> n;
+    vector<ll> a(n), b(n), c(n);
+    for (int i=0; i<n; i++) cin >> a[i];
+    for (int i=0; i<n; i++) cin >> b[i];
+
+    ll sum = 0;
+    for (int i=0; i<n; i++) {
+        sum += a[i] + b[i];        
+    }
+    debug(sum);
+    if (sum % (n * 2) != 0) bad();
+    sum /= n + n;
+
+    for (int i=0; i<n; i++) {
+        if (a[i] + b[i] < sum || (a[i] + b[i] - sum) % n != 0) bad();
+        c[i] = (a[i] + b[i] - sum) / n;
+    }
+    debug(c);
+
+    ll check[32] = {};
+    for (int i=0; i<n; i++) {
+        for (int j=0; j<32; j++) {
+            check[j] += (1LL<<j) & c[i];
+        }
+    }
+
+    for (int i=0; i<n; i++) {
+        ll ad = 0, o = n * c[i];
+        for (int j=0; j<32; j++) {
+            if ((c[i]>>j) & 1) ad += check[j];
+            else o += check[j];
+        }
+        debug(i, ad, o);
+        if (ad != a[i] || o != b[i]) bad();
+    }
+
+    for (int i=0; i<n; i++) cout << c[i] << " \n"[i==n-1];
 
     return 0;
 }

@@ -76,9 +76,42 @@ const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
 const ll MAXN = 2e5 + 5;
 
+double solve(vector<vector<double>> inp) {
+    vector<double> dp(241, 0);
+    for (int i=0; i<8; i++) {
+        int c = inp[i][1], d = inp[i][2];
+        double p = inp[i][0];
+        for (int j=240; j>=c; j--) {
+            double fail = max(dp[j-c], j-c>=d ? dp[j-c-d] + 1 : 0);
+            double ex = (dp[j-c] + 1) * p + fail * (1 - p);
+            dp[j] = max(dp[j], ex);
+        }
+    }
+    return dp[240];
+}
+
 signed main () {
     TIME(main);
     IOS();
+    int t;
+    cin >> t;
+    while (t--) {
+        int n = 8;
+        vector<vector<double> > inp(8, vector<double>(3, 0));
+        for (int i=0; i<n; i++) {
+            cin >> inp[i][1] >> inp[i][0] >> inp[i][2];
+        }
+
+        double mx = 0;
+
+        sort(ALL(inp));
+        // reverse(ALL(inp));
+
+        debug(inp);
+        double ans = solve(inp);
+        mx = max(mx, ans);
+        cout << fixed << setprecision(10) << mx << endl;
+    }
 
 
     return 0;

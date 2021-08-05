@@ -76,10 +76,52 @@ const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
 const ll MAXN = 2e5 + 5;
 
+struct Point {
+    int x, y, id;
+    Point operator- (const Point & oth) {
+        return Point({x - oth.x, y - oth.y, -1});
+    }
+
+    ll operator * (const Point &oth) {
+        return x * oth.y - y * oth.x;        
+    }
+};
 signed main () {
     TIME(main);
     IOS();
 
+    int n;
+    while (cin >> n && n) {
+        vector<Point> point(n);
+
+        int mnid = 0;
+        for (int i=0; i<n; i++) {
+            cin >> point[i].id >> point[i].x >> point[i].y;
+            if (point[i].y < point[mnid].y) mnid = i;
+        }
+
+        vector<int> left;
+        for (int i=0; i<n; i++) if (i != mnid) left.emplace_back(i);
+        vector<int> ans(1, point[mnid].id);
+        Point cen = point[mnid], prv = Point({0, point[mnid].y, -1});
+        for (int x=0; x<n-1; x++) {
+            sort(ALL(left), [&](int i, int j) {
+                ll c = (point[i] - cen) * (point[j] - cen);
+                if (c == 0) {
+                    return abs(point[i].x - cen.x) > abs(point[j].x - cen.x);
+                } else return c < 0;
+            });
+            debug(cen.x, cen.y, left);
+            cen = point[left.back()];
+            left.pop_back();
+            ans.emplace_back(cen.id);
+        }
+
+        cout << ans.size();
+        for (int x : ans) cout << " " << x;
+        cout << endl;
+
+    }
 
     return 0;
 }

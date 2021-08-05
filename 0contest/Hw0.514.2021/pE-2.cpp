@@ -76,9 +76,43 @@ const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
 const ll MAXN = 2e5 + 5;
 
+int n = 8;
+int c[10], d[10];
+double p[10];
+
+double dp[6562][242];
+int three[10];
+
+double solve (int mask, int t) {
+    if (dp[mask][t] >= 0) return dp[mask][t];
+    dp[mask][t] = 0;
+
+    for (int i=0, m = mask; i<8; i++, m /= 3) {
+        if (m % 3 == 1 && t >= d[i]) {
+            dp[mask][t] = max(dp[mask][t], solve(mask - three[i], t - d[i]) + 1);
+        } else if (m % 3 == 2 && t >= c[i]) {
+            dp[mask][t] = max(dp[mask][t], (solve(mask - 2*three[i], t - c[i]) + 1)*p[i] + \
+                solve(mask - three[i], t - c[i])*(1 - p[i]));
+        }
+    }
+    return dp[mask][t];
+}
 signed main () {
     TIME(main);
     IOS();
+    three[0] = 1;
+    for (int i=1; i<10; i++) three[i] = three[i-1] * 3;
+
+    int t;
+    cin >> t;
+    const int full = three[8] - 1;
+    while (t--) {
+        for (int i=0; i<n; i++) cin >> c[i] >> p[i] >> d[i];
+        for (int i=0; i<=full; i++) for (int j=0; j<=240; j++) dp[i][j] = -1;
+        
+        solve(full, 240);
+        cout << fixed << setprecision(10) << dp[full][240] << endl;
+    }
 
 
     return 0;

@@ -76,10 +76,75 @@ const ll INF = 0x3f3f3f3f3f3f3f3f;
 const int iNF = 0x3f3f3f3f;
 const ll MAXN = 2e5 + 5;
 
+
+ll norm (ll x) {
+    return (x%MOD + MOD) % MOD;
+}
+
+ll add (ll x, ll y) {
+    return (x + y) % MOD;
+}
+
+ll sub (ll x, ll y) {
+    return (x - y + MOD) % MOD;
+}
+
+ll mul (ll x, ll y) {
+    return x * y % MOD;
+}
+
+ll mpow (ll n, ll k) {
+    ll res = 1;
+    while (k) {
+        if (k&1) res = mul(res, n);
+        k >>= 1;
+        n = mul(n, n);
+    }
+    return res;
+}
+
+ll dv (ll x, ll y) {
+    return mul(x, mpow(y, MOD - 2));
+}
+
+
 signed main () {
     TIME(main);
     IOS();
 
+    ll n, k;
+    cin >> n >> k;
+    if (k == 0) {
+        cout << n << endl;
+        return 0;
+    }
+    vector<ll> y;
 
+    ll sum = 0;
+    for (int i=0; i<k+2; i++) {
+        sum = add(sum, mpow(i, k));
+        y.eb(sum);
+    }
+
+    if (n < SZ(y)) {
+        cout << y[n] << endl;
+        return 0;
+    }
+    // debug(y);
+    ll L = 1;
+    ll ans = 0;
+    for (int i=1; i<SZ(y); i++) {
+        L = mul(L, sub(n, i));
+        L = dv(L, sub(0, i));
+    }
+    
+    for (int i=0; i<SZ(y); i++) {
+        ans = add(ans, mul(L, y[i]));
+        if (i == SZ(y) - 1) break;
+        L = mul(L, dv(sub(n, i), sub(n, i+1)));
+        L = mul(L, dv(sub(i, SZ(y)-1), i + 1));
+    }
+
+    cout << ans << endl;
     return 0;
 }

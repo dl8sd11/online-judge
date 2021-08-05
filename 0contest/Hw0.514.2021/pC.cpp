@@ -79,6 +79,23 @@ const ll MAXN = 2e5 + 5;
 signed main () {
     TIME(main);
     IOS();
+    ll t;
+    cin >> t;
+    while (t--) {
+        ll n, f, b;
+        cin >> n >> f >> b;
+        vector<ll> dis;
+        for (ll i=0; i<n; i++) {
+            ll x, y;
+            cin >> x >> y;
+            if (y) dis.push_back(2*f - x);
+            else dis.push_back(x);
+        }
+        sort(ALL(dis));
+
+        ll d = dis[(b + n - 1) % n];
+        cout << d + f + 2*f*((b-1)/n) << endl;
+    }
 
 
     return 0;
